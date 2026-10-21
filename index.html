@@ -8682,7 +8682,6 @@ function DispatchOrdersPage({ f }) {
             ),
           }}
           locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No dispatch orders here" /> }} />
-        <div className="do-list-foot do-sub">Select 2 or more unassigned orders to dispatch them together with one carrier</div>
       </section>
       {together && (
         <DoModalForm title={`Dispatch ${selDrafts.length} orders together`} okText="Mark as dispatched" onClose={() => setTogether(false)} initial={{ carrier: 'fast' }}
