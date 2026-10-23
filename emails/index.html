@@ -94,7 +94,7 @@ function ChecksDrawer({ open, onClose, file, checks }) {
   );
 }
 
-function SendTestModal({ open, onClose, file, smtp, from, host }) {
+function SendTestModal({ open, onClose, file, smtp, from, host, assets }) {
   const { message } = AntApp.useApp();
   const [form] = Form.useForm();
   const [busy, setBusy] = useState(false);
@@ -114,7 +114,7 @@ function SendTestModal({ open, onClose, file, smtp, from, host }) {
     <Modal open={open} onCancel={onClose} title="Send test email" okText={smtp ? 'Send' : 'Save .eml'} confirmLoading={busy}
       onOk={() => form.submit()} destroyOnHidden>
       <p style={{ margin: '0 0 16px', color: 'var(--text-3)' }}>
-        {smtp ? <>Sends from <b>{from}</b> via {host}, with images attached inline.</>
+        {smtp ? <>Sends from <b>{from}</b> via {host}. {assets ? <>Images are linked from <code>{assets}</code>.</> : 'Images are embedded in the message.'}</>
               : <>SMTP is not set up, so the message is saved as an .eml file you can open in a real mail client. To send from Gmail, fill in <code>emails/.env</code> (see <code>.env.example</code>) and restart the server.</>}
       </p>
       <Form form={form} layout="vertical" onFinish={submit} initialValues={{ to: store.get('skypace.emails.testTo', '') }} requiredMark={false}>
@@ -167,6 +167,7 @@ function EmailsApp() {
   const checks = useChecks();
   const [drawer, setDrawer] = useState(false);
   const [sending, setSending] = useState(false);
+  const [noServer, setNoServer] = useState(false);
   const status = (f) => checks.data && checks.data.summary[f];
   const issues = ((checks.data && checks.data.results[file]) || []).filter((r) => r.level !== 'ok').length;
   const cur = status(file);
@@ -190,12 +191,19 @@ function EmailsApp() {
             Checks{issues ? ` · ${issues}` : ''}
           </Button>
         </Tooltip>
-        <Button type="primary" icon={<I.SendOutlined />} disabled={!checks.data} onClick={() => setSending(true)}>Send test</Button>
+        <Button type="primary" icon={<I.SendOutlined />} loading={checks.loading} onClick={() => (checks.data ? setSending(true) : setNoServer(true))}>Send test</Button>
         <Tooltip title="Open raw HTML"><Button icon={<I.ExportOutlined />} href={file} target="_blank" /></Tooltip>
       </div>
       <ChecksDrawer open={drawer} onClose={() => setDrawer(false)} file={file} checks={checks} />
+      <Modal open={noServer} onCancel={() => setNoServer(false)} title="Sending needs the local server" footer={[
+        <Button key="close" onClick={() => setNoServer(false)}>Close</Button>,
+        <Button key="open" type="primary" href={'http://localhost:8770/emails/#' + file} target="_blank">Open local preview</Button>,
+      ]}>
+        <p style={{ marginTop: 0 }}>This page is a static copy{location.hostname.endsWith('github.io') ? ' on GitHub Pages' : ''}, so it can’t send email or run checks — your SMTP password stays on your computer.</p>
+        <p>In the project folder run <code>python3 emails/server.py</code>, then open <code>http://localhost:8770/emails/</code> and use Send test there.</p>
+      </Modal>
       <SendTestModal open={sending} onClose={() => setSending(false)} file={file} smtp={checks.data && checks.data.smtp}
-        from={checks.data && checks.data.from} host={checks.data && checks.data.smtpHost} />
+        from={checks.data && checks.data.from} host={checks.data && checks.data.smtpHost} assets={checks.data && checks.data.assetUrl} />
       <div className="em-body">
         <div className="em-side">
           {groups.map((g) => (

@@ -145,7 +145,7 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json(200, {'results': results, 'summary': checks.summary(results),
                                     # 'from' is shown in the Send test dialog; the password never leaves the server
                                     'smtp': bool(os.environ.get('SMTP_HOST')), 'from': sender(),
-                                    'smtpHost': os.environ.get('SMTP_HOST')})
+                                    'smtpHost': os.environ.get('SMTP_HOST'), 'assetUrl': os.environ.get('ASSET_URL')})
         if any(part.startswith('.') for part in self.path.split('?')[0].split('/')):
             return self._json(404, {'error': 'Not found'})  # never serve .env / dotfiles
         return super().do_GET()
