@@ -12,7 +12,9 @@
 <script src="https://cdn.jsdelivr.net/npm/antd@6.6.5/dist/antd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@ant-design/icons@6.3.4/dist/index.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.26.4/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4.4.1/dist/email.min.js"></script>
 <script src="manifest.js"></script>
+<script src="emailjs.config.js"></script>
 <style>
   /* Skypace tokens — same palette as manual-confirmation */
   :root { --text: #323656; --text-3: #555a75; --text-4: #8a8fa8; --line: #f0f0f0; --gray-2: #f4f5f8; --primary-bg: #f0f1fa; --primary-7: #3d47a3; }
@@ -94,28 +96,47 @@ function ChecksDrawer({ open, onClose, file, checks }) {
   );
 }
 
-function SendTestModal({ open, onClose, file, smtp, from, host, assets }) {
+/* Without the local server (GitHub Pages) tests go through EmailJS, configured in emailjs.config.js. */
+const emailjsReady = () => !!(window.emailjs && window.EMAILJS && EMAILJS.publicKey && EMAILJS.serviceId && EMAILJS.templateId);
+const EMAILJS_LIMIT = 50 * 1024; // EmailJS rejects template params over 50 KB
+
+async function sendViaEmailJS(file, to) {
+  const res = await fetch(file, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`Can't load ${file}`);
+  let html = await res.text();
+  const title = (new DOMParser().parseFromString(html, 'text/html').title || file).trim();
+  // Relative images → absolute URLs on this site, so the recipient's mail client can load them
+  html = html.replace(/src="(?!https?:|cid:|data:)([^"]+)"/g, (_, src) => `src="${new URL(src, location.href).href}"`);
+  if (new Blob([html]).size > EMAILJS_LIMIT) throw new Error('This email is over EmailJS’s 50 KB limit');
+  const subject = `[Test] ${title}`;
+  await emailjs.send(EMAILJS.serviceId, EMAILJS.templateId, { to_email: to, subject, html, template: file }, { publicKey: EMAILJS.publicKey });
+  return { subject, to };
+}
+
+function SendTestModal({ open, onClose, file, via, smtp, from, host, assets }) {
   const { message } = AntApp.useApp();
   const [form] = Form.useForm();
   const [busy, setBusy] = useState(false);
+  const viaServer = () => fetch('/api/send-test', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ file, to: form.getFieldValue('to') }) })
+    .then((r) => r.json().then((d) => (r.ok ? d : Promise.reject(d.error || 'Send failed'))));
   const submit = ({ to }) => {
     setBusy(true); store.set('skypace.emails.testTo', to);
-    fetch('/api/send-test', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ file, to }) })
-      .then((r) => r.json().then((d) => (r.ok ? d : Promise.reject(d.error || 'Send failed'))))
+    (via === 'emailjs' ? sendViaEmailJS(file, to).then((d) => ({ ...d, mode: 'emailjs' })) : viaServer())
       .then((d) => {
-        if (d.mode === 'smtp') message.success(`Sent “${d.subject}” to ${d.to}`);
+        if (d.mode === 'smtp' || d.mode === 'emailjs') message.success(`Sent “${d.subject}” to ${d.to}`);
         else message.success({ content: <>SMTP is off — saved to <code>{d.path}</code>. Open it in Apple Mail or Outlook.</>, duration: 6 });
         onClose();
       })
-      .catch((e) => message.error(typeof e === 'string' ? e : 'Local server is not running (python3 emails/server.py)'))
+      .catch((e) => message.error(typeof e === 'string' ? e : (e && (e.text || e.message)) || 'Send failed'))
       .finally(() => setBusy(false));
   };
   return (
-    <Modal open={open} onCancel={onClose} title="Send test email" okText={smtp ? 'Send' : 'Save .eml'} confirmLoading={busy}
+    <Modal open={open} onCancel={onClose} title="Send test email" okText={via === 'emailjs' || smtp ? 'Send' : 'Save .eml'} confirmLoading={busy}
       onOk={() => form.submit()} destroyOnHidden>
       <p style={{ margin: '0 0 16px', color: 'var(--text-3)' }}>
-        {smtp ? <>Sends from <b>{from}</b> via {host}. {assets ? <>Images are linked from <code>{assets}</code>.</> : 'Images are embedded in the message.'}</>
-              : <>SMTP is not set up, so the message is saved as an .eml file you can open in a real mail client. To send from Gmail, fill in <code>emails/.env</code> (see <code>.env.example</code>) and restart the server.</>}
+        {via === 'emailjs' ? <>Sends through EmailJS from the Gmail connected there. Images are linked from this site.</>
+          : smtp ? <>Sends from <b>{from}</b> via {host}. {assets ? <>Images are linked from <code>{assets}</code>.</> : 'Images are embedded in the message.'}</>
+          : <>SMTP is not set up, so the message is saved as an .eml file you can open in a real mail client. To send from Gmail, fill in <code>emails/.env</code> (see <code>.env.example</code>) and restart the server.</>}
       </p>
       <Form form={form} layout="vertical" onFinish={submit} initialValues={{ to: store.get('skypace.emails.testTo', '') }} requiredMark={false}>
         <Form.Item name="to" label="Recipient" rules={[{ required: true, message: 'Enter an email' }, { type: 'email', message: 'Enter a valid email, like name@company.com' }]}>
@@ -191,18 +212,19 @@ function EmailsApp() {
             Checks{issues ? ` · ${issues}` : ''}
           </Button>
         </Tooltip>
-        <Button type="primary" icon={<I.SendOutlined />} loading={checks.loading} onClick={() => (checks.data ? setSending(true) : setNoServer(true))}>Send test</Button>
+        <Button type="primary" icon={<I.SendOutlined />} loading={checks.loading} onClick={() => (checks.data || emailjsReady() ? setSending(true) : setNoServer(true))}>Send test</Button>
         <Tooltip title="Open raw HTML"><Button icon={<I.ExportOutlined />} href={file} target="_blank" /></Tooltip>
       </div>
       <ChecksDrawer open={drawer} onClose={() => setDrawer(false)} file={file} checks={checks} />
-      <Modal open={noServer} onCancel={() => setNoServer(false)} title="Sending needs the local server" footer={[
+      <Modal open={noServer} onCancel={() => setNoServer(false)} title="Sending isn't set up here" footer={[
         <Button key="close" onClick={() => setNoServer(false)}>Close</Button>,
         <Button key="open" type="primary" href={'http://localhost:8770/emails/#' + file} target="_blank">Open local preview</Button>,
       ]}>
-        <p style={{ marginTop: 0 }}>This page is a static copy{location.hostname.endsWith('github.io') ? ' on GitHub Pages' : ''}, so it can’t send email or run checks — your SMTP password stays on your computer.</p>
-        <p>In the project folder run <code>python3 emails/server.py</code>, then open <code>http://localhost:8770/emails/</code> and use Send test there.</p>
+        <p style={{ marginTop: 0 }}>This page is a static copy{location.hostname.endsWith('github.io') ? ' on GitHub Pages' : ''} with no server behind it. Two ways to send a test:</p>
+        <p><b>From this page:</b> connect EmailJS — add your public key, service ID and template ID to <code>emails/emailjs.config.js</code> and push.</p>
+        <p style={{ marginBottom: 0 }}><b>Locally:</b> run <code>python3 emails/server.py</code> in the project folder and open <code>http://localhost:8770/emails/</code>.</p>
       </Modal>
-      <SendTestModal open={sending} onClose={() => setSending(false)} file={file} smtp={checks.data && checks.data.smtp}
+      <SendTestModal open={sending} onClose={() => setSending(false)} file={file} via={checks.data ? 'server' : 'emailjs'} smtp={checks.data && checks.data.smtp}
         from={checks.data && checks.data.from} host={checks.data && checks.data.smtpHost} assets={checks.data && checks.data.assetUrl} />
       <div className="em-body">
         <div className="em-side">
