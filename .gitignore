@@ -1,0 +1,4 @@
+emails/.env
+emails/outbox/
+__pycache__/
+.DS_Store

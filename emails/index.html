@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Skypace Email Templates</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.13/dayjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/antd@6.6.5/dist/antd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@ant-design/icons@6.3.4/dist/index.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.26.4/babel.min.js"></script>
+<script src="manifest.js"></script>
+<style>
+  /* Skypace tokens — same palette as manual-confirmation */
+  :root { --text: #323656; --text-3: #555a75; --text-4: #8a8fa8; --line: #f0f0f0; --gray-2: #f4f5f8; --primary-bg: #f0f1fa; --primary-7: #3d47a3; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #fff; color: var(--text); font-family: Roboto, -apple-system, "Segoe UI", sans-serif; font-size: 14px; line-height: 22px; }
+  .em { height: 100vh; display: flex; flex-direction: column; }
+  .em-top { height: 54px; flex: none; display: flex; align-items: center; gap: 16px; padding: 0 24px; border-bottom: 1px solid var(--line); }
+  .em-top h1 { font-size: 20px; line-height: 28px; margin: 0; font-weight: 500; flex: 1; }
+  .em-body { flex: 1; display: flex; min-height: 0; }
+  .em-side { width: 300px; flex: none; border-right: 1px solid var(--line); padding: 16px 12px; overflow: auto; }
+  .em-side h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-4); margin: 12px 12px 4px; font-weight: 500; }
+  .em-side .i { padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; line-height: 20px; }
+  .em-side .i:hover { background: var(--gray-2); }
+  .em-side .i.on { background: var(--primary-bg); color: var(--primary-7); }
+  .em-side .i { display: flex; gap: 8px; align-items: baseline; }
+  .chk { display: flex; gap: 10px; align-items: flex-start; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+  .chk .ant-tag { flex: none; margin: 1px 0 0; }
+  .chk-rule { font-size: 12px; line-height: 18px; color: var(--text-4); text-transform: uppercase; letter-spacing: .04em; }
+  .em-stage { flex: 1; overflow: auto; background: #e6e7eb; display: flex; justify-content: center; padding: 32px 16px; }
+  .em-frame { background: #f4f5f8; border: 0; box-shadow: 0 6px 24px rgba(50,54,86,.12); transition: width .2s; }
+  .em-frame.mobile { border-radius: 24px; border: 10px solid #323656; }
+  .em-stage.dark { background: #0b0c12; }
+  .em-stage.dark .em-frame { background: #111219; }
+  .em-top .em-pick { display: none; }
+  @media (max-width: 860px) {
+    .em-side { display: none; }
+    .em-top .em-pick { display: inline-flex; }
+    .em-top { padding: 0 16px; }
+    .em-top h1 { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef, useCallback } = React;
+const { ConfigProvider, App: AntApp, Segmented, Select, Button, Tooltip, Badge, Drawer, Modal, Form, Input, Tag, Switch, Empty, Alert, Space } = antd;
+const I = icons;
+const LIST = window.EMAILS;
+const WIDTH = { desktop: 654, mobile: 375 };
+const LEVEL = { error: { status: 'error', color: 'error', label: 'Error' }, warn: { status: 'warning', color: 'warning', label: 'Warning' }, ok: { status: 'success', color: 'success', label: 'OK' } };
+const store = { get: (k, d) => { try { return localStorage.getItem(k) ?? d; } catch (e) { return d; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
+
+/* Results of emails/checks.py via the local server (python3 emails/server.py). Static hosting → null. */
+function useChecks() {
+  const [state, setState] = useState({ loading: true, data: null, prod: false });
+  const run = useCallback((prod = false) => {
+    setState((s) => ({ ...s, loading: true, prod }));
+    fetch('/api/checks' + (prod ? '?prod=1' : ''), { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+      .then((data) => setState({ loading: false, data, prod }))
+      .catch(() => setState({ loading: false, data: null, prod }));
+  }, []);
+  useEffect(() => { run(false); }, [run]);
+  return { ...state, run };
+}
+
+function ChecksDrawer({ open, onClose, file, checks }) {
+  const results = (checks.data && checks.data.results[file]) || [];
+  const order = { error: 0, warn: 1, ok: 2 };
+  const sorted = [...results].sort((a, b) => order[a.level] - order[b.level]);
+  return (
+    <Drawer open={open} onClose={onClose} width={480} title="Pre-send checks"
+      extra={<Button size="small" icon={<I.ReloadOutlined />} loading={checks.loading} onClick={() => checks.run(checks.prod)}>Re-run</Button>}>
+      <Space direction="vertical" size={16} style={{ width: '100%' }}>
+        <Space>
+          <Switch size="small" checked={checks.prod} onChange={(v) => checks.run(v)} />
+          <span>Production mode <span style={{ color: 'var(--text-4)' }}>· images must be absolute URLs</span></span>
+        </Space>
+        {!checks.data && !checks.loading && <Alert type="info" showIcon message="Checks need the local server" description={<>Run <code>python3 emails/server.py</code> and open this page from it.</>} />}
+        {checks.data && (sorted.length ? sorted.map((r, i) => (
+          <div key={i} className="chk">
+            <Tag color={LEVEL[r.level].color} bordered={false}>{LEVEL[r.level].label}</Tag>
+            <div><div className="chk-rule">{r.rule}</div><div>{r.message}</div></div>
+          </div>
+        )) : <Empty description="No results" />)}
+      </Space>
+    </Drawer>
+  );
+}
+
+function SendTestModal({ open, onClose, file, smtp, from, host }) {
+  const { message } = AntApp.useApp();
+  const [form] = Form.useForm();
+  const [busy, setBusy] = useState(false);
+  const submit = ({ to }) => {
+    setBusy(true); store.set('skypace.emails.testTo', to);
+    fetch('/api/send-test', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ file, to }) })
+      .then((r) => r.json().then((d) => (r.ok ? d : Promise.reject(d.error || 'Send failed'))))
+      .then((d) => {
+        if (d.mode === 'smtp') message.success(`Sent “${d.subject}” to ${d.to}`);
+        else message.success({ content: <>SMTP is off — saved to <code>{d.path}</code>. Open it in Apple Mail or Outlook.</>, duration: 6 });
+        onClose();
+      })
+      .catch((e) => message.error(typeof e === 'string' ? e : 'Local server is not running (python3 emails/server.py)'))
+      .finally(() => setBusy(false));
+  };
+  return (
+    <Modal open={open} onCancel={onClose} title="Send test email" okText={smtp ? 'Send' : 'Save .eml'} confirmLoading={busy}
+      onOk={() => form.submit()} destroyOnHidden>
+      <p style={{ margin: '0 0 16px', color: 'var(--text-3)' }}>
+        {smtp ? <>Sends from <b>{from}</b> via {host}, with images attached inline.</>
+              : <>SMTP is not set up, so the message is saved as an .eml file you can open in a real mail client. To send from Gmail, fill in <code>emails/.env</code> (see <code>.env.example</code>) and restart the server.</>}
+      </p>
+      <Form form={form} layout="vertical" onFinish={submit} initialValues={{ to: store.get('skypace.emails.testTo', '') }} requiredMark={false}>
+        <Form.Item name="to" label="Recipient" rules={[{ required: true, message: 'Enter an email' }, { type: 'email', message: 'Enter a valid email, like name@company.com' }]}>
+          <Input type="email" inputMode="email" autoComplete="email" placeholder="you@company.com" autoFocus />
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
+}
+
+/* Dark preview: copy the email's own @media (prefers-color-scheme: dark) rules into a plain <style>,
+   so the dark theme shows without switching the OS. */
+function applyTheme(frame, theme) {
+  const doc = frame && frame.contentDocument; if (!doc || !doc.head) return;
+  const old = doc.getElementById('preview-dark'); if (old) old.remove();
+  if (theme !== 'dark') return;
+  let css = '';
+  for (const sheet of doc.styleSheets) {
+    let rules; try { rules = sheet.cssRules; } catch (e) { continue; }
+    for (const r of rules) if (r.media && /prefers-color-scheme:\s*dark/.test(r.media.mediaText)) for (const x of r.cssRules) css += x.cssText;
+  }
+  const st = doc.createElement('style'); st.id = 'preview-dark'; st.textContent = css; doc.head.appendChild(st);
+}
+
+function Preview({ file, device, theme }) {
+  const ref = useRef(null);
+  const [h, setH] = useState(600);
+  const fit = () => { try { setH(ref.current.contentDocument.querySelector('.es-wrapper').offsetHeight); } catch (e) {} };
+  const onLoad = () => { applyTheme(ref.current, theme); fit(); };
+  useEffect(() => { const t = setTimeout(fit, 300); return () => clearTimeout(t); }, [device, file]);
+  useEffect(() => { applyTheme(ref.current, theme); }, [theme]);
+  return <iframe ref={ref} key={file} src={file} onLoad={onLoad} title={file}
+    className={'em-frame' + (device === 'mobile' ? ' mobile' : '')}
+    style={{ width: WIDTH[device] + (device === 'mobile' ? 20 : 0), height: h + (device === 'mobile' ? 20 : 0) }} />;
+}
+
+function EmailsApp() {
+  const init = decodeURIComponent(location.hash.slice(1));
+  const [file, setFile] = useState(LIST.some((e) => e.file === init) ? init : LIST[0].file);
+  const [device, setDevice] = useState('desktop');
+  const [theme, setTheme] = useState(() => store.get('skypace.emails.theme', 'light'));
+  useEffect(() => { store.set('skypace.emails.theme', theme); }, [theme]);
+  useEffect(() => { history.replaceState(null, '', '#' + file); }, [file]);
+  useEffect(() => {
+    const onHash = () => { const f = decodeURIComponent(location.hash.slice(1)); if (LIST.some((e) => e.file === f)) setFile(f); };
+    addEventListener('hashchange', onHash); return () => removeEventListener('hashchange', onHash);
+  }, []);
+  const groups = [...new Set(LIST.map((e) => e.group))];
+  const checks = useChecks();
+  const [drawer, setDrawer] = useState(false);
+  const [sending, setSending] = useState(false);
+  const status = (f) => checks.data && checks.data.summary[f];
+  const issues = ((checks.data && checks.data.results[file]) || []).filter((r) => r.level !== 'ok').length;
+  const cur = status(file);
+  return (
+    <div className="em">
+      <div className="em-top">
+        <h1>Email templates</h1>
+        <Select className="em-pick" value={file} onChange={setFile} style={{ width: 240 }}
+          options={groups.map((g) => ({ label: g, options: LIST.filter((e) => e.group === g).map((e) => ({ value: e.file, label: e.name })) }))} />
+        <Segmented value={device} onChange={setDevice} options={[
+          { value: 'desktop', label: 'Desktop', icon: <I.DesktopOutlined /> },
+          { value: 'mobile', label: 'Mobile', icon: <I.MobileOutlined /> },
+        ]} />
+        <Segmented value={theme} onChange={setTheme} options={[
+          { value: 'light', label: 'Light', icon: <I.SunOutlined /> },
+          { value: 'dark', label: 'Dark', icon: <I.MoonOutlined /> },
+        ]} />
+        <Tooltip title={checks.data ? 'Pre-send checks for this email' : 'Run python3 emails/server.py to enable checks'}>
+          <Button onClick={() => setDrawer(true)} loading={checks.loading}
+            icon={cur === 'error' ? <I.CloseCircleFilled style={{ color: '#ff4d4f' }} /> : cur === 'warn' ? <I.ExclamationCircleFilled style={{ color: '#faad14' }} /> : <I.CheckCircleFilled style={{ color: cur ? '#52c41a' : undefined }} />}>
+            Checks{issues ? ` · ${issues}` : ''}
+          </Button>
+        </Tooltip>
+        <Button type="primary" icon={<I.SendOutlined />} disabled={!checks.data} onClick={() => setSending(true)}>Send test</Button>
+        <Tooltip title="Open raw HTML"><Button icon={<I.ExportOutlined />} href={file} target="_blank" /></Tooltip>
+      </div>
+      <ChecksDrawer open={drawer} onClose={() => setDrawer(false)} file={file} checks={checks} />
+      <SendTestModal open={sending} onClose={() => setSending(false)} file={file} smtp={checks.data && checks.data.smtp}
+        from={checks.data && checks.data.from} host={checks.data && checks.data.smtpHost} />
+      <div className="em-body">
+        <div className="em-side">
+          {groups.map((g) => (
+            <div key={g}>
+              <h3>{g}</h3>
+              {LIST.filter((e) => e.group === g).map((e) => (
+                <div key={e.file} className={'i' + (e.file === file ? ' on' : '')} onClick={() => setFile(e.file)}>
+                  {status(e.file) && <Badge status={LEVEL[status(e.file)].status} />}{e.name}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+        <div className={'em-stage' + (theme === 'dark' ? ' dark' : '')}><Preview file={file} device={device} theme={theme} /></div>
+      </div>
+    </div>
+  );
+}
+
+const theme = {
+  token: {
+    colorPrimary: '#5f68c0', colorLink: '#5f68c0', colorText: '#323656', colorTextSecondary: '#414663', colorTextTertiary: '#555a75',
+    colorBorderSecondary: '#f0f0f0', colorBgSolid: '#323656', colorBgSolidHover: '#454a6e', colorBgSolidActive: '#22253d',
+    fontFamily: 'Roboto, -apple-system, "Segoe UI", sans-serif', borderRadius: 4, borderRadiusLG: 6,
+  },
+};
+ReactDOM.createRoot(document.getElementById('root')).render(<ConfigProvider theme={theme}><AntApp><EmailsApp /></AntApp></ConfigProvider>);
+</script>
+</body>
+</html>
