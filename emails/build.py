@@ -13,7 +13,7 @@ bgcolor fallbacks, Stripo-style buttons (span.es-button-border + a.es-button, VM
 capitalised "Margin" for Outlook.com, a Gmail Android width fix, PNG images only, and a fluid-hybrid
 layout that still adapts where <style> is stripped. Dark mode: prefers-color-scheme (Apple Mail, iOS,
 Outlook for Mac/mobile, Thunderbird) and [data-ogsc]/[data-ogsb] (Outlook.com); Gmail recolors on its
-own, so icons ship as baked tiles and the logo has a halo to stay readable there.
+own, so icons and the logo ship as baked tiles/badges to stay readable there.
 
     python3 emails/build.py                      # images referenced relative (local preview)
     ASSET_URL=https://cdn.skypace.com/email python3 emails/build.py   # absolute image URLs for sending
@@ -285,8 +285,14 @@ def button(label, href='#', align='left'):
 
 
 def header():
-    """Centered logo (Apple-style) on the page background above the card. Dark mode swaps in a light logo."""
-    logo = img('logo.png', 142, 28, 'Skypace', f'margin:0 auto;{txt(20, 24, T["colorTextHeading"], 700)}', dark='logo-dark.png')
+    """Centered logo. Dark-mode clients swap in a light logo. Gmail can't be styled for dark mode (it recolors the
+    page itself and leaves images alone), so Gmail alone gets the logo on a baked rounded badge — readable on its
+    dark background. Gmail is targeted with the `u + .body` selector, as Stripo templates do."""
+    logo = (f'<div class="std-logo">'
+            + img('logo.png', 142, 28, 'Skypace', f'margin:0 auto;{txt(20, 24, T["colorTextHeading"], 700)}', dark='logo-dark.png')
+            + '</div><!--[if !mso]><!--><div class="gm-only" style="display:none;max-height:0;overflow:hidden;mso-hide:all;">'
+            + img('logo-badge.png', 190, 52, 'Skypace', 'margin:0 auto;')
+            + '</div><!--<![endif]-->')
     return f'''<tr><td class="px" align="center" style="padding:0 {PAD}px 24px {PAD}px;">
   <a href="https://skypace.com" target="_blank" style="text-decoration:none;">{logo}</a>
 </td></tr>'''
@@ -435,7 +441,9 @@ def shell(title, preheader, rows):
   .es-button {{ mso-style-priority:100 !important; text-decoration:none !important; }}
   a[x-apple-data-detectors] {{ color:inherit !important; text-decoration:none !important; font-size:inherit !important; font-family:inherit !important; font-weight:inherit !important; line-height:inherit !important; }}
   .es-desk-hidden {{ display:none; float:left; overflow:hidden; width:0; max-height:0; line-height:0; mso-hide:all; }}
-  .es-button:hover {{ opacity:.85; }}{MOBILE_CSS}/*DARK*/
+  .es-button:hover {{ opacity:.85; }}
+  u + .body .gm-only {{ display:block !important; max-height:none !important; overflow:visible !important; }}
+  u + .body .std-logo {{ display:none !important; }}{MOBILE_CSS}/*DARK*/
 </style>
 </head>
 <body class="body" style="width:100%;height:100%;padding:0;margin:0;background-color:{bg};">
