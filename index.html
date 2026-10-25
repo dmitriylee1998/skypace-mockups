@@ -480,6 +480,23 @@
   .ev-rail { width: 18px; flex: none; display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 8px; }
   .ev-card { flex: 1; background: var(--gray-1); border-radius: 8px; padding: 8px 16px; display: grid; align-items: center; column-gap: 8px; }
   .ev-list { display: flex; flex-direction: column; gap: 16px; }
+  .rt-head { display: grid; background: #fafafa; border-bottom: 1px solid var(--gray-1); padding-left: 26px; }
+  .rt-head > div { padding: 8px 16px; font-weight: 600; position: relative; }
+  .rt-head > div + div::before { content: ""; position: absolute; left: 0; top: 50%; height: 22px; margin-top: -11px; width: 1px; background: #f0f0f0; }
+  .rt-head { grid-template-columns: 236px 1fr 166px; }
+  .rt-head.edit { grid-template-columns: 236px 1fr 180px 196px; }
+  .rt-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); flex: none; }
+  .rt-dot.next { background: #fff; border: 1.5px solid #b9bde3; }
+  .rt-line { flex: 1; width: 1px; background: var(--primary); margin-bottom: -20px; }
+  .rt-line.next { background: none; border-left: 1px dashed #b9bde3; }
+  .rt-card { flex: 1; min-width: 0; background: var(--gray-1); border-radius: 8px; padding: 8px 16px; display: flex; gap: 16px; align-items: flex-start; }
+  .rt-loc { width: 220px; flex: none; line-height: 22px; }
+  .rt-loc b { font-weight: 600; text-transform: uppercase; }
+  .rt-events { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .rt-ev { display: grid; grid-template-columns: 1fr 150px; column-gap: 16px; align-items: start; padding: 4px 0; line-height: 22px; }
+  .rt-ev.edit { grid-template-columns: 1fr 172px 172px; column-gap: 8px; align-items: center; }
+  .rt-ev + .rt-ev { border-top: 1px solid #eef0f4; }
+  .rt-ves { display: block; font-size: 12px; line-height: 20px; color: var(--text, #323656); text-decoration: underline; }
 
   .assign-row { background: #fff; border: 1px solid transparent; border-radius: 8px; padding: 16px; display: flex; align-items: center; gap: 16px; }
   .assign-row.hl { border-color: #8c93da; }
@@ -621,6 +638,11 @@
     .leg-line .dur, .leg-line .leg-half.to { grid-column: 2; }
     .ev-head { display: none; }
     .ev-card { grid-template-columns: 1fr !important; row-gap: 8px; }
+    .rt-head { display: none; }
+    .rt-card { flex-direction: column; gap: 8px; }
+    .rt-loc { width: auto; }
+    .rt-ev.edit { grid-template-columns: 1fr 1fr; row-gap: 4px; }
+    .rt-ev.edit > div:first-child { grid-column: 1 / -1; }
     .ctr { padding: 12px; }
     .assign-row, .link-card .row { flex-wrap: wrap; }
     .assign-row > .ant-select, .link-card .row > span:last-child { flex-basis: 100%; }
@@ -1871,11 +1893,15 @@ const STOPS = [
   { name: 'Nha Trang Rail Yard, VN', meta: ['ATA: 24 Jun, 11:30'], details: [['Arriving Transport', 'Transport', 'Rail', 'Actual Arrival']] },
 ];
 
-const EVENTS = {
-  origin: ['Gate Out (Empty)', 'Gate In (Full)'],
-  main: ['Loaded on Vessel', 'Departed From Port Newark, NJ, US', 'Arriving to Cat Lai, VN', 'Loaded from Vessel'],
-  dest: ['Ready for pickup', 'Gate Out (Full)', 'Gate In (Empty)'],
-};
+// Route details of a container: key events only, grouped by location; vessel events come from the carrier (read-only)
+const RT_VES = 'MAERSK SENTOSA / 428E';
+const ROUTE = [
+  { name: 'Elizabeth, NJ, US', place: 'Maher Terminal (CY)', mode: 'Truck', done: true, events: [{ name: 'Gate Out (Empty)', est: '2026-05-18T10:00', act: '2026-05-18T10:42' }] },
+  { name: 'Port Newark, NJ, US', place: 'Maher Terminal', mode: 'Vessel', done: true, events: [{ name: 'Gate In (Full)', est: '2026-05-19T12:00', act: '2026-05-19T12:20' }, { name: 'Vessel Departure', vessel: RT_VES, est: '2026-05-21T12:00', act: '2026-05-21T12:40' }] },
+  { name: 'Cat Lai, VN', place: 'Cat Lai Terminal', mode: 'Vessel', events: [{ name: 'Vessel Arrival', vessel: RT_VES, est: '2026-06-24T11:30' }, { name: 'Ready for Delivery', est: '2026-06-24T16:00' }, { name: 'Gate Out (Full)', est: '2026-06-25T09:00' }] },
+  { name: 'Cat Lai, VN', place: 'Cat Lai CY', mode: 'Truck', events: [{ name: 'Gate In (Empty)', est: '2026-06-26T15:00' }] },
+];
+const RT_FMT = 'D MMM YYYY, HH:mm';
 const CONTAINERS = ['ns', 'transit', 'transit', 'transit', 'transit'];
 const TERMINAL_OPTS = [
   { value: 'cat', label: 'Cat Lai Terminal, Ho Chi Minh City, VN' },
@@ -2543,14 +2569,12 @@ function CutoffsDrawer({ close }) {
 }
 
 function ContainerCard({ status, open, onToggle, variant, editing, setEditing }) {
-  const cols = editing ? '340px 1fr 1fr' : '340px 1fr';
-  const head = editing ? '366px 201px 1fr' : '366px 1fr';
-  const events = EVENTS[variant];
+  const cols = editing ? 'rt-cols edit' : 'rt-cols';
   return (
     <div className="ctr">
       <div className="ctr-head" onClick={onToggle}>
         <div className="icon-box sm"><Ic n="container" size={16} /></div>
-        <div className="sec-title" style={{ flex: 1 }}><b>CMAU93821321</b><StatusTag s={status} /><PlainTag>40’HC</PlainTag></div>
+        <div className="sec-title" style={{ flex: 1 }}><b>CMAU93821321</b><PlainTag>40’HC</PlainTag><StatusTag s={status} /></div>
         <Chevron open={open} />
       </div>
       {open && (
@@ -2563,16 +2587,31 @@ function ContainerCard({ status, open, onToggle, variant, editing, setEditing })
               : <Button icon={<I.EditOutlined />} onClick={() => setEditing(true)}>Update</Button>}
           </div>
           <div>
-            <div className="ev-head" style={{ gridTemplateColumns: head }}>
-              <div>Event</div>{editing && <div>Estimated</div>}<div>Actual</div>
+            <div className={'rt-head ' + cols}>
+              <div>Location</div><div>Event</div>{editing ? <><div>Estimated</div><div>Actual</div></> : <div>Date</div>}
             </div>
             <div className="ev-list" style={{ marginTop: 16 }}>
-              {events.map((e, i) => (
-                <div className="ev-row" key={e}>
-                  <div className="ev-rail"><div className="r-dot" />{i < events.length - 1 && <div className="r-line fill" style={{ minHeight: 78, marginBottom: -24 }} />}{i === events.length - 1 && variant !== 'dest' && <div className="r-line fill" />}</div>
-                  <div className="ev-card" style={{ gridTemplateColumns: cols }}>
-                    <div><b style={{ fontWeight: 600 }}>{e}</b><div>Maher Terminal, Elizabeth, NJ, US</div><div>Transport: Truck</div></div>
-                    {editing ? <><DP /><DP /></> : <div>21 May 2026, 12:00</div>}
+              {ROUTE.map((l, i) => (
+                <div className="ev-row" key={i}>
+                  <div className="ev-rail">
+                    <div className={'rt-dot' + (l.done ? '' : ' next')} />
+                    {i < ROUTE.length - 1 && <div className={'rt-line' + (l.done ? '' : ' next')} />}
+                  </div>
+                  <div className="rt-card">
+                    <div className="rt-loc"><b>{l.name}</b><div>{l.place}</div><div>Transport: {l.mode}</div></div>
+                    <div className="rt-events">
+                      {l.events.map((e) => (
+                        <div className={'rt-ev ' + cols} key={e.name}>
+                          <div><div>{e.name}</div>{e.vessel && <a className="rt-ves">{e.vessel}</a>}</div>
+                          {editing
+                            ? <>
+                                <DP showTime={{ format: 'HH:mm' }} format={RT_FMT} placeholder="Select date" defaultValue={dayjs(e.est)} disabled={!!e.vessel} />
+                                <DP showTime={{ format: 'HH:mm' }} format={RT_FMT} placeholder="Select date" defaultValue={e.act ? dayjs(e.act) : undefined} disabled={!!e.vessel} />
+                              </>
+                            : <div className={e.act ? '' : 'muted'}>{dayjs(e.act || e.est).format(RT_FMT)}</div>}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -8205,7 +8244,8 @@ const DoEdBtns = ({ editing, all, onEdit, onCancel, onSave, extra }) => (
 );
 
 /* DO / Step · Dispatch planner — Empty drop date + Full pickup date for every scenario, key dates on the right */
-const DO_KEY_DATES = [['Earliest release', 'Wed 27 May'], ['Earliest receive (ERD)', 'Wed 27 May'], ['VGM cutoff', 'Tue 2 Jun, 12:00'], ['Port cutoff', 'Tue 2 Jun, 18:00'], ['Detention last free day', 'Mon 1 Jun · 4 days from empty pickup']];
+const DO_KEY_DATES = [['Cargo ready', '28 May'], ['Earliest release', '27 May, 08:00'], ['Earliest receive', '27 May, 08:00'], ['Port cutoff', '02 Jun, 18:00'], ['VGM cutoff', '02 Jun, 12:00'], ['Last free day (Detention)', '01 Jun, 17:00']];
+const DO_HOURS = ['Mon–Fri 06:00–14:00', 'Mon–Fri 07:00–17:00', 'Mon–Sat 06:00–18:00', '24/7'];
 const DO_REC_WIN = { 'dp-appt': '07:00–08:00', 'dp-fcfs': 'site hours', 'live-fcfs': '06:00–08:00', 'live-appt': '08:00–10:00' };
 const doDayVal = (k) => (k ? dayjs(doDay(k).iso) : null);
 const DoPF = ({ label, opt, children }) => <label className="do-pf"><span>{label}{opt && <span className="do-sub muted"> · optional</span>}</span>{children}</label>;
@@ -8233,33 +8273,43 @@ function DoPlanner({ d, open, msg }) {
   const [saved, setSaved] = useState(() => ({ plan: p, notes: d.notes }));
   const cancel = () => doPatch(d.id, saved);
   const save = () => { setSaved({ plan: p, notes: d.notes }); msg.success('Dates saved'); };
+  // loading method / facility access switch the scenario: the date inputs and windows below follow
+  const setScen = (loading, access) => { const next = { ...p, loading, access, ...DO_PLAN_DEFAULTS[`${loading}-${access}`] }; if (loading === 'live') next.pickup = null; doPatch(d.id, { plan: next }); };
+  const hours = p.hours || d.places.load.hours || DO_HOURS[0];
   return (
     <section className="do-card" id="do-step-dispatch">
       <div className="do-sec-head">
-        <div className="do-sec-title"><b>Agree the empty drop and full pickup with the carrier</b>
-          <span className="do-sub">{DO_LOADING[p.loading]} · {appt ? 'Appointment' : 'First come, first served'}</span></div>
+        <div className="do-sec-title"><b>Dispatch & Loading instructions</b></div>
         <span className="do-ed-btns"><Button type="text" size="small" onClick={cancel}>Cancel</Button><Button type="primary" size="small" className="do-dark" onClick={save}>Save</Button></span>
       </div>
       <div className="do-plan">
         <div className="do-plan-main">
           <div className="do-plan-grp">
+            <b>Loading</b>
+            <div className="do-pf-row">
+              <DoPF label="Loading method"><Select value={p.loading} onChange={(v) => setScen(v, p.access)} options={Object.entries(DO_LOADING).map(([value, label]) => ({ value, label }))} /></DoPF>
+              <DoPF label="Facility access"><Select value={p.access} onChange={(v) => setScen(p.loading, v)} options={[{ value: 'appt', label: 'Appointment' }, { value: 'fcfs', label: 'First come, first served' }]} /></DoPF>
+              <DoPF label="Warehouse hours"><Select value={hours} onChange={(v) => setPlan({ hours: v })} options={DO_HOURS.map((x) => ({ value: x, label: x }))} /></DoPF>
+              {!dp && <DoPF label="Loading time"><Input value={p.loadTime ?? '2 h free'} onChange={(e) => setPlan({ loadTime: e.target.value })} placeholder="e.g. 2 h free" /></DoPF>}
+            </div>
+          </div>
+          <div className="do-plan-grp">
             <b>Empty drop date</b>
             <div className="do-pf-row">
-              <DoPF label="Date"><DatePicker value={doDayVal(p.drop)} format="ddd D MMM YYYY" disabledDate={disabled} onChange={(v) => { const k = doDayByDate(v)?.key; setPlan({ drop: k, ...(dp && p.pickup && k && doDayIdx(p.pickup) <= doDayIdx(k) ? { pickup: null } : {}) }); }} /></DoPF>
-              <DoPF label={!dp && appt ? 'Slot from the site' : 'Arrival window'}><Input value={p.dropWin} status={ev.lateInput ? 'warning' : ''} onChange={(e) => setPlan({ dropWin: e.target.value })} /></DoPF>
-              {appt && <DoPF label={dp ? 'Drop ref' : 'Appointment ref'}><Input value={dp ? p.dropRef : p.apptRef} onChange={(e) => setPlan(dp ? { dropRef: e.target.value } : { apptRef: e.target.value })} /></DoPF>}
+              <DoPF label="Date"><DatePicker value={doDayVal(p.drop)} format="D MMM YYYY" disabledDate={disabled} onChange={(v) => { const k = doDayByDate(v)?.key; setPlan({ drop: k, ...(dp && p.pickup && k && doDayIdx(p.pickup) <= doDayIdx(k) ? { pickup: null } : {}) }); }} /></DoPF>
+              <DoPF label={!dp && appt ? 'Slot from the site' : 'Time window'}><Input value={p.dropWin} status={ev.lateInput ? 'warning' : ''} onChange={(e) => setPlan({ dropWin: e.target.value })} /></DoPF>
+              {appt && <DoPF label={dp ? 'Drop reference' : 'Appointment reference'}><Input value={dp ? p.dropRef : p.apptRef} onChange={(e) => setPlan(dp ? { dropRef: e.target.value } : { apptRef: e.target.value })} /></DoPF>}
             </div>
             <DoRecRow title={`${doDay(recDrop).label}, ${recWin}`} note={dropNote}
               onUse={() => { setPlan({ drop: recDrop, dropWin: recWin }); msg.success(`Empty drop set to ${doDay(recDrop).label}, ${recWin}`); }} onAll={() => open('days:drop')} />
-            <div className="do-pf-row facts"><DoV label="Cargo ready" value="Thu 28 May · from customer" /><DoV label="Warehouse working hours" value={`${d.places.load.hours || 'Mon–Fri 06:00–14:00'} · ${appt ? 'slots booked 24 h ahead' : 'first come'}`} /></div>
           </div>
           <div className="do-plan-grp">
             <b>Full pickup date</b>
             <div className="do-pf-row">
-              <DoPF label="Date"><DatePicker value={doDayVal(pickD)} format="ddd D MMM YYYY" disabled={!dp} disabledDate={disabled} onChange={(v) => setPlan({ pickup: doDayByDate(v)?.key || null })} /></DoPF>
+              <DoPF label="Date"><DatePicker value={doDayVal(pickD)} format="D MMM YYYY" disabled={!dp} disabledDate={disabled} onChange={(v) => setPlan({ pickup: doDayByDate(v)?.key || null })} /></DoPF>
               {dp && !appt ? <DoPF label="Site confirms loaded by"><Input value={p.confirmBy} onChange={(e) => setPlan({ confirmBy: e.target.value })} /></DoPF>
-                : <DoPF label={dp ? 'Arrival window' : 'Pickup window'}><Input value={dp ? p.pickupWin : p.pickupWin || 'after loading'} onChange={(e) => setPlan({ pickupWin: e.target.value })} /></DoPF>}
-              {dp && appt && <DoPF label="Pickup ref"><Input value={p.pickupRef} onChange={(e) => setPlan({ pickupRef: e.target.value })} /></DoPF>}
+                : <DoPF label="Time window"><Input value={dp ? p.pickupWin : p.pickupWin || 'after loading'} onChange={(e) => setPlan({ pickupWin: e.target.value })} /></DoPF>}
+              {dp && appt && <DoPF label="Pickup reference"><Input value={p.pickupRef} onChange={(e) => setPlan({ pickupRef: e.target.value })} /></DoPF>}
             </div>
             <DoRecRow title={dp ? `${doDay(recPick).label}${appt ? ', 10:00–11:00' : ', after loaded'}` : `${doDay(recPick).label}, right after loading`} note={pickNote}
               onUse={() => { setPlan({ pickup: recPick, ...(appt ? { pickupWin: '10:00–11:00' } : {}) }); msg.success(`Full pickup set to ${doDay(recPick).label}`); }} onAll={() => open(dp ? 'days:pickup' : 'days:drop')} />
@@ -8309,7 +8359,7 @@ function DoDaysModal({ d, which, close, msg }) {
           ); })}
         </div>
         <div className="do-days-box"><DoV label={`Arrival window on ${doShortDay(sel)}`} value={`${win} · recommended`} /></div>
-        <div className="do-days-box"><b>Cargo and site</b><div className="do-days-grid"><DoV label="Cargo ready · customer" value="Thu 28 May" /><DoV label="Shipper loads within" value="1 day" /><DoV label="Site hours" value={d.places.load.hours || 'Mon–Fri 06:00–14:00'} /><DoV label="Empty release from" value="Wed 27 May" /></div></div>
+        <div className="do-days-box"><b>Cargo and site</b><div className="do-days-grid"><DoV label="Cargo ready · customer" value="Thu 28 May" /><DoV label="Shipper loads within" value="1 day" /><DoV label="Site hours" value={p.hours || d.places.load.hours || 'Mon–Fri 06:00–14:00'} /><DoV label="Empty release from" value="Wed 27 May" /></div></div>
         <div className="do-days-box"><b>Terminal and vessel</b><div className="do-days-grid"><DoV label="Terminal receives (ERD)" value="Wed 27 May" /><DoV label="VGM cutoff" value="Tue 2 Jun, 12:00" /><DoV label="Port cutoff" value="Tue 2 Jun, 18:00" /><DoV label="Free time" value="4 days · LFD Mon 1 Jun" /></div></div>
       </div>
     </Modal>
