@@ -1534,6 +1534,7 @@
   .do-days-modal .do-day:disabled { opacity: 1; }
   .do-days-modal .do-days-box { background: rgba(50, 54, 86, .02); }
   .do-days-modal .do-days-box > b { color: #555a75; }
+  .do-form-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; }
   .do-due { width: 240px; flex: none; display: flex; gap: 8px; align-items: flex-start; }
   .do-due-ic { color: #414663; margin-top: 3px; }
   .do-due-txt { flex: 1; display: flex; flex-direction: column; gap: 0; }
@@ -7599,15 +7600,50 @@ function DoHeader({ d, deadline, actions, msg }) {
 }
 
 /* ---------- drawers ---------- */
-function DoFormDrawer({ title, intro, initial, onClose, onSave, okText = 'Save', children }) {
+function DoFormDrawer({ title, intro, initial, onClose, onSave, okText = 'Save', width = 378, children }) {
   const [form] = Form.useForm();
   const save = async () => { const v = await form.validateFields().catch(() => null); if (v) onSave(v); };
   return (
-    <Drw title={title} width={378} onClose={onClose} bordered className="do-drawer"
+    <Drw title={title} width={width} onClose={onClose} bordered className="do-drawer"
       footer={<><Button type="text" onClick={onClose}>Cancel</Button><Button type="primary" className="do-dark" onClick={save}>{okText}</Button></>}>
       {intro && <p className="do-drawer-intro">{intro}</p>}
       <Form form={form} layout="vertical" requiredMark={false} initialValues={initial}>{typeof children === 'function' ? children(form) : children}</Form>
     </Drw>
+  );
+}
+
+/* Route details · one Edit for the whole section, edited in a drawer like Bulk Edit (Figma 6360:150561) */
+function DoRouteDrawer({ d, close, msg }) {
+  const pl = d.places;
+  const opts = DO_SAVED_PLACES.map((x) => ({ value: x.name, label: x.name, address: x.address }));
+  const optionRender = (o) => <span className="do-cell"><span>{o.data.label}</span><span className="do-sub">{o.data.address}</span></span>;
+  const byName = (n) => DO_SAVED_PLACES.find((x) => x.name === n);
+  const sel = <Select placeholder="Please Select" showSearch optionFilterProp="label" options={opts} optionRender={optionRender} />;
+  return (
+    <DoFormDrawer title="Edit route" width={560} onClose={close}
+      initial={{ cy: pl.cy.name, load: pl.load.name, ret: pl.ret.name, contact: pl.load.contact, phone: pl.load.phone, email: pl.load.email }}
+      onSave={(v) => {
+        const load = byName(v.load) || pl.load;
+        doPatch(d.id, { places: {
+          cy: { ...(byName(v.cy) || pl.cy), kind: DO_PLACE_CY.kind },
+          load: { ...load, kind: 'Loading location', contact: v.contact || '', phone: v.phone || '', email: v.email || '' },
+          ret: { ...(byName(v.ret) || pl.ret), kind: DO_PLACE_RET.kind },
+        } });
+        msg.success('Route saved · applies to every dispatch order using these places'); close();
+      }}>
+      {(form) => (
+        <>
+          <Form.Item name="cy" label="CY Location">{sel}</Form.Item>
+          <Form.Item name="load" label="Pickup Location">{React.cloneElement(sel, { onChange: (n) => { const x = byName(n); form.setFieldsValue({ contact: x?.contact || '', phone: x?.phone || '', email: x?.email || '' }); } })}</Form.Item>
+          <div className="do-form-2">
+            <Form.Item name="contact" label="Contact person"><Input placeholder="Required on the dispatch order" /></Form.Item>
+            <Form.Item name="phone" label="Phone"><Input /></Form.Item>
+          </div>
+          <Form.Item name="email" label="Email"><Input /></Form.Item>
+          <Form.Item name="ret" label="CTO Location">{sel}</Form.Item>
+        </>
+      )}
+    </DoFormDrawer>
   );
 }
 
@@ -8371,16 +8407,12 @@ function DoEditor({ d, close, open, msg }) {
   const c = DO_CARRIERS[d.carrier];
   const [ed, setEd] = useState({});
   const initCargo = () => ({ number: d.number || '', seal: d.cargo.sealNo || '', genset: d.cargo.genset ? 'Yes' : 'No', temp: d.cargo.temp || '', refs: DO_REFS.join(', '), desc: d.cargo.desc, weight: d.cargo.weight ? String(d.cargo.weight) : '', type: d.cargo.type });
-  const initRoute = () => ({ cy: doPlaceFields(d.places.cy), load: doPlaceFields(d.places.load), ret: doPlaceFields(d.places.ret) });
-  const [cargo, setCargo] = useState(initCargo); const [route, setRoute] = useState(initRoute); const [car, setCar] = useState(d.carrier);
-  const startEdit = (k) => { if (k === 'container' || k === 'cargo') setCargo(initCargo()); if (k in route) setRoute((r) => ({ ...r, [k]: doPlaceFields(d.places[k]) })); if (k === 'carrier') setCar(d.carrier); setEd((x) => ({ ...x, [k]: 1 })); };
+  const [cargo, setCargo] = useState(initCargo); const [car, setCar] = useState(d.carrier);
+  const startEdit = (k) => { if (k === 'container' || k === 'cargo') setCargo(initCargo()); if (k === 'carrier') setCar(d.carrier); setEd((x) => ({ ...x, [k]: 1 })); };
   const stop = (k) => setEd((x) => { const y = { ...x }; delete y[k]; return y; });
   const saveCargo = () => doPatch(d.id, { number: cargo.number || null, cargo: { ...d.cargo, sealNo: cargo.seal, genset: cargo.genset === 'Yes', temp: cargo.temp, desc: cargo.desc, weight: Number(String(cargo.weight).replace(/\D/g, '')) || null } });
   const commit = {
     container: saveCargo, cargo: saveCargo,
-    cy: () => doPatch(d.id, (x) => ({ places: { ...x.places, cy: doPlaceFrom(x.places.cy, route.cy) } })),
-    load: () => doPatch(d.id, (x) => ({ places: { ...x.places, load: doPlaceFrom(x.places.load, route.load) } })),
-    ret: () => doPatch(d.id, (x) => ({ places: { ...x.places, ret: doPlaceFrom(x.places.ret, route.ret) } })),
     carrier: () => doPatch(d.id, { carrier: car, carrierContact: null }),
   };
   const save = (k) => { commit[k](); stop(k); msg.success('Saved'); };
@@ -8389,28 +8421,9 @@ function DoEditor({ d, close, open, msg }) {
   const inp = (obj, set, key) => <Input value={obj[key]} onChange={(e) => set({ ...obj, [key]: e.target.value })} />;
   const sel = (obj, set, key, opts) => <Select value={obj[key] || undefined} placeholder="Select" onChange={(v) => set({ ...obj, [key]: v })} options={opts.map((o) => ({ value: o, label: o }))} />;
   const missing = doMissing(d).length;
-  const placeEdit = (k, kind) => {
-    const f = route[k]; const set = (v) => setRoute({ ...route, [k]: v });
-    return (
-      <div className="do-ed-place wide" key={k}>
-        <div className="do-ed-place-head"><span className="do-sub">{kind}</span>
-          <span className="do-ed-btns"><Dropdown trigger={['click']} menu={{ items: DO_SAVED_PLACES.map((pl, i) => ({ key: String(i), label: <span className="do-cell"><b>{pl.name}</b><span className="do-sub">{pl.address}</span></span> })),
-            onClick: ({ key }) => { const pl = DO_SAVED_PLACES[+key]; set({ ...doPlaceFields(pl), contact: pl.contact ?? f.contact, email: pl.email ?? f.email, phone: pl.phone ?? f.phone }); } }}>
-            <DoLink size="small" icon={<I.UnorderedListOutlined />}>Select from list</DoLink>
-          </Dropdown><Button type="text" size="small" onClick={() => stop(k)}>Cancel</Button><Button type="primary" size="small" className="do-dark" onClick={() => save(k)}>Save</Button></span>
-        </div>
-        <div className="do-ed-grid">
-          <DoF label="Name">{inp(f, set, 'name')}</DoF><DoF label="Address Line">{inp(f, set, 'addr1')}</DoF><DoF label="Address Line 2">{inp(f, set, 'addr2')}</DoF>
-          <DoF label="Country">{sel(f, set, 'country', ['United States', 'Canada', 'Mexico'])}</DoF><DoF label="State / Province">{sel(f, set, 'state', Object.values(DO_STATES))}</DoF><DoF label="City">{sel(f, set, 'city', DO_CITIES)}</DoF>
-          <DoF label="Post Code">{inp(f, set, 'post')}</DoF>
-          {k === 'load' && <><DoF label="Contact">{inp(f, set, 'contact')}</DoF><DoF label="Email">{inp(f, set, 'email')}</DoF><DoF label="Phone">{inp(f, set, 'phone')}</DoF></>}
-        </div>
-      </div>
-    );
-  };
   const placeView = (k, kind) => { const pl = d.places[k]; return (
     <div className="do-ed-place" key={k}>
-      <div className="do-ed-place-head"><div><span className="do-sub">{kind}</span><b>{pl.name}</b></div><DoLink icon={<I.EditOutlined />} onClick={() => startEdit(k)}>Edit</DoLink></div>
+      <div className="do-ed-place-head"><div><span className="do-sub">{kind}</span><b>{pl.name}</b></div></div>
       <DoV label="Address" value={<>{doAddrLines(pl.address).map((x) => <div key={x}>{x}</div>)}</>} />
       {k === 'load' && <><DoV label="Contact" value={pl.contact ? pl.contact : <span className="warn">Missing · required on the dispatch order</span>} /><DoV label="Email" value={pl.email} /><DoV label="Phone" value={pl.phone} /></>}
     </div>
@@ -8444,9 +8457,10 @@ function DoEditor({ d, close, open, msg }) {
             </div>
           </DoSec>
           <DoPlanner d={d} open={open} msg={msg} />
-          {!d.places.load.contact && <DoWarn action="Add contact" onAction={() => startEdit('load')}>Loading site contact is missing · required on the dispatch order</DoWarn>}
-          <DoSec id="do-step-route" title="Review route" sub="Edits apply to every dispatch order using the place" tag={!d.places.load.contact && <GoldTag>1 required missing</GoldTag>}>
-            <div className="do-ed-places cols">{[['cy', DO_PLACE_CY.kind], ['load', 'Loading location'], ['ret', DO_PLACE_RET.kind]].map(([k, kind]) => (ed[k] ? placeEdit(k, kind) : placeView(k, kind)))}</div>
+          {!d.places.load.contact && <DoWarn action="Add contact" onAction={() => open('route')}>Loading site contact is missing · required on the dispatch order</DoWarn>}
+          <DoSec id="do-step-route" title="Route details" sub="Edits apply to every dispatch order using the place" tag={!d.places.load.contact && <GoldTag>1 required missing</GoldTag>}
+            action={<DoLink icon={<I.EditOutlined />} onClick={() => open('route')}>Edit</DoLink>}>
+            <div className="do-ed-places cols">{[['cy', DO_PLACE_CY.kind], ['load', 'Loading location'], ['ret', DO_PLACE_RET.kind]].map(([k, kind]) => placeView(k, kind))}</div>
           </DoSec>
           {!d.cargo.weight && <DoWarn action="Add weight" onAction={() => startEdit('cargo')}>Estimated cargo weight is missing · the carrier needs it to choose the chassis</DoWarn>}
           <DoSec id="do-step-cargo" title="Review cargo and container" sub="Container and cargo details the carrier sees on the dispatch order" tag={!d.cargo.weight && <GoldTag>1 missing</GoldTag>}>
@@ -8620,6 +8634,7 @@ function DispatchOrderPage({ id, f }) {
       {kind === 'cargo' && <DoCargoDrawer d={d} close={close} msg={msgApi} />}
       {kind === 'dates' && <DoDatesDrawer d={d} close={close} msg={msgApi} />}
       {kind === 'access' && <DoAccessDrawer d={d} close={close} msg={msgApi} />}
+      {kind === 'route' && <DoRouteDrawer d={d} close={close} msg={msgApi} />}
       {kind === 'place' && <DoPlaceDrawer d={d} which={arg} close={close} msg={msgApi} />}
       {kind === 'leg' && <DoLegDrawer d={d} legId={arg} close={close} msg={msgApi} />}
       {kind === 'days' && <DoDaysModal d={d} which={arg} close={close} msg={msgApi} />}
