@@ -57,8 +57,8 @@ const HS = [
 const HS_FLAT = (() => { const out = []; const walk = (list, path) => list.forEach((n) => { out.push({ ...n, path }); n.children && walk(n.children, [...path, n]); }); walk(HS, []); return out; })();
 
 const CUSTOMS = [
-  { key: 'exp', label: 'Export clearance', price: 150 }, { key: 'brk', label: 'Import brokerage', price: 180 },
-  { key: 'imp', label: 'Import clearance', price: 160 }, { key: 'isf', label: 'ISF Filling', price: 35 },
+  { key: 'exp', label: 'Export Custom Clearance (AES)', price: 150 }, { key: 'ft', label: 'Free Time', price: 180 },
+  { key: 'isf', label: 'ISF Filling', price: 35 },
 ];
 const TERMS_OPTS = [
   { value: '30', label: '30 Days (Net) / Financial rate 0%' }, { value: '15', label: '15 Days (Net) / Financial rate 2%' },
@@ -85,7 +85,7 @@ const SAMPLE_D2D = {
   ...SAMPLE_FORM,
   origin: { kind: 'door', cc: 'US', address: '13th Street, 23B', city: 'Oakland, CA', zip: '94607', partial: false, port: 'USOAK', date: '2026-10-16' },
   dest: { kind: 'door', cc: 'PL', address: 'ul. Kontenerowa 7', city: 'Gdansk', zip: '80-601', partial: false, port: 'PLGDN', date: '2026-11-20' },
-  cargo: { ...SAMPLE_FORM.cargo, customs: ['exp', 'imp'] },
+  cargo: { ...SAMPLE_FORM.cargo, customs: ['exp', 'ft'] },
 };
 const endPort = (e) => e.port || NEAREST_PORT[e.cc];
 const endText = (e) => {
@@ -266,7 +266,7 @@ function CargoPanel({ c, set, onDone }) {
         <Button type="link" className="cf-add" icon={<I.PlusOutlined />} onClick={() => set({ boxes: [...c.boxes, { type: null, qty: 1, weight: null }] })}>Add container type</Button>
       </div>
       <div className="pay-sec">
-        <div className="pay-sec-h"><span className="strong">Customs &amp; documentation</span><span className="muted">· optional</span></div>
+        <div className="pay-sec-h"><span className="strong">Services</span><span className="muted">· optional</span></div>
         <Checkbox.Group value={c.customs} onChange={(customs) => set({ customs })} className="pay-radios">
           {CUSTOMS.map((sv) => (
             <label key={sv.key} className={'pay-radio' + (c.customs.includes(sv.key) ? ' on' : '')}>
