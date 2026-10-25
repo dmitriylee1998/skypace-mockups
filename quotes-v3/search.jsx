@@ -140,7 +140,7 @@ function Panel({ open, onOpenChange, title, extra, width, children, footer, fiel
   if (mobile) return (<>{React.cloneElement(field, { onClick: () => onOpenChange(true) })}<Drawer open={open} onClose={() => onOpenChange(false)} placement="bottom" height="auto" styles={{ body: { padding: 0 } }} closable={false}>{body}</Drawer></>);
   return <Popover open={open} onOpenChange={onOpenChange} trigger="click" placement="bottomLeft" arrow={false} content={body} styles={{ body: { padding: 0 } }} destroyOnHidden={false}>{field}</Popover>;
 }
-const Lbl = ({ children, req, tip }) => <div className="ql">{children}{req && <span className="req">*</span>}{tip && <Tooltip title={tip}><I.InfoCircleOutlined className="tip" /></Tooltip>}</div>;
+const Lbl = ({ children, tip }) => <div className="ql">{children}{tip && <Tooltip title={tip}><I.InfoCircleOutlined className="tip" /></Tooltip>}</div>;
 
 /* ---------- origin / destination ---------- */
 function EndPanel({ which, e, set, onDone, onUnsupported }) {
@@ -226,7 +226,7 @@ function CargoPanel({ c, set, onDone }) {
   const toggleTemp = (temp) => set({ temp, genset: temp && c.genset, boxes: c.boxes.map((b) => ({ ...b, type: b.type && (temp ? REEFERS : DRY).includes(b.type) ? b.type : null })) });
   const del = (onClick) => <Tooltip title="Remove"><Button type="text" icon={<I.DeleteOutlined />} onClick={onClick} aria-label="Remove" /></Tooltip>;
   return (
-    <Form layout="vertical" requiredMark className="cargo-form" component={false}>
+    <Form layout="vertical" requiredMark={false} className="cargo-form" component={false}>
       <div className="pay-sec">
         <div className="pay-sec-h"><span className="strong">Commodity</span><span className="grow" />
           <label className="row" style={{ gap: 8, cursor: 'pointer' }}>Temperature control<Switch checkedChildren="On" unCheckedChildren="Off" checked={c.temp} onChange={toggleTemp} /></label></div>
