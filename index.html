@@ -1537,6 +1537,22 @@
   .do-form-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; }
   .do-pf-row.view { gap: 8px 16px; }
   .do-plan-grp .do-ev .do-sub, .do-car-box .do-ev .do-sub { font-size: 12px; }
+  /* order header as Figma 7915:187765 */
+  .do-head2 { align-items: center; }
+  .do-next { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+  .do-next-txt { display: flex; flex-direction: column; align-items: flex-start; }
+  .do-next-txt > b { font-weight: 600; }
+  .do-next-txt .do-sub, .do-next-link { font-size: 12px; line-height: 20px; }
+  .do-next-link { color: var(--link); cursor: pointer; }
+  .do-next-txt .do-due-btn.ant-btn { margin-top: 4px; }
+  .do-route-box { padding: 12px 16px; }
+  .do-route-box .do-ef { max-width: 360px; }
+  .do-car-box .do-ef { width: 496px; }
+  .do-rec-txt > div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .do-rec { gap: 8px; }
+  .do-rec .ant-btn-sm { padding: 0 6px; }
+  .do-editor .do-plan-keys { width: 170px; }
+  .do-editor .do-plan-grp, .do-editor .do-plan-keys { padding: 16px 12px; }
   .do-due { width: 240px; flex: none; display: flex; gap: 8px; align-items: flex-start; }
   .do-due-ic { color: #414663; margin-top: 3px; }
   .do-due-txt { flex: 1; display: flex; flex-direction: column; gap: 0; }
@@ -8283,7 +8299,6 @@ const DoEdBtns = ({ editing, all, onEdit, onCancel, onSave, extra }) => (
 
 /* DO / Step · Dispatch planner — Empty drop date + Full pickup date for every scenario, key dates on the right */
 const DO_KEY_DATES = [['Cargo ready', '28 May'], ['Earliest release', '27 May, 08:00'], ['Earliest receive', '27 May, 08:00'], ['Port cutoff', '02 Jun, 18:00'], ['VGM cutoff', '02 Jun, 12:00'], ['Last free day (Detention)', '01 Jun, 17:00']];
-const DO_HOURS = ['Mon–Fri 06:00–14:00', 'Mon–Fri 07:00–17:00', 'Mon–Sat 06:00–18:00', '24/7'];
 const DO_REC_WIN = { 'dp-appt': '07:00–08:00', 'dp-fcfs': 'site hours', 'live-fcfs': '06:00–08:00', 'live-appt': '08:00–10:00' };
 const doDayVal = (k) => (k ? dayjs(doDay(k).iso) : null);
 const DoPF = ({ label, opt, children }) => <label className="do-pf"><span>{label}{opt && <span className="do-sub muted"> · optional</span>}</span>{children}</label>;
@@ -8291,7 +8306,7 @@ function DoRecRow({ title, note, onUse, onAll }) {
   return (
     <div className="do-rec">
       <I.StarOutlined className="do-rec-ic" />
-      <div className="do-rec-txt"><div><b className="ok">Recommended:</b> <b>{title}</b></div><span className="do-sub">{note}</span></div>
+      <div className="do-rec-txt" title={note}><div><b className="ok">Recommended:</b> <b>{title}</b></div></div>
       <Button size="small" onClick={onUse}>Use this date</Button>
       <Button size="small" type="text" onClick={onAll}>See all days</Button>
     </div>
@@ -8307,32 +8322,20 @@ function DoPlanner({ d, open, msg }) {
   const recPick = dp ? (p.drop && doDayIdx(doNextDay(p.drop).key) <= doDayIdx('fri29') ? 'fri29' : doNextDay(p.drop || recDrop).key) : p.drop || recDrop;
   const dropNote = (() => { const e = doDateCard({ ...d, plan: { ...p, drop: null } }, doDay(recDrop)); return `${e.status === 'No extra cost' || e.status === 'Drop' ? 'No extra cost' : e.status} · ${e.note}`; })();
   const pickNote = dp ? (p.pickup === 'tue2' ? 'Tue 2 Jun is tight for the VGM cutoff' : DP_PICK_NOTE[p.access][recPick] || 'Before the cutoffs') : 'Live load · the same truck takes it, no second trip';
-  // edit ↔ static: once saved the section shows text and one Edit; Cancel puts back the last saved plan
-  const editing = !d.saved?.plan;
-  const [saved, setSaved] = useState(() => ({ plan: p, notes: d.notes }));
-  const setMode = (plan) => ({ saved: { ...d.saved, plan } });
-  const cancel = () => doPatch(d.id, { ...saved, ...(saved.was ? setMode(true) : {}) });
-  const save = () => { if (!p.drop) { msg.warning('Enter the empty drop date first'); return; } setSaved({ plan: p, notes: d.notes, was: true }); doPatch(d.id, setMode(true)); msg.success('Dispatch & loading instructions saved'); };
-  const edit = () => { setSaved({ plan: p, notes: d.notes, was: true }); doPatch(d.id, setMode(false)); };
   // loading method / facility access switch the scenario: the date inputs and windows below follow
   const setScen = (loading, access) => { const next = { ...p, loading, access, ...DO_PLAN_DEFAULTS[`${loading}-${access}`] }; if (loading === 'live') next.pickup = null; doPatch(d.id, { plan: next }); };
-  const hours = p.hours || d.places.load.hours || DO_HOURS[0];
   return (
     <section className="do-card" id="do-step-dispatch">
       <div className="do-sec-head">
         <div className="do-sec-title"><b>Dispatch & Loading instructions</b></div>
-        {editing ? <span className="do-ed-btns"><Button type="text" size="small" onClick={cancel}>Cancel</Button><Button type="primary" size="small" className="do-dark" onClick={save}>Save</Button></span>
-          : <DoLink icon={<I.EditOutlined />} onClick={edit}>Edit</DoLink>}
       </div>
-      {!editing ? <DoPlanView d={d} hours={hours} /> : <>
       <div className="do-plan">
         <div className="do-plan-main">
           <div className="do-plan-grp">
-            <b>Loading</b>
+            <b>Loading instructions</b>
             <div className="do-pf-row">
               <DoPF label="Loading method"><Select value={p.loading} onChange={(v) => setScen(v, p.access)} options={Object.entries(DO_LOADING).map(([value, label]) => ({ value, label }))} /></DoPF>
               <DoPF label="Facility access"><Select value={p.access} onChange={(v) => setScen(p.loading, v)} options={[{ value: 'appt', label: 'Appointment' }, { value: 'fcfs', label: 'First come, first served' }]} /></DoPF>
-              <DoPF label="Warehouse hours"><Select value={hours} onChange={(v) => setPlan({ hours: v })} options={DO_HOURS.map((x) => ({ value: x, label: x }))} /></DoPF>
               {!dp && <DoPF label="Loading time"><Input value={p.loadTime ?? '2 h free'} onChange={(e) => setPlan({ loadTime: e.target.value })} placeholder="e.g. 2 h free" /></DoPF>}
             </div>
           </div>
@@ -8361,49 +8364,7 @@ function DoPlanner({ d, open, msg }) {
         <div className="do-plan-keys"><b>Key dates</b>{DO_KEY_DATES.map(([k, v]) => <DoV key={k} label={k} value={v} />)}</div>
       </div>
       <DoPF label="Instructions for the carrier"><Input.TextArea value={d.notes} onChange={(e) => doPatch(d.id, { notes: e.target.value })} placeholder="e.g. Call the site 30 min before arrival" autoSize={{ minRows: 2 }} /></DoPF>
-      </>}
     </section>
-  );
-}
-
-// static mode of the planner: the saved values as text, same groups as in edit mode
-function DoPlanView({ d, hours }) {
-  const p = d.plan; const dp = p.loading === 'dp'; const appt = p.access === 'appt';
-  const day = (k) => (k ? dayjs(doDay(k).iso).format('D MMM YYYY') : '—');
-  return (
-    <>
-      <div className="do-plan">
-        <div className="do-plan-main">
-          <div className="do-plan-grp">
-            <b>Loading</b>
-            <div className="do-pf-row view">
-              <DoV label="Loading method" value={DO_LOADING[p.loading]} />
-              <DoV label="Facility access" value={appt ? 'Appointment' : 'First come, first served'} />
-              <DoV label="Warehouse hours" value={hours} />
-              {!dp && <DoV label="Loading time" value={p.loadTime ?? '2 h free'} />}
-            </div>
-          </div>
-          <div className="do-plan-grp">
-            <b>Empty drop date</b>
-            <div className="do-pf-row view">
-              <DoV label="Date" value={day(p.drop)} />
-              <DoV label={!dp && appt ? 'Slot from the site' : 'Time window'} value={p.dropWin} />
-              {appt && <DoV label={dp ? 'Drop reference' : 'Appointment reference'} value={dp ? p.dropRef : p.apptRef} />}
-            </div>
-          </div>
-          <div className="do-plan-grp">
-            <b>Full pickup date</b>
-            <div className="do-pf-row view">
-              <DoV label="Date" value={day(dp ? p.pickup : p.drop)} />
-              {dp && !appt ? <DoV label="Site confirms loaded by" value={p.confirmBy} /> : <DoV label="Time window" value={dp ? p.pickupWin : p.pickupWin || 'after loading'} />}
-              {dp && appt && <DoV label="Pickup reference" value={p.pickupRef} />}
-            </div>
-          </div>
-        </div>
-        <div className="do-plan-keys"><b>Key dates</b>{DO_KEY_DATES.map(([k, v]) => <DoV key={k} label={k} value={v} />)}</div>
-      </div>
-      <DoV label="Instructions for the carrier" value={d.notes} />
-    </>
   );
 }
 
@@ -8453,86 +8414,72 @@ function DoDaysModal({ d, which, close, msg }) {
 
 /* Unassigned · full-screen editor — carrier, dispatch plan, route and cargo on the left, live PDF on the right */
 function DoEditor({ d, close, open, msg }) {
-  const c = DO_CARRIERS[d.carrier];
-  const [ed, setEd] = useState({});
-  const initCargo = () => ({ number: d.number || '', seal: d.cargo.sealNo || '', genset: d.cargo.genset ? 'Yes' : 'No', temp: d.cargo.temp || '', refs: DO_REFS.join(', '), desc: d.cargo.desc, weight: d.cargo.weight ? String(d.cargo.weight) : '', type: d.cargo.type });
-  const [cargo, setCargo] = useState(initCargo); const [car, setCar] = useState(d.carrier);
-  const startEdit = (k) => { if (k === 'container' || k === 'cargo') setCargo(initCargo()); if (k === 'carrier') setCar(d.carrier); setEd((x) => ({ ...x, [k]: 1 })); };
-  const stop = (k) => setEd((x) => { const y = { ...x }; delete y[k]; return y; });
-  const saveCargo = () => doPatch(d.id, { number: cargo.number || null, cargo: { ...d.cargo, sealNo: cargo.seal, genset: cargo.genset === 'Yes', temp: cargo.temp, desc: cargo.desc, weight: Number(String(cargo.weight).replace(/\D/g, '')) || null } });
-  const commit = {
-    container: saveCargo, cargo: saveCargo,
-    carrier: () => doPatch(d.id, { carrier: car, carrierContact: null }),
-  };
-  const save = (k) => { commit[k](); stop(k); msg.success('Saved'); };
-  const btns = (k) => (ed[k] ? <span className="do-ed-btns"><Button type="text" size="small" onClick={() => stop(k)}>Cancel</Button><Button type="primary" size="small" className="do-dark" onClick={() => save(k)}>Save</Button></span>
-    : <DoLink icon={<I.EditOutlined />} onClick={() => startEdit(k)}>Edit</DoLink>);
-  const inp = (obj, set, key) => <Input value={obj[key]} onChange={(e) => set({ ...obj, [key]: e.target.value })} />;
-  const sel = (obj, set, key, opts) => <Select value={obj[key] || undefined} placeholder="Select" onChange={(v) => set({ ...obj, [key]: v })} options={opts.map((o) => ({ value: o, label: o }))} />;
   const missing = doMissing(d).length;
-  const placeView = (k, kind) => { const pl = d.places[k]; return (
-    <div className="do-ed-place" key={k}>
-      <div className="do-ed-place-head"><div><span className="do-sub">{kind}</span><b>{pl.name}</b></div></div>
-      <DoV label="Address" value={<>{doAddrLines(pl.address).map((x) => <div key={x}>{x}</div>)}</>} />
-      {k === 'load' && <><DoV label="Contact" value={pl.contact ? pl.contact : <span className="warn">Missing · required on the dispatch order</span>} /><DoV label="Email" value={pl.email} /><DoV label="Phone" value={pl.phone} /></>}
-    </div>
-  ); };
-  const carNow = DO_CARRIERS[d.carrier];
-  const sizeTag = d.cargo.type.startsWith('40') ? (d.cargo.type.includes('High') ? "40'HC" : "40'ST") : "20'ST";
-  // carrier section: edit ↔ static, like the planner
-  const carEditing = !d.saved?.carrier;
-  const [carWas, setCarWas] = useState(null);
-  const carSave = () => { setCarWas(null); doPatch(d.id, { saved: { ...d.saved, carrier: true } }); msg.success(`${DO_CARRIERS[d.carrier].name} saved as the carrier`); };
-  const carEdit = () => { setCarWas(d.carrier); doPatch(d.id, { saved: { ...d.saved, carrier: false } }); };
-  const carCancel = () => { if (carWas) { doPatch(d.id, { carrier: carWas, carrierContact: null, saved: { ...d.saved, carrier: true } }); setCarWas(null); } };
-  const sendIt = () => { if (!d.plan.drop) { msg.warning('Enter the empty drop day first'); return; } const open2 = Object.keys(ed).length;
-    if (missing || open2) { msg.warning(open2 ? 'Save the open sections first' : `Fix ${missing} missing item${missing > 1 ? 's' : ''} first`); return; } doPatch(d.id, { saved: { ...d.saved, plan: true, carrier: true } }); open('send'); };
+  const patchCargo = (patch) => doPatch(d.id, { cargo: { ...d.cargo, ...patch } });
+  const typeLabel = { '20 ft Standard': '20 Dry standard', '40 ft Standard': '40 Dry standard', '40 ft High Cube': '40 High cube' }[d.cargo.type] || d.cargo.type;
+  const kg = (v) => (v ? num(v).replace(/,/g, ' ') : '');
+  // Route details: each place picked from the saved places, the drawer (Edit) also holds the site contact
+  const placeOpts = DO_SAVED_PLACES.map((x) => ({ value: x.name, label: `${x.name} ${x.address.replace(/, USA$/, '')}` }));
+  const setPlace = (k, name) => { const x = DO_SAVED_PLACES.find((y) => y.name === name); if (x) doPatch(d.id, (o) => ({ places: { ...o.places, [k]: { ...o.places[k], ...x, kind: o.places[k].kind } } })); };
+  const sendIt = () => {
+    if (!d.plan.drop) { msg.warning('Enter the empty drop date first'); return; }
+    if (missing) { msg.warning(`Fix ${missing} missing item${missing > 1 ? 's' : ''} first`); return; }
+    open('send');
+  };
   return (
     <div className="do-editor" role="dialog" aria-label={`Dispatch order ${d.id}`}>
       <div className="do-editor-bar">
         <Button type="text" icon={<I.CloseOutlined />} aria-label="Back to dispatches" onClick={close} />
-        <div className="do-head-main">
-          <div className="do-head-id"><h2>{d.id}</h2><DoStatusTag d={d} /></div>
-          <div>{d.number || 'MSCU7493112'} / <b>{d.siteTitle}</b></div>
-        </div>
-        <span className="do-head-div" />
-        <DoDue label="Next deadline · Dispatch to carrier" date="27 May 2026, 16:00" badge="Today" />
+        <div className="do-head-main"><div className="do-head-id"><h2>{d.id}</h2><DoStatusTag d={d} /></div></div>
         <div className="do-editor-acts">
-          <Button type="text" onClick={close}>Cancel</Button>
-          <Button type="primary" className="do-dark" onClick={sendIt}>Save changes</Button>
+          <Button type="text" onClick={() => { msg.success('Draft saved'); close(); }}>Save for later</Button>
+          <Button type="primary" className="do-dark" onClick={sendIt}>Continue</Button>
         </div>
       </div>
       <div className="do-editor-body">
         <div className="do-editor-form">
-          <DoSec id="do-step-carrier" title="Carrier information" sub="The drayage carrier gets the dispatch order and handles every leg"
-            action={carEditing ? <span className="do-ed-btns"><Button type="text" size="small" onClick={carCancel}>Cancel</Button><Button type="primary" size="small" className="do-dark" onClick={carSave}>Save</Button></span>
-              : <DoLink icon={<I.EditOutlined />} onClick={carEdit}>Edit</DoLink>}>
+          <DoSec id="do-step-carrier" title="Carrier information" sub="The drayage carrier gets the dispatch order and handles every leg">
             <div className="do-ed-box do-car-box">
-              {carEditing ? <DoF label="Drayage carrier"><Select showSearch optionFilterProp="label" value={d.carrier} onChange={(v) => doPatch(d.id, { carrier: v, carrierContact: null })}
+              <DoF label="Drayage carrier"><Select showSearch optionFilterProp="label" value={d.carrier} onChange={(v) => doPatch(d.id, { carrier: v, carrierContact: null })}
                 options={Object.entries(DO_CARRIERS).map(([value, x]) => ({ value, label: x.name.toUpperCase() }))} /></DoF>
-                : <DoV label="Drayage carrier" value={<b>{carNow.name.toUpperCase()}</b>} />}
-              <div className="do-carrier-co"><span className="do-sub">{DSP_CARRIERS[d.carrier]?.address}</span></div>
-              <div className="do-car-contacts"><DoV label="Contact Person" value={carNow.contact} /><DoV label="Phone" value={carNow.phone} /><DoV label="Email" value={carNow.email} /></div>
             </div>
           </DoSec>
           <DoPlanner d={d} open={open} msg={msg} />
           {!d.places.load.contact && <DoWarn action="Add contact" onAction={() => open('route')}>Loading site contact is missing · required on the dispatch order</DoWarn>}
           <DoSec id="do-step-route" title="Route details" sub="Edits apply to every dispatch order using the place" tag={!d.places.load.contact && <GoldTag>1 required missing</GoldTag>}
             action={<DoLink icon={<I.EditOutlined />} onClick={() => open('route')}>Edit</DoLink>}>
-            <div className="do-ed-places cols">{[['cy', DO_PLACE_CY.kind], ['load', 'Loading location'], ['ret', DO_PLACE_RET.kind]].map(([k, kind]) => placeView(k, kind))}</div>
+            {[['cy', 'Empty pickup CY'], ['load', 'Loading location'], ['ret', 'Full return (Terminal)']].map(([k, label]) => (
+              <div className="do-ed-box do-route-box" key={k}>
+                <DoF label={label}><Select showSearch optionFilterProp="label" value={d.places[k].name} options={placeOpts} onChange={(v) => setPlace(k, v)} /></DoF>
+              </div>
+            ))}
           </DoSec>
-          {!d.cargo.weight && <DoWarn action="Add weight" onAction={() => startEdit('cargo')}>Estimated cargo weight is missing · the carrier needs it to choose the chassis</DoWarn>}
-          <DoSec id="do-step-cargo" title="Review cargo and container" sub="Container and cargo details the carrier sees on the dispatch order" tag={!d.cargo.weight && <GoldTag>1 missing</GoldTag>}>
+          {!d.cargo.weight && <DoWarn action="Add weight" onAction={() => document.getElementById('do-est-weight')?.focus()}>Estimated cargo weight is missing · the carrier needs it to choose the chassis</DoWarn>}
+          <DoSec id="do-step-cargo" title="Container and cargo" sub="Container and cargo details the carrier sees on the dispatch order" tag={!d.cargo.weight && <GoldTag>1 missing</GoldTag>}>
             <div className="do-ed-box">
-              <div className="do-ed-cardhead"><b>Container</b>{btns('container')}</div>
-              {ed.container ? <div className="do-ed-grid"><DoF label="Container">{inp(cargo, setCargo, 'number')}</DoF><DoF label="Seal Number">{inp(cargo, setCargo, 'seal')}</DoF><DoF label="Genset">{sel(cargo, setCargo, 'genset', ['Yes', 'No'])}</DoF><DoF label="Temperature">{inp(cargo, setCargo, 'temp')}</DoF><DoF label="References">{inp(cargo, setCargo, 'refs')}</DoF></div>
-                : <div className="do-ed-grid view three"><DoV label="Container" value={<span className="do-tags">{d.number || 'Assigned at empty pickup'}<Tag className="do-tag">{sizeTag}</Tag></span>} /><DoV label="Seal Number" value={d.cargo.sealNo || 'After loading'} /><DoV label="Genset" value={d.cargo.genset ? 'Yes' : 'No'} /><DoV label="Temperature" value={d.cargo.temp} />
-                  <DoV label="References" value={<span className="do-tags">{DO_REFS.slice(0, 2).map((x) => <Tag key={x} className="do-tag">{x}</Tag>)}<Tag className="do-tag">+{DO_REFS.length - 2}</Tag></span>} /></div>}
+              <b>Container</b>
+              <div className="do-pf-row">
+                <DoPF label="Container number"><Input value={d.number || ''} placeholder="Assigned at empty pickup" onChange={(e) => doPatch(d.id, { number: e.target.value || null })} /></DoPF>
+                <DoPF label="Container Type"><Input value={typeLabel} disabled /></DoPF>
+                <DoPF label="Seal Number"><Input value={d.cargo.sealNo || ''} placeholder="After loading" onChange={(e) => patchCargo({ sealNo: e.target.value })} /></DoPF>
+                <DoPF label="Genset"><Select value={d.cargo.genset ? 'Yes' : 'No'} onChange={(v) => patchCargo({ genset: v === 'Yes' })} options={[{ value: 'Yes', label: 'Yes' }, { value: 'No', label: 'No' }]} /></DoPF>
+                <DoPF label="Temperature"><Input value={d.cargo.temp || ''} onChange={(e) => patchCargo({ temp: e.target.value })} /></DoPF>
+                <DoPF label="References"><Input value={d.refs ?? DO_REFS.join(', ')} onChange={(e) => doPatch(d.id, { refs: e.target.value })} /></DoPF>
+              </div>
             </div>
             <div className="do-ed-box">
-              <div className="do-ed-cardhead"><b>Cargo</b>{btns('cargo')}</div>
-              {ed.cargo ? <div className="do-ed-grid"><DoF label="Cargo description">{inp(cargo, setCargo, 'desc')}</DoF><DoF label="Estimated Load weight, kg">{inp(cargo, setCargo, 'weight')}</DoF></div>
-                : <div className="do-ed-grid view"><DoV label="Cargo description" value={d.cargo.desc} /><DoV label="Estimated Load weight" value={d.cargo.weight ? <span className="do-tags">{num(d.cargo.weight).replace(/,/g, ' ')} kg<I.EyeOutlined className="do-link-ic" /></span> : <span className="warn">Missing · required by the carrier</span>} /></div>}
+              <b>Cargo</b>
+              <div className="do-pf-row">
+                <DoPF label="Description"><Input value={d.cargo.desc} disabled /></DoPF>
+                <DoPF label="Estimated load weight"><Input id="do-est-weight" value={kg(d.cargo.weight)} status={d.cargo.weight ? '' : 'warning'} placeholder="kg" onChange={(e) => patchCargo({ weight: Number(e.target.value.replace(/\D/g, '')) || null })} /></DoPF>
+              </div>
+            </div>
+            <div className="do-ed-box">
+              <b>Cargo</b>
+              <div className="do-pf-row">
+                <DoPF label="Description"><Input value={d.cargo.desc} disabled /></DoPF>
+                <DoPF label="Actual load weight"><Input value={kg(d.cargo.actualWeight)} placeholder="After loading" disabled /></DoPF>
+              </div>
             </div>
           </DoSec>
         </div>
@@ -8569,11 +8516,13 @@ function DoDetailPage({ d, open, msg }) {
   const nextLeg = legs.find((l) => doKeyRows(l).some((x) => !x.act));
   const nextRow = nextLeg && doKeyRows(nextLeg).find((x) => !x.act);
   const nextName = nextRow && ({ 'l2-arr': 'Empty drop' }[nextRow.k] || nextRow.label);
-  const due = {
-    dispatched: ['Confirmation required by', '27 May 2026, 17:00', 'Today'],
-    confirmed: [`Next step · ${nextName}`, nextRow?.est.format('DD MMM YYYY, HH:mm'), 'Tomorrow'],
-    progress: nextRow ? [`Next step · ${nextName}`, nextRow.est.format('DD MMM YYYY, HH:mm'), nextRow.missing ? null : 'Today'] : ['Next step', 'All legs done', null],
-    completed: d.invoice ? ['Carrier invoice added', `${d.invoice.no} · $${num(d.invoice.amount)}`, null] : ['Carrier invoice due by', '04 Jun 2026', 'In 2 days'],
+  // header, as Figma 7915:187765: "step: date" in bold, a short line under it
+  const dropAt = `${dayjs(doDay(d.plan.drop || d.rec).iso).format('D MMM')}, ${(d.plan.dropWin || '').split('–')[0] || '13:00'}`;
+  const next = {
+    dispatched: { main: `Empty drop: ${dropAt}`, sub: `Confirm with carrier ${dropAt}`, onSub: () => open('m:confirm') },
+    confirmed: { main: `${nextName}: ${nextRow?.est.format('D MMM, HH:mm')}`, sub: 'Tomorrow' },
+    progress: nextRow ? { main: `${nextName}: ${nextRow.est.format('D MMM, HH:mm')}`, sub: nextRow.missing ? null : 'Today' } : { main: 'All legs done', sub: null },
+    completed: d.invoice ? { main: 'Carrier invoice added', sub: `${d.invoice.no} · $${num(d.invoice.amount)}` } : { main: 'Carrier invoice due by 04 Jun', sub: 'In 2 days' },
   }[st];
   const profit = (x) => x.sell - x.buy;
   const tagColor = { dispatched: '', confirmed: 'ok', progress: 'next', completed: 'ok' }[st];
@@ -8582,20 +8531,22 @@ function DoDetailPage({ d, open, msg }) {
     <>
       <div className="do-card do-head2">
         <div className="do-head-main">
-          <div className="do-head-id"><h2>{d.id}</h2><DoStatusTag d={d} /></div>
-          <div>{d.number || 'MSCU7493112'} / <b>{d.siteTitle}</b></div>
-          <div className="do-head-links">
-            <DoLink icon={<I.DownloadOutlined />} onClick={() => go(`${DOC_PATH}?v=${d.plan.loading === 'dp' ? 'export' : 'export-live'}`)}>Download dispatch order (PDF)</DoLink>
+          <div className="do-head-id"><h2>{d.id}</h2><DoStatusTag d={d} />
             <Dropdown trigger={['click']} menu={{ items: [{ key: 'report', icon: <I.WarningOutlined />, label: 'Report exception' }, { key: 'charge', icon: <I.PlusOutlined />, label: 'Add extra charge' }, st === 'completed' && !d.invoice && { key: 'invoice', icon: <I.FileTextOutlined />, label: 'Add carrier invoice' }, { type: 'divider' }, { key: 'cancel', icon: <I.StopOutlined />, label: 'Cancel dispatch order', danger: true }].filter(Boolean),
               onClick: ({ key }) => (key === 'cancel' ? msg.warning(`${d.id} cancelled · ${c.name} will be notified`) : open(`m:${key}`)) }}>
               <Button size="small" type="text" icon={<I.EllipsisOutlined />} aria-label="More actions" />
             </Dropdown>
           </div>
         </div>
-        <span className="do-head-div" />
-        <DoDue label={due[0]} date={due[1]} badge={due[2]} warn={st === 'progress' && nextRow?.missing && `${nextName} event missing`} onWarn={() => open(`leg:${nextLeg.id}`)}
-          action={st === 'dispatched' ? <Button type="primary" className="do-dark do-due-btn" onClick={() => open('m:confirm')}>Mark as confirmed</Button>
-            : st === 'progress' && nextRow?.missing && <Button size="small" className="do-due-btn" onClick={() => open(`leg:${nextLeg.id}`)}>Add actual time</Button>} />
+        <div className="do-next">
+          <I.ClockCircleOutlined className="do-due-ic" />
+          <div className="do-next-txt">
+            <b>{next.main}</b>
+            {next.sub && (next.onSub ? <a className="do-next-link" onClick={next.onSub}>{next.sub}</a> : <span className="do-sub">{next.sub}</span>)}
+            {st === 'progress' && nextRow?.missing && <><DoWarnLink onClick={() => open(`leg:${nextLeg.id}`)}>{nextName} event missing</DoWarnLink>
+              <Button size="small" className="do-due-btn" onClick={() => open(`leg:${nextLeg.id}`)}>Add actual time</Button></>}
+          </div>
+        </div>
       </div>
       <div className="do-cols">
         <div className="do-main">
