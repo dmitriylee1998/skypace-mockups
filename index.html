@@ -8323,8 +8323,8 @@ function DoSendModal({ d, close, msg }) {
       footer={<><Button onClick={close}>Cancel</Button><Button type="primary" className="do-dark" onClick={ok}>{email ? 'Send and mark as dispatched' : 'Mark as dispatched'}</Button></>}>
       <div className="do-send2-cols">
         <div className="do-send2">
-          <Tabs className="do-send-tabs" activeKey={mode} onChange={(k) => { setMode(k); if (k === 'mark') setView('pdf'); }}
-            items={[{ key: 'send', label: 'Send and mark as dispatched' }, { key: 'mark', label: 'Mark as dispatched only' }]} />
+          <Segmented block className="do-seg" value={mode} onChange={(k) => { setMode(k); if (k === 'mark') setView('pdf'); }}
+            options={[{ value: 'send', label: 'Send and mark as dispatched' }, { value: 'mark', label: 'Mark as dispatched only' }]} />
           {email ? <>
             <label className="do-input"><span>To</span><Input value={to} onChange={(e) => setTo(e.target.value)} /></label>
             <label className="do-input"><span>Copy to (CC)</span><Select mode="tags" value={cc} onChange={setCc} placeholder="Add email" tokenSeparators={[',', ' ']} open={false} /></label>
