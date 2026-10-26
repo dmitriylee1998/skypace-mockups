@@ -1553,6 +1553,33 @@
   .do-rec .ant-btn-sm { padding: 0 6px; }
   .do-editor .do-plan-keys { width: 170px; }
   .do-editor .do-plan-grp, .do-editor .do-plan-keys { padding: 16px 12px; }
+  /* send modal: send / mark-only tabs, PDF / Email preview tabs */
+  .do-send-tabs .ant-tabs-nav { margin: 0; }
+  .do-send2-doc .do-send-tabs { flex: none; }
+  .do-mail { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.08); font-family: Roboto, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; }
+  .do-mail-head { padding: 12px 16px; border-bottom: 1px solid #eeeff1; display: flex; flex-direction: column; gap: 2px; font-size: 12px; line-height: 20px; color: #323656; }
+  .do-mail-head span { display: inline-block; width: 56px; color: #6a6f88; }
+  .do-mail-head b { font-weight: 500; }
+  .do-mail-att { margin-top: 6px; align-self: flex-start; padding: 2px 10px; border-radius: 6px; background: #f3f4f7; }
+  .do-mail-att span { width: auto; }
+  .do-mail-body { background: #f4f5f8; padding: 24px 16px 28px; text-align: center; }
+  .do-mail-logo { height: 24px; margin: 0 auto 16px; display: block; }
+  .do-mail-card { background: #fff; border-radius: 12px; padding: 32px 28px 28px; text-align: left; }
+  .do-mail-card h1 { margin: 0; text-align: center; font-size: 24px; line-height: 32px; font-weight: 500; color: #323656; }
+  .do-mail-card hr { border: 0; height: 1px; background: #eeeff1; margin: 24px 0; }
+  .do-mail-card p { margin: 0 0 12px; font-size: 14px; line-height: 22px; color: #414663; }
+  .do-mail-card p.hi, .do-mail-card p.next { color: #323656; font-weight: 500; }
+  .do-mail-panel { background: #f7f8f9; border-radius: 12px; padding: 16px 20px; margin: 4px 0 20px; }
+  .do-mail-panel-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .do-mail-panel-top span { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: #6a6f88; font-weight: 500; }
+  .do-mail-panel-top b, .do-mail-row b { font-weight: 500; color: #323656; }
+  .do-mail-row { display: flex; justify-content: space-between; gap: 16px; padding: 8px 0; border-top: 1px solid #eeeff1; font-size: 13px; line-height: 20px; color: #555a75; }
+  .do-mail-row b { text-align: right; }
+  .do-mail-btn { display: inline-block; padding: 9px 24px; border-radius: 8px; background: #323656; color: #fff; font-size: 14px; font-weight: 500; }
+  .do-mail-help { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 24px; padding: 14px 16px; border-radius: 12px; background: #f7f8f9; font-size: 12px; line-height: 18px; color: #555a75; }
+  .do-mail-help > div { display: flex; flex-direction: column; }
+  .do-mail-help b { color: #323656; font-weight: 500; font-size: 13px; }
+  .do-mail-foot { margin-top: 20px; font-size: 11px; line-height: 16px; color: #6a6f88; }
   .do-due { width: 240px; flex: none; display: flex; gap: 8px; align-items: flex-start; }
   .do-due-ic { color: #414663; margin-top: 3px; }
   .do-due-txt { flex: 1; display: flex; flex-direction: column; gap: 0; }
@@ -8232,29 +8259,85 @@ function DoDocFit({ children }) {
   return <div ref={ref} className="do-docfit" style={{ '--doc-zoom': z }}>{children}</div>;
 }
 const doDocMeta = (d) => ({ ...DOC_META, number: `${SHIPMENT_ID} / ${d.id}`, addressee: [`THE TRANSPORT MANAGER ${DO_CARRIERS[d.carrier].name.toUpperCase()}`, DSP_CARRIERS[d.carrier]?.address || ''] });
+// email the carrier receives, in the style of the Skypace transactional emails (emails/*.html)
+function DoEmailPreview({ d, to, cc, note }) {
+  const c = DO_CARRIERS[d.carrier]; const p = d.plan; const dp = p.loading === 'dp';
+  const when = (k, w) => (k ? `${doDay(k).label}${w ? `, ${w}` : ''}` : '—');
+  const rows = [
+    ['Container', `${d.number || 'Assigned at empty pickup'} · 20′ ST`],
+    ['Empty pickup', d.places.cy.name],
+    [dp ? 'Empty drop' : 'Arrival', when(p.drop, p.dropWin)],
+    ...(dp ? [['Full pickup', when(p.pickup, p.pickupWin)]] : []),
+    ['Loading location', `${d.places.load.name}, ${doAddrLines(d.places.load.address)[1] || ''}`],
+    ['Full return', d.places.ret.name],
+  ];
+  return (
+    <div className="do-mail">
+      <div className="do-mail-head">
+        <div><span>From</span>Skypace Dispatch &lt;dispatch@skypace.com&gt;</div>
+        <div><span>To</span>{to || '—'}</div>
+        {cc.length > 0 && <div><span>Cc</span>{cc.join(', ')}</div>}
+        <div><span>Subject</span><b>Dispatch order {d.id} · {d.number || 'container'} · {SHIPMENT_ID}</b></div>
+        <div className="do-mail-att"><I.PaperClipOutlined /> {d.id}.pdf <span>· 2 pages</span></div>
+      </div>
+      <div className="do-mail-body">
+        <img className="do-mail-logo" src="assets/skypace-logo-lg.svg" alt="Skypace" />
+        <div className="do-mail-card">
+          <h1>New dispatch order</h1>
+          <hr />
+          <p className="hi">Hi {c.contact.split(' ')[0]},</p>
+          <p>{note || `Dispatch order ${d.id} is attached.`}</p>
+          <div className="do-mail-panel">
+            <div className="do-mail-panel-top"><span>Dispatch order {d.id}</span><b>{c.name}</b></div>
+            {rows.map(([k, v]) => <div className="do-mail-row" key={k}><span>{k}</span><b>{v}</b></div>)}
+          </div>
+          <p className="next">Please confirm the order:</p>
+          <span className="do-mail-btn">Confirm dispatch order&nbsp;&nbsp;→</span>
+          <div className="do-mail-help"><div><b>Questions about this order?</b><span>Call +1 415 651 8445 · Mon–Fri, 08:00–17:00 PT</span></div><b>Contact us&nbsp;→</b></div>
+        </div>
+        <div className="do-mail-foot">© 2026 Maxton Shipping Inc. dba Skypace · 3555 Cincinnati Avenue, Rocklin, CA 95765, United States</div>
+      </div>
+    </div>
+  );
+}
 function DoSendModal({ d, close, msg }) {
   const c = DO_CARRIERS[d.carrier];
+  const [mode, setMode] = useState('send');
+  const [view, setView] = useState('pdf');
   const [to, setTo] = useState(d.carrierContact?.email || c.email);
   const [cc, setCc] = useState(['ops@maxton.com', 'v.nikolaev@maxton.com']);
-  const [note, setNote] = useState(`Hi ${(d.carrierContact?.contact || c.contact).split(' ')[0]}, dispatch order ${d.id} for ${d.number || 'MSCU7493112'} is attached. Please confirm by Wed 27 May 18:00.`);
-  const send = () => {
-    if (!/^\S+@\S+\.\S+$/.test(to)) { msg.warning('Enter the carrier email'); return; }
+  const [note, setNote] = useState(`Dispatch order ${d.id} for ${d.number || 'MSCU7493112'} is attached. Please confirm by Wed 27 May 18:00.`);
+  const [how, setHow] = useState('phone');
+  const email = mode === 'send';
+  const dispatch = (text) => {
     doPatch(d.id, { dispatched: true, confirmed: false, legsDone: 0, inLeg: false, dispatchedAt: '27 May, 09:40', snoozed: [], ms: {} });
-    msg.success(`${d.id} sent to ${to}${cc.length ? ` · ${cc.length} in copy` : ''} · marked as dispatched`);
-    close(); window.scrollTo({ top: 0, behavior: 'smooth' });
+    msg.success(text); close(); window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  const ok = () => {
+    if (!email) { dispatch(`${d.id} marked as dispatched · no email sent`); return; }
+    if (!/^\S+@\S+\.\S+$/.test(to)) { msg.warning('Enter the carrier email'); return; }
+    dispatch(`${d.id} sent to ${to}${cc.length ? ` · ${cc.length} in copy` : ''} · marked as dispatched`);
   };
   return (
     <Modal open onCancel={close} width={1040} title={`Send dispatch order · ${d.id}`} className="do-send-modal2" destroyOnHidden
-      footer={<><Button onClick={close}>Cancel</Button><Button type="primary" className="do-dark" onClick={send}>Send and mark as dispatched</Button></>}>
+      footer={<><Button onClick={close}>Cancel</Button><Button type="primary" className="do-dark" onClick={ok}>{email ? 'Send and mark as dispatched' : 'Mark as dispatched'}</Button></>}>
       <div className="do-send2-cols">
         <div className="do-send2">
-          <label className="do-input"><span>To</span><Input value={to} onChange={(e) => setTo(e.target.value)} /></label>
-          <label className="do-input"><span>Copy to (CC)</span><Select mode="tags" value={cc} onChange={setCc} placeholder="Add email" tokenSeparators={[',', ' ']} open={false} /></label>
-          <label className="do-input"><span>Message (optional)</span><Input.TextArea value={note} onChange={(e) => setNote(e.target.value)} autoSize={{ minRows: 4 }} /></label>
+          <Tabs className="do-send-tabs" activeKey={mode} onChange={(k) => { setMode(k); if (k === 'mark') setView('pdf'); }}
+            items={[{ key: 'send', label: 'Send and mark as dispatched' }, { key: 'mark', label: 'Mark as dispatched only' }]} />
+          {email ? <>
+            <label className="do-input"><span>To</span><Input value={to} onChange={(e) => setTo(e.target.value)} /></label>
+            <label className="do-input"><span>Copy to (CC)</span><Select mode="tags" value={cc} onChange={setCc} placeholder="Add email" tokenSeparators={[',', ' ']} open={false} /></label>
+            <label className="do-input"><span>Message (optional)</span><Input.TextArea value={note} onChange={(e) => setNote(e.target.value)} autoSize={{ minRows: 4 }} /></label>
+          </> : <>
+            <Alert type="info" showIcon title="No email is sent" description={`${d.id} is marked as dispatched for ${c.name}. Use it when the order already reached the carrier another way.`} />
+            <label className="do-input"><span>How was it sent?</span><Select value={how} onChange={setHow} options={[{ value: 'phone', label: 'By phone' }, { value: 'email', label: 'From my own email' }, { value: 'portal', label: "Carrier's portal" }]} /></label>
+          </>}
         </div>
         <div className="do-send2-doc">
-          <div className="do-sendm-label"><b>{d.id}.pdf</b><span className="do-sub">Attached</span></div>
-          <DoDocFit><DispatchOrderDoc v={doDocFor(d)} meta={doDocMeta(d)} /></DoDocFit>
+          <Tabs className="do-send-tabs" activeKey={view} onChange={setView}
+            items={[{ key: 'pdf', label: `${d.id}.pdf` }, { key: 'email', label: 'Email', disabled: !email }]} />
+          {view === 'pdf' ? <DoDocFit><DispatchOrderDoc v={doDocFor(d)} meta={doDocMeta(d)} /></DoDocFit> : <DoEmailPreview d={d} to={to} cc={cc} note={note} />}
         </div>
       </div>
     </Modal>
