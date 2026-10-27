@@ -1371,6 +1371,10 @@
   .do-send-foot { display: flex; align-items: center; gap: 8px; padding-top: 16px; border-top: 1px solid #eeeff1; }
   .do-send-foot > span { flex: 1; }
   .do-drawer .ant-drawer-footer { display: flex; justify-content: flex-end; gap: 8px; }
+  .do-drawer-grey .ant-drawer-body { background: #f2f3f5; }
+  .do-edit.do-edit-box { background: #fff; border-radius: 8px; padding: 16px; gap: 0; }
+  .do-edit-box .do-loc-cols { margin: 0 0 8px; }
+  .do-edit-toggle.ant-btn { padding: 0; height: auto; margin-top: 8px; }
   .do-drawer-intro { margin: 0 0 16px; color: #414663; font-size: 12px; line-height: 20px; }
   .do-radios.ant-radio-group { display: flex; flex-direction: column; gap: 8px; }
   .do-impact { background: #f9fafb; border-radius: 8px; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
@@ -8149,7 +8153,7 @@ const doParseWhen = (s, fallbackDay) => {
   return { day: day?.key || fallbackDay || 'thu28', start: m?.[1] || '08:00', end: m?.[2] || m?.[1] || '10:00' };
 };
 const doAt = (dayKey, time) => dayjs(`${doDay(dayKey).iso}T${time || '00:00'}`);
-const DoPicker = (p) => <DatePicker showTime={{ format: 'HH:mm' }} format="DD/MM/YY HH:mm" placeholder="DD/MM/YY" allowClear={false} className="do-dp" {...p} />;
+const DoPicker = (p) => <DatePicker showTime={{ format: 'HH:mm' }} format="DD MMM YYYY HH:mm" placeholder="DD/MM/YY" allowClear={false} className="do-dp" {...p} />;
 
 /* ---------- legs (DO / Legs): every leg shows its milestones; Edit opens the leg's drawer ---------- */
 const doFmt = (v) => (v ? v.format('DD MMM, HH:mm') : null);
@@ -8271,11 +8275,13 @@ function doByLocation(d, rows, leg) {
   return out;
 }
 
-/* Edit milestones drawer — key events of one leg; "Show all events" opens the full list (Origin / Ocean / Destination) */
+/* All events drawer (DO / All events) — every event of the part of the route the leg belongs to; "Show key events only" narrows it */
+const DO_KEY_ALL = new Set([...DO_KEY_EVENTS, 'oc-load', 'oc-dis', 'de-gout', 'de-arr', 'de-gin']);
 function DoLegDrawer({ d, legId, close, msg }) {
-  // one drawer for every edit in Route details: all events in one list, scrolled to the leg it was opened from
   const leg = doLegs(d).find((l) => l.id === legId);
   const all = doAllEvents(d);
+  const part = ['Origin', 'Ocean', 'Destination'].find((g) => all[g].some((x) => (DO_LEG_EVENTS[legId] || []).includes(x.k))) || 'Origin';
+  const [keyOnly, setKeyOnly] = useState(false);
   const [vals, setVals] = useState({});
   const val = (x, f) => (x.k in vals && f in vals[x.k] ? vals[x.k][f] : x[f]);
   const set = (k, f, v) => setVals((s) => ({ ...s, [k]: { ...s[k], [f]: v } }));
@@ -8286,24 +8292,22 @@ function DoLegDrawer({ d, legId, close, msg }) {
     doPatch(d.id, { ms, ...doFromLegs(next) });
     msg.success('Events saved'); close();
   };
-  const rows = Object.values(all).flat().map(({ group, ...x }) => x);
-  const focus = leg && (DO_LEG_EVENTS[leg.id] || [])[0];
-  useEffect(() => { if (focus) setTimeout(() => document.querySelector(`[data-ev="${focus}"]`)?.scrollIntoView({ block: 'center' }), 300); }, [focus]);
+  const evs = all[part].map(({ group, ...x }) => x);
+  const rows = keyOnly ? evs.filter((x) => DO_KEY_ALL.has(x.k)) : evs;
   return (
-    <Drw title={`All events · ${d.id} · ${d.number || 'container'}`} width={900} onClose={close} bordered className="do-drawer"
-      footer={<><Button type="text" onClick={close}>Cancel</Button><Button type="primary" className="do-dark" onClick={save}>Save</Button></>}>
-      <div className="do-edit">
+    <Drw title={`All events · ${d.id} · ${d.number || 'container'}`} width={900} onClose={close} bordered className="do-drawer do-drawer-grey"
+      footer={<Button type="primary" className="do-dark" onClick={save}>Save</Button>}>
+      <div className="do-edit do-edit-box">
         <div className="do-loc-cols"><span>Location</span><span>Event</span><span>Estimated</span><span>Actual</span></div>
         <div className="do-edit-rows">
           {doByLocation(d, rows, leg).map((g, i, arr) => (
-            <React.Fragment key={g.key}>{g.group && <div className="do-edit-group">{g.group}</div>}
-            <div className={'do-loc' + (i === arr.length - 1 || arr[i + 1].group ? ' last' : '')}>
+            <div key={g.key} className={'do-loc' + (i === arr.length - 1 ? ' last' : '')}>
               <span className="do-loc-dot" aria-hidden="true" />
               <div className="do-loc-card">
                 <div className="do-loc-place"><b>{g.city}</b><span>{g.term}</span><span>{g.mode}</span></div>
                 <div className="do-loc-events">
                   {g.events.map((x) => (
-                    <div key={x.k} className="do-loc-ev" data-ev={x.k}>
+                    <div key={x.k} className="do-loc-ev">
                       <span>{x.label}</span>
                       <DoPicker value={val(x, 'est')} allowClear onChange={(v) => set(x.k, 'est', v)} aria-label={`${x.label} estimated`} />
                       <DoPicker value={val(x, 'act')} allowClear status={x.missing && !val(x, 'act') ? 'warning' : ''} placeholder={x.missing ? 'Add the actual time' : 'DD/MM/YY'} onChange={(v) => set(x.k, 'act', v)} aria-label={`${x.label} actual`} />
@@ -8311,9 +8315,10 @@ function DoLegDrawer({ d, legId, close, msg }) {
                   ))}
                 </div>
               </div>
-            </div></React.Fragment>
+            </div>
           ))}
         </div>
+        <div><Button type="link" className="do-edit-toggle" onClick={() => setKeyOnly(!keyOnly)}>{keyOnly ? `Show all events (${evs.length})` : 'Show key events only'}</Button></div>
       </div>
     </Drw>
   );
