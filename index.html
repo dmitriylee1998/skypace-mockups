@@ -1583,6 +1583,26 @@
   .do-row-link { font-size: 12px; line-height: 20px; color: var(--link); text-decoration: underline; cursor: pointer; }
   .do-row-link.warn { color: #d48806; }
   .do-cell .muted { color: #7c838d; }
+  /* leg rail as the Status component: solid primary dot, 1px primary line */
+  .do-leg .do-leg-rail { width: 8px; }
+  .do-leg .do-leg-pt { width: 8px; height: 8px; border: 0; border-radius: 50%; background: #5f68c0; margin-top: 23px; }
+  .do-leg .do-leg-rail > i { width: 1px; background: #5f68c0; margin: 4px 0 -23px; }
+  .do-ms .do-ms-row { grid-template-columns: minmax(0, 1fr) 180px 180px 32px; align-items: center; }
+  .do-ms-edit.ant-btn { justify-self: end; color: #555a75; }
+  /* drawer table grouped by location, as Container/location step */
+  .do-loc-cols { display: grid; grid-template-columns: 210px minmax(0, 1fr) 180px 180px; gap: 8px; padding: 8px 8px 8px 26px; background: #fafafa; border-radius: 4px; font-weight: 600; margin-top: 8px; }
+  .do-loc { display: flex; gap: 10px; position: relative; }
+  .do-loc-dot { width: 8px; flex: none; position: relative; }
+  .do-loc-dot::before { content: ""; position: absolute; top: 18px; left: 0; width: 8px; height: 8px; border-radius: 50%; background: #5f68c0; }
+  .do-loc-dot::after { content: ""; position: absolute; top: 26px; bottom: -14px; left: 3.5px; width: 1px; background: #5f68c0; }
+  .do-loc.last .do-loc-dot::after { display: none; }
+  .do-loc-card { flex: 1; min-width: 0; display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 8px; padding: 10px 8px; border-radius: 8px; background: #f9fafb; margin-bottom: 8px; }
+  .do-loc-place { display: flex; flex-direction: column; min-width: 0; font-size: 13px; line-height: 20px; color: #414663; }
+  .do-loc-place b { font-weight: 600; font-size: 14px; color: #323656; text-transform: uppercase; }
+  .do-loc-events { display: flex; flex-direction: column; gap: 6px; }
+  .do-loc-ev { display: grid; grid-template-columns: minmax(0, 1fr) 180px 180px; gap: 8px; align-items: center; }
+  .do-loc-ev + .do-loc-ev { padding-top: 6px; border-top: 1px solid #eeeff1; }
+  .do-loc-ev .do-dp.ant-picker { width: 100%; }
   .do-due { width: 240px; flex: none; display: flex; gap: 8px; align-items: flex-start; }
   .do-due-ic { color: #414663; margin-top: 3px; }
   .do-due-txt { flex: 1; display: flex; flex-direction: column; gap: 0; }
@@ -1781,7 +1801,8 @@
     .do-head-div { display: none; }
     .do-due { width: 100%; }
     .do-ms-row { grid-template-columns: minmax(0, 1fr) 110px 110px; font-size: 12px; }
-    .do-edit-cols { display: none; }
+    .do-edit-cols, .do-loc-cols { display: none; }
+    .do-loc-card, .do-loc-ev { grid-template-columns: minmax(0, 1fr); }
     .do-edit-card { grid-template-columns: minmax(0, 1fr); }
     .do-sendm { flex-direction: column; height: auto; }
     .do-sendm-left { width: auto; }
@@ -8186,9 +8207,10 @@ function DoLegCard({ leg, last, onEdit }) {
         </div>
         {(leg.fixed.length > 0 || leg.method) && <div className="do-leg-fixed">{leg.fixed.map(([l, v]) => <DoV key={l} label={l} value={v} />)}{leg.method?.map(([l, v]) => <DoV key={l} label={l} value={v} />)}</div>}
         <div className="do-ms">
-          <div className="do-ms-row head"><span>Milestone</span><span>Estimated</span><span>Actual</span></div>
+          <div className="do-ms-row head"><span>Milestone</span><span>Estimated</span><span>Actual</span><span /></div>
           {rows.map((x) => (
-            <div key={x.k} className="do-ms-row"><span>{x.label}</span><span>{doFmt(x.est)}</span>{x.act ? <span>{doFmt(x.act)}</span> : x.missing ? <span><DoWarnLink onClick={onEdit}>Missing</DoWarnLink></span> : <span className="muted">Not recorded</span>}</div>
+            <div key={x.k} className="do-ms-row"><span>{x.label}</span><span>{doFmt(x.est)}</span>{x.act ? <span>{doFmt(x.act)}</span> : x.missing ? <span><DoWarnLink onClick={onEdit}>Missing</DoWarnLink></span> : <span className="muted">Not recorded</span>}
+              {!leg.yard ? <Button type="text" size="small" className="do-ms-edit" icon={<I.EditOutlined />} aria-label={`Edit ${x.label}`} onClick={onEdit} /> : <span />}</div>
           ))}
         </div>
       </div>
@@ -8209,6 +8231,30 @@ function doAllEvents(d) {
     Ocean: [x('oc-load', 'Loaded on Vessel', term, DO_VES, at('2026-06-04T18:00')), x('oc-dep', 'Departed from Port Newark, NJ, US', term, DO_VES, at('2026-06-05T06:00')), x('oc-arr', 'Arriving to Cat Lai, VN', 'Cat Lai Terminal · Ho Chi Minh City, VN', DO_VES, at('2026-07-03T08:00')), x('oc-dis', 'Discharged from Vessel', 'Cat Lai Terminal · Ho Chi Minh City, VN', DO_VES, at('2026-07-04T10:00'))],
     Destination: [x('de-ready', 'Ready for pickup', 'Cat Lai Terminal · Ho Chi Minh City, VN', DO_TRUCK, at('2026-07-05T08:00')), x('de-gout', 'Gate Out (Full)', 'Cat Lai Terminal · Ho Chi Minh City, VN', DO_TRUCK, at('2026-07-06T09:00')), x('de-arr', 'Arrived to Receiver', 'Receiver warehouse · Ho Chi Minh City, VN', DO_TRUCK, at('2026-07-06T13:00')), x('de-dep', 'Departed from Receiver', 'Receiver warehouse · Ho Chi Minh City, VN', DO_TRUCK, at('2026-07-07T10:00')), x('de-cy', 'Arrived to CY', 'Cat Lai CY · Ho Chi Minh City, VN', DO_TRUCK, at('2026-07-07T14:00')), x('de-gin', 'Gate In (Empty)', 'Cat Lai CY · Ho Chi Minh City, VN', DO_TRUCK, at('2026-07-07T15:00'))],
   };
+}
+
+// events that happen at the same place go into one row: city, terminal, transport + its events
+const doCityOf = (address) => {
+  const parts = (address || '').split(',').map((x) => x.trim()).filter(Boolean);
+  const i = parts.findIndex((x) => /^[A-Z]{2}(\s|$)/.test(x));
+  return i > 0 ? `${parts[i - 1]}, ${parts[i].slice(0, 2)}, US` : address;
+};
+function doByLocation(d, rows, leg) {
+  const known = { [d.places.cy.name]: d.places.cy, [d.places.load.short]: d.places.load, [d.places.load.name]: d.places.load, [d.places.ret.name]: d.places.ret };
+  const where = (place) => {
+    if (place.includes(' · ')) { const [term, city] = place.split(' · '); return { term, city: /, [A-Z]{2}$/.test(city) && !/VN$/.test(city) ? `${city}, US` : city }; }
+    if (known[place]) return { term: known[place].name.replace(/ Inc$/, ''), city: doCityOf(known[place].address) };
+    if (place === DO_TERMINAL) return { term: place, city: 'Newark, NJ, US' };
+    return { term: place, city: '' };
+  };
+  const out = [];
+  for (const x of rows) {
+    const place = x.place || leg?.place || '';
+    const prev = out.at(-1);
+    if (prev && prev.place === place && !x.group) { prev.events.push(x); continue; }
+    out.push({ key: x.k, place, group: x.group, mode: x.mode || DO_TRUCK, ...where(place), events: [x] });
+  }
+  return out;
 }
 
 /* Edit milestones drawer — key events of one leg; "Show all events" opens the full list (Origin / Ocean / Destination) */
@@ -8234,16 +8280,23 @@ function DoLegDrawer({ d, legId, close, msg }) {
         {full ? <Tabs type="card" activeKey={tab} onChange={setTab} items={Object.entries(all).map(([k, v]) => ({ key: k, label: `${k} · ${v.length}` }))} />
           : <><div className="do-edit-head"><div><b>{leg.title}</b><span className="do-sub">{leg.place}</span></div></div>
             {(leg.fixed.length > 0 || leg.method) && <div className="do-leg-fixed">{leg.fixed.map(([l, v]) => <DoV key={l} label={l} value={v} />)}{leg.method?.map(([l, v]) => <DoV key={l} label={l} value={v} />)}</div>}</>}
-        <div className="do-edit-cols"><span>Event</span><span>Estimated</span><span>Actual</span></div>
+        <div className="do-loc-cols"><span>Location</span><span>Event</span><span>Estimated</span><span>Actual</span></div>
         <div className="do-edit-rows">
-          {rows.map((x) => (
-            <React.Fragment key={x.k}>{x.group && <div className="do-edit-group">{x.group}</div>}
-            <div className="do-edit-row">
-              <span className="do-edit-dot" aria-hidden="true" />
-              <div className="do-edit-card">
-                <div className="do-edit-txt"><b>{x.label}</b><span>{x.place || leg.place}</span>{x.mode && <span className="do-sub">{x.mode}</span>}</div>
-                <DoPicker value={val(x, 'est')} allowClear onChange={(v) => set(x.k, 'est', v)} aria-label={`${x.label} estimated`} />
-                <DoPicker value={val(x, 'act')} allowClear status={x.missing && !val(x, 'act') ? 'warning' : ''} placeholder={x.missing ? 'Add the actual time' : 'DD/MM/YY'} onChange={(v) => set(x.k, 'act', v)} aria-label={`${x.label} actual`} />
+          {doByLocation(d, rows, leg).map((g, i, arr) => (
+            <React.Fragment key={g.key}>{g.group && <div className="do-edit-group">{g.group}</div>}
+            <div className={'do-loc' + (i === arr.length - 1 || arr[i + 1].group ? ' last' : '')}>
+              <span className="do-loc-dot" aria-hidden="true" />
+              <div className="do-loc-card">
+                <div className="do-loc-place"><b>{g.city}</b><span>{g.term}</span><span>{g.mode}</span></div>
+                <div className="do-loc-events">
+                  {g.events.map((x) => (
+                    <div key={x.k} className="do-loc-ev">
+                      <span>{x.label}</span>
+                      <DoPicker value={val(x, 'est')} allowClear onChange={(v) => set(x.k, 'est', v)} aria-label={`${x.label} estimated`} />
+                      <DoPicker value={val(x, 'act')} allowClear status={x.missing && !val(x, 'act') ? 'warning' : ''} placeholder={x.missing ? 'Add the actual time' : 'DD/MM/YY'} onChange={(v) => set(x.k, 'act', v)} aria-label={`${x.label} actual`} />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div></React.Fragment>
           ))}
