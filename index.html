@@ -1830,6 +1830,79 @@
     .do-editor-form { padding: 12px; }
     .do-ed-grid { grid-template-columns: minmax(0, 1fr); }
   }
+  /* Inland Pickup · Overview — built on the DO blocks */
+  .ip-h { font-size: 16px; line-height: 24px; font-weight: 600; }
+  .ip-eyebrow { font-size: 12px; line-height: 20px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #6a6f88; }
+  .ip-eyebrow-row { display: flex; align-items: center; justify-content: space-between; }
+  .ip-group { display: flex; flex-direction: column; gap: 8px; }
+  .ip-group + .ip-group { padding-top: 16px; border-top: 1px solid var(--split); }
+  .ip-ic { font-size: 16px; color: #6a6f88; }
+  .ip-ic.warn { color: #faad14; }
+  .ip-steps { display: flex; flex-direction: column; }
+  .ip-step + .ip-step { border-top: 1px solid var(--split); }
+  .ip-step-head { all: unset; box-sizing: border-box; cursor: pointer; width: 100%; display: grid; grid-template-columns: 20px minmax(160px, 1.3fr) 56px minmax(80px, .8fr) minmax(0, 1.6fr); align-items: center; gap: 12px; padding: 12px 8px; border-radius: 8px; }
+  .ip-step-head:hover { background: var(--gray-1); }
+  .ip-step-head:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+  .ip-step-name { font-weight: 500; }
+  .ip-step-count { font-variant-numeric: tabular-nums; color: #414663; }
+  .ip-step-bar.ant-progress { margin: 0; }
+  .ip-step-note { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ip-step-note.ok { color: #389e0d; }
+  .ip-step-dot { width: 16px; height: 16px; border-radius: 50%; box-shadow: inset 0 0 0 2px #d1d7e2; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; color: #fff; }
+  .ip-step-dot.prog { box-shadow: inset 0 0 0 4px #5f68c0; }
+  .ip-step-dot.ok { background: #52c41a; box-shadow: none; }
+  .ip-step-body { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; padding: 0 8px 12px 40px; }
+  .ip-chip { display: flex; flex-direction: column; padding: 8px 12px; border-radius: 8px; background: var(--gray-1); color: inherit; line-height: 20px; }
+  .ip-chip:hover { background: var(--primary-bg); color: inherit; }
+  .ip-chip-id { font-weight: 600; color: var(--link); }
+  .ip-chip-ok { font-size: 12px; line-height: 20px; color: #389e0d; display: inline-flex; gap: 4px; align-items: center; }
+  .ip-clear { display: flex; gap: 12px; padding: 12px 16px; border-radius: 8px; background: #f6ffed; }
+  .ip-clear > .anticon { color: #52c41a; font-size: 16px; margin-top: 3px; }
+  .ip-clear > div { display: flex; flex-direction: column; }
+  .do-sub.ok { color: #389e0d; }
+  .ip-tl.ant-timeline { margin-top: 4px; }
+  .ip-tl-when { font-size: 12px; line-height: 20px; color: #6a6f88; }
+  .ip-tl-when b { font-weight: 600; color: var(--link); }
+  .ip-tl-body { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; padding: 4px 8px; margin: -4px -8px 0; border-radius: 8px; }
+  .ip-tl-body:disabled { cursor: default; }
+  .ip-tl-body:not(:disabled):hover { background: var(--gray-1); }
+  .ip-tl-body:focus-visible { outline: 2px solid var(--primary); }
+  .ip-tl-body b { font-weight: 600; }
+  .ip-tl-body .ant-tag { margin-top: 2px; }
+  .ip-wait { display: flex; gap: 12px; align-items: center; }
+  .ip-feed { display: flex; flex-direction: column; }
+  .ip-feed-row { display: grid; grid-template-columns: 56px 8px minmax(0, 1fr); gap: 12px; padding: 8px; margin: 0 -8px; border-radius: 8px; color: inherit; line-height: 20px; }
+  .ip-feed-row:hover { background: var(--gray-1); color: inherit; }
+  .ip-feed-when { display: flex; flex-direction: column; font-size: 12px; }
+  .ip-feed-dot { width: 8px; height: 8px; margin-top: 6px; border-radius: 50%; background: #d1d7e2; }
+  .ip-feed-row:first-child .ip-feed-dot { background: #5f68c0; }
+  .ip-feed-txt { display: flex; flex-direction: column; min-width: 0; }
+  .ip-places { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .ip-place { border: 1px solid var(--split); border-radius: 8px; padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 12px; }
+  .ip-place-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: -8px; }
+  .ip-place-name { display: flex; flex-direction: column; }
+  .ip-place-name b { font-weight: 600; }
+  .ip-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .ip-tile { background: var(--gray-1); border-radius: 8px; padding: 12px 16px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .ip-tile-v { font-size: 20px; line-height: 28px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .ip-tile .ant-progress { margin: 4px 0 0; }
+  .ip-tile-note { font-size: 12px; line-height: 20px; font-weight: 500; }
+  .ip-tile-note.ok { color: #389e0d; } .ip-tile-note.warn { color: #d48806; } .ip-tile-note.err { color: #d9363e; }
+  .ip-costs { display: flex; flex-direction: column; gap: 12px; }
+  .ip-sum td { background: var(--gray-1); }
+  .ip-feed-row, .ip-chip { text-decoration: none; }
+  .ip-sum .pos { color: #52c41a; } .ip-sum .neg { color: #ff4d4f; }
+  @media (max-width: 1279px) { .ip-cols .do-side { order: -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; } }
+  @media (max-width: 1100px) { .ip-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 900px) {
+    .ip-cols .do-side { grid-template-columns: minmax(0, 1fr); }
+    .ip-places { grid-template-columns: minmax(0, 1fr); }
+    .ip-step-head { grid-template-columns: 20px minmax(0, 1fr) auto; row-gap: 4px; }
+    .ip-step-bar { grid-column: 2 / 4; grid-row: 2; }
+    .ip-step-note { grid-column: 2 / 4; grid-row: 3; white-space: normal; }
+    .ip-step-body { padding-left: 8px; }
+  }
+  @media (max-width: 600px) { .ip-tiles { grid-template-columns: minmax(0, 1fr); } }
 </style>
 </head>
 <body>
@@ -1840,7 +1913,7 @@ const { useState, useEffect, useMemo, useRef } = React;
 const {
   ConfigProvider, Button, Tag, Menu, Breadcrumb, Avatar, Progress, Drawer, Form, Input, Select, DatePicker,
   InputNumber, Radio, Dropdown, Tabs, Divider, FloatButton, List, Tooltip, Table, Alert,
-  Popconfirm, Empty, Grid, message, Segmented, Upload, Modal, Checkbox, Space, Typography, Popover, AutoComplete, Skeleton, Slider, Collapse, Result, Flex, Steps, Descriptions, Badge, Card,
+  Popconfirm, Empty, Grid, message, Segmented, Upload, Modal, Checkbox, Space, Typography, Popover, AutoComplete, Skeleton, Slider, Collapse, Result, Flex, Steps, Descriptions, Badge, Card, Timeline,
 } = antd;
 const I = icons;
 
@@ -2133,14 +2206,14 @@ const SIDE_ITEMS = [
   { key: 'ocean', icon: <Ic n="nav-ship" size={14} />, label: 'Ocean Booking', children: [
     { key: 'ob-overview', label: 'Overview' }, { key: 'planning', label: 'Planning & Tracking' }, { key: 'charges', label: 'Charges' },
   ] },
-  { key: 'inland', icon: <I.CarOutlined />, label: 'Inland Pickup', children: [{ key: 'ip-dispatches', label: 'Dispatches' }, { key: 'ip-planning', label: 'Planning & Tracking' }, { key: 'ip-billing', label: 'Billing' }] },
+  { key: 'inland', icon: <I.CarOutlined />, label: 'Inland Pickup', children: [{ key: 'ip-overview', label: 'Overview' }, { key: 'ip-dispatches', label: 'Dispatches' }, { key: 'ip-planning', label: 'Planning & Tracking' }, { key: 'ip-billing', label: 'Billing' }] },
   { key: 'ops', icon: <I.BankOutlined />, label: 'Operations', children: [{ key: 'op1', label: 'Overview' }] },
   { key: 'acc', icon: <I.ContactsOutlined />, label: 'Accounting', children: [{ key: 'a1', label: 'Overview' }] },
   { key: 'people', icon: <I.StockOutlined />, label: 'People' },
 ];
 // Items that have a page in this prototype; the rest only expand/collapse
-const SIDE_ROUTES = { planning: () => SHIPMENT_PATH, containers: () => CONTAINERS_PATH, 'ip-dispatches': () => DISPATCH_PATH };
-const SIDE_PARENT = { containers: 'details', 'ip-dispatches': 'inland' };
+const SIDE_ROUTES = { planning: () => SHIPMENT_PATH, containers: () => CONTAINERS_PATH, 'ip-overview': () => IP_PATH, 'ip-dispatches': () => DISPATCH_PATH };
+const SIDE_PARENT = { containers: 'details', 'ip-overview': 'inland', 'ip-dispatches': 'inland' };
 function SideMenu({ selected = 'planning' }) {
   const [openKeys, setOpenKeys] = useState(() => [SIDE_PARENT[selected] || 'ocean']);
   return (
@@ -8927,6 +9000,367 @@ function DispatchOrdersPage({ f }) {
   );
 }
 
+/* =====================================================================
+   Inland Pickup · Overview — one page for every drayage move of the shipment.
+   Built from the Dispatch order blocks (DoFields, DoLink, DoWarn, DoStatusTag…) and the same
+   dispatch-order store, so counts, dates and money follow whatever happens on the orders.
+   ===================================================================== */
+const IP_PATH = SHIPMENT_PATH + '/inland-pickup';
+const IP_TODAY = '2026-05-27';
+const IP_BOOKING = '412431231212';
+const IP_CUTOFFS = { vgm: dayjs('2026-06-02T12:00'), port: dayjs('2026-06-02T18:00') };
+const IP_FREE_DAYS = 4;
+
+const ipSum = (arr, f) => arr.reduce((s, x) => s + f(x), 0);
+const ipUsd = (n) => `$${num(Math.abs(n))}`;
+const ipDayLabel = (v) => (v.format('YYYY-MM-DD') === IP_TODAY ? `Today ${v.format('HH:mm')}` : v.format('ddd D MMM, HH:mm'));
+const ipOpen = (id, drawer) => { if (drawer) doPendingDrawer = drawer; go(`${DISPATCH_PATH}/${id}`); };
+const IP_EVENT_NAME = { 'l1-gout': 'Empty pickup', 'l2-arr': 'Arrival at site', 'l2-full': 'Full pickup', 'l3-gin': 'Gate-in', 'ly-arr': 'Yard arrival', 'ly-dep': 'Yard departure' };
+// next key milestone of an order that is moving: { leg, row }
+const ipNext = (d) => {
+  if (doStatus(d) === 'draft') return null;
+  for (const leg of doLegs(d)) { const row = doKeyRows(leg).find((x) => !x.act); if (row) return { leg, row }; }
+  return null;
+};
+
+/* ---------- progress: one row per step, every container under it ---------- */
+const IP_STEPS = [
+  { key: 'dispatched', label: 'Dispatched to carrier', done: (d) => d.dispatched, when: () => 'Not dispatched' },
+  { key: 'confirmed', label: 'Confirmed by carrier', done: (d) => d.confirmed, when: (d) => (d.dispatched ? 'Waiting for carrier' : 'Not dispatched') },
+  { key: 'picked', label: 'Empty picked up', done: (d) => d.legsDone >= 1, when: (d) => doTimes(d).pickup },
+  { key: 'loaded', label: 'Loaded at site', done: (d) => d.legsDone >= 2, when: (d) => doTimes(d).load },
+  { key: 'gated', label: 'Gated in at terminal', done: (d) => d.legsDone >= 3, when: (d) => doTimes(d).gate },
+  { key: 'vgm', label: 'VGM and container data', done: (d) => d.vgm, when: () => `VGM cutoff ${IP_CUTOFFS.vgm.format('ddd D MMM, HH:mm')}` },
+];
+function IpStep({ step, list, open, onToggle }) {
+  const done = list.filter(step.done); const n = done.length; const all = n === list.length;
+  const pending = list.filter((d) => !step.done(d));
+  const firstPlanned = pending.find((d) => d.dispatched);
+  const note = all ? 'All done' : n === 0 && !firstPlanned ? `${pending.length} not dispatched yet` : firstPlanned ? `Next: ${step.when(firstPlanned)}` : `${pending.length} not dispatched yet`;
+  return (
+    <div className={'ip-step' + (open ? ' open' : '')}>
+      <button type="button" className="ip-step-head" aria-expanded={open} onClick={onToggle}>
+        <span className={'ip-step-dot' + (all ? ' ok' : n ? ' prog' : '')}>{all && <I.CheckOutlined />}</span>
+        <b className="ip-step-name">{step.label}</b>
+        <span className="ip-step-count">{n} of {list.length}</span>
+        <Progress className="ip-step-bar" percent={(n / list.length) * 100} showInfo={false} size="small" strokeColor={all ? '#52c41a' : undefined} />
+        <span className={'do-sub ip-step-note' + (all ? ' ok' : '')}>{note}</span>
+      </button>
+      {open && (
+        <div className="ip-step-body">
+          {list.map((d) => {
+            const ok = step.done(d);
+            return (
+              <a key={d.id} className="ip-chip" href={href(`${DISPATCH_PATH}/${d.id}`)}>
+                <span className="ip-chip-id">{d.id}</span>
+                <span className="do-sub">{d.number || 'No container yet'}</span>
+                {ok ? <span className="ip-chip-ok"><I.CheckCircleFilled /> Done</span> : <span className={'do-sub' + (d.dispatched ? '' : ' warn')}>{step.when(d)}</span>}
+              </a>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------- right column: what the operator owes, what's coming, who we wait for ---------- */
+function ipTodos(list) {
+  const out = [];
+  list.filter((d) => doStatus(d) === 'draft').sort((a, b) => a.deadline.order - b.deadline.order).forEach((d) => out.push({
+    id: d.id, warn: d.deadline.warn || doNeedsAttention(d), title: `Dispatch ${d.id}`, sub: `${d.deadline.title} · ${d.deadline.sub}`, cta: 'Open', onClick: () => ipOpen(d.id) }));
+  list.forEach((d) => {
+    const nx = ipNext(d);
+    if (nx?.row.missing) out.push({ id: d.id + '-m', warn: true, title: `Add ${IP_EVENT_NAME[nx.row.k]?.toLowerCase() || 'event'} time · ${d.id}`, sub: `Estimated ${ipDayLabel(nx.row.est)} · not reported by ${DO_CARRIERS[d.carrier].short}`, cta: 'Add time', onClick: () => ipOpen(d.id, `leg:${nx.leg.id}`) });
+    if (d.extra === 'pending') out.push({ id: d.id + '-x', warn: true, title: `Review extra charge · ${d.id}`, sub: `${DO_CARRIERS[d.carrier].short} asks to approve before invoicing`, cta: 'Review', onClick: () => ipOpen(d.id, 'm:extra') });
+    if (d.exception?.open) out.push({ id: d.id + '-e', warn: true, title: `Resolve seal mismatch · ${d.id}`, sub: 'Seal number doesn’t match the booking', cta: 'Review', onClick: () => ipOpen(d.id, 'm:resolve') });
+  });
+  return out;
+}
+function ipDates(list) {
+  const out = [];
+  list.forEach((d) => {
+    const nx = ipNext(d);
+    if (nx?.row.est) out.push({ at: nx.row.est, title: `${IP_EVENT_NAME[nx.row.k] || nx.row.label} · ${d.id}`, sub: `${nx.leg.place} · ${DO_CARRIERS[d.carrier].short}`, note: doStatus(d) === 'dispatched' ? 'Not confirmed yet' : 'Confirmed', tone: doStatus(d) === 'dispatched' ? 'warn' : 'ok', id: d.id });
+    if (doStatus(d) === 'draft' && d.plan.drop) out.push({ at: doAt(d.plan.drop, (d.plan.dropWin || '').split('–')[0] || '08:00'), title: `Empty drop · ${d.id}`, sub: d.places.load.short || d.places.load.name, note: 'Planned · not dispatched', tone: 'warn', id: d.id });
+  });
+  out.push({ at: IP_CUTOFFS.vgm, title: `Cutoffs · ${DO_CTO_SHORT}`, sub: `VGM ${IP_CUTOFFS.vgm.format('HH:mm')} · port cutoff ${IP_CUTOFFS.port.format('HH:mm')}`, note: `${list.filter((d) => d.legsDone >= 3).length} of ${list.length} gated in` });
+  return out.sort((a, b) => a.at.valueOf() - b.at.valueOf()).slice(0, 5);
+}
+const ipWaiting = (list) => list.filter((d) => doStatus(d) === 'dispatched').map((d) => ({ d, title: `Confirmation · ${d.id}`, sub: `${DO_CARRIERS[d.carrier].name} · dispatched ${d.dispatchedAt}`, due: 'Expected by 27 May, 17:00' }));
+
+function IpYourPart({ list, msg }) {
+  const todos = ipTodos(list); const dates = ipDates(list); const waiting = ipWaiting(list);
+  return (
+    <section className="do-card ip-part">
+      <div className="do-box-head"><b className="do-grow ip-h">Your part</b></div>
+      <div className="ip-group">
+        <span className="ip-eyebrow">To do</span>
+        {todos.length ? (
+          <div className="do-attn">
+            {todos.map((t) => (
+              <div key={t.id} className="do-attn-item">
+                {t.warn ? <I.ExclamationCircleFilled className="ip-ic warn" /> : <I.ClockCircleOutlined className="ip-ic" />}
+                <div className="do-attn-txt"><b>{t.title}</b><span className={'do-sub' + (t.warn ? ' warn' : '')}>{t.sub}</span></div>
+                <Button size="small" onClick={t.onClick}>{t.cta}</Button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="ip-clear"><I.CheckCircleFilled /><div><b>Nothing needs you right now</b><span className="do-sub">All orders are dispatched and confirmed. Carriers report each move.</span></div></div>
+        )}
+      </div>
+      <div className="ip-group">
+        <div className="ip-eyebrow-row"><span className="ip-eyebrow">Dates to watch</span><DoLink size="small" onClick={() => msg.info('Calendar view is coming next')}>Calendar</DoLink></div>
+        <Timeline className="ip-tl" mode="start" items={dates.map((x) => ({
+          color: { ok: 'green', warn: 'gold' }[x.tone] || 'gray',
+          content: (
+            <button type="button" className="ip-tl-body" onClick={() => x.id && ipOpen(x.id)} disabled={!x.id}>
+              <span className="ip-tl-when">{x.at.format('YYYY-MM-DD') === IP_TODAY ? <b>Today</b> : x.at.format('ddd D MMM')} · {x.at.format('HH:mm')}</span>
+              <b>{x.title}</b><span className="do-sub">{x.sub}</span>
+              {x.note && <Tag bordered={false} className={'do-tag' + ({ ok: ' ok', warn: ' gold' }[x.tone] || '')}>{x.note}</Tag>}
+            </button>
+          ),
+        }))} />
+      </div>
+      <div className="ip-group">
+        <span className="ip-eyebrow">Waiting on others · {waiting.length}</span>
+        {waiting.length ? waiting.map((w) => (
+          <div key={w.d.id} className="ip-wait">
+            <div className="do-attn-txt"><b>{w.title}</b><span className="do-sub">{w.sub}</span><span className="do-sub">{w.due}</span></div>
+            <Button size="small" icon={<I.SendOutlined />} onClick={() => msg.success(`Reminder sent to ${DO_CARRIERS[w.d.carrier].contact}`)}>Chase</Button>
+          </div>
+        )) : <span className="do-sub">No one owes us a reply</span>}
+      </div>
+    </section>
+  );
+}
+
+const IP_UPDATES = [
+  ['Today', '08:35', 'Loading started at Northwind Polymers', 'Swift Transport · by phone', 'ID-9981'],
+  ['Today', '08:25', 'Arrived at Northwind Polymers', 'Swift Transport', 'ID-9981'],
+  ['Today', '06:35', 'Empty picked up at Integrated Industries', 'Swift Transport · 2 containers', 'ID-9985'],
+  ['Tue 26', '15:10', 'Driver, truck and gate-in slot confirmed', 'Swift Transport', 'ID-9981'],
+  ['Tue 26', '14:10', 'Gated in at Chicago CSX 59th Street Ramp', 'Scale ticket 20,700 kg', 'ID-9980'],
+  ['Mon 25', '10:15', `Loaded and sealed · ${DO_BOOKING_SEAL}`, 'Swift Transport · by email', 'ID-9980'],
+];
+function IpUpdates() {
+  return (
+    <section className="do-card">
+      <div className="do-box-head"><b className="do-grow ip-h">Latest updates</b></div>
+      <div className="ip-feed">
+        {IP_UPDATES.map(([day, time, title, by, id], i) => (
+          <a key={i} className="ip-feed-row" href={href(`${DISPATCH_PATH}/${id}`)}>
+            <span className="ip-feed-when"><span>{day}</span><span className="do-sub">{time}</span></span>
+            <span className="ip-feed-dot" />
+            <span className="ip-feed-txt"><span>{title}</span><span className="do-sub">{id} · {by}</span></span>
+          </a>
+        ))}
+      </div>
+      <DoLink size="small" onClick={() => go(DISPATCH_PATH)}>All activity <I.ArrowRightOutlined /></DoLink>
+    </section>
+  );
+}
+
+/* ---------- left column ---------- */
+const ipPlaces = (list) => {
+  return [
+    { ...DO_PLACE_CY, key: 'cy', kind: 'Empty pickup', rows: [[['Release', `Booking ${IP_BOOKING} · Maersk · ${list.length} containers`]], [['Hours', 'Mon–Fri 06:00–17:00'], ['Earliest release', '27 May, 08:00']]] },
+    { ...DO_SITE_A, key: 'a', kind: 'Loading · Chicago, IL', rows: [[['Contact', `${DO_SITE_A.contact} · ${DO_SITE_A.phone}`]], [['Loading', 'Live load · 2 h free'], ['Access', 'Appointment · 24 h ahead']]] },
+    { ...DO_SITE_B, key: 'b', kind: 'Loading · Neenah, WI', contact: 'The Transport Manager', rows: [[['Contact', `The Transport Manager · ${DO_SITE_B.phone}`]], [['Loading', 'Drop and pick'], ['Access', 'Appointment · 24 h ahead']]] },
+    { ...DO_PLACE_RET, key: 'ret', kind: 'Full return', rows: [[['Receiving from', 'Wed 27 May, 08:00'], ['Gate hours', 'Mon–Sat 07:00–16:30']], [['Cutoffs', `VGM ${IP_CUTOFFS.vgm.format('ddd D MMM, HH:mm')} · port ${IP_CUTOFFS.port.format('HH:mm')}`], ['Appointments', 'Booked by each carrier']]] },
+  ];
+};
+function IpLocations({ list, edits, onEdit }) {
+  return (
+    <section className="do-card">
+      <div className="do-box-head"><b className="do-grow ip-h">Locations</b></div>
+      <div className="ip-places">
+        {ipPlaces(list).map((p0) => {
+          const p = { ...p0, ...edits[p0.key] };
+          return (
+            <div key={p.key} className="ip-place">
+              <div className="ip-place-head">
+                <span className="ip-eyebrow">{p.kind}</span>
+                <Button type="text" size="small" className="do-icon-edit" icon={<I.EditOutlined />} aria-label={`Edit ${p.kind}`} onClick={() => onEdit(p)} />
+              </div>
+              <div className="ip-place-name"><b>{p.name}</b><span className="do-sub">{p.address}</span></div>
+              <DoFields rows={p.rows} />
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+// free time as Figma 7049:265054: one gray item per kind (Detention…), Edit opens a drawer, Add free time under the list
+const IP_FREE_START = dayjs('2026-05-29T17:00'); // first container's free time ends here on day 1
+const ipLastFree = (r) => {
+  let d = IP_FREE_START; let left = r.days - 1;
+  while (left > 0) { d = d.add(1, 'day'); if (r.type !== 'work' || ![0, 6].includes(d.day())) left--; }
+  return d.format('DD MMM YYYY, HH:mm');
+};
+function IpFreeTime({ msg }) {
+  const [items, setItems] = useState([{ id: 1, kind: 'det', days: IP_FREE_DAYS, type: 'cal' }]);
+  const [editing, setEditing] = useState(null); // {} adds a new one
+  const days = (r) => `${r.days} ${r.type === 'work' ? 'Working' : 'Calendar'}`;
+  const save = (v) => {
+    const rec = { ...editing, ...v, id: editing.id || Date.now() };
+    setItems(editing.id ? items.map((r) => (r.id === rec.id ? rec : r)) : [...items, rec]);
+    msg.success(`${FREE_KINDS[rec.kind]} ${editing.id ? 'updated' : 'added'}`); setEditing(null);
+  };
+  return (
+    <section className="do-card">
+      <div className="sub-group">
+        <b className="ip-h">Free time</b>
+        {items.map((r) => <Item key={r.id} title={FREE_KINDS[r.kind]} cols={[['Days', days(r)], ['Last free day', ipLastFree(r)]]} onEdit={() => setEditing(r)} />)}
+        <Button type="link" className="add-link" icon={<I.PlusOutlined />} onClick={() => setEditing({ kind: 'det', days: IP_FREE_DAYS, type: 'cal' })}>Add free time</Button>
+      </div>
+      {editing && (
+        <DoFormDrawer title={editing.id ? 'Edit free time' : 'Add free time'} okText={editing.id ? 'Save' : 'Add'} initial={{ kind: editing.kind, days: editing.days, type: editing.type }}
+          onClose={() => setEditing(null)} onSave={save}>
+          <Form.Item name="kind" label="Type"><Select options={Object.entries(FREE_KINDS).map(([value, label]) => ({ value, label }))} /></Form.Item>
+          <Form.Item name="days" label="Days" rules={[{ required: true, message: 'Enter the number of days' }]}><InputNumber min={1} max={60} style={{ width: '100%' }} /></Form.Item>
+          <Form.Item name="type" label="Counted in"><Radio.Group optionType="button" options={[{ value: 'cal', label: 'Calendar days' }, { value: 'work', label: 'Working days' }]} /></Form.Item>
+          {editing.id && items.length > 1 && <Button danger type="text" icon={<I.DeleteOutlined />} onClick={() => { setItems(items.filter((r) => r.id !== editing.id)); setEditing(null); msg.success('Free time removed'); }}>Remove</Button>}
+        </DoFormDrawer>
+      )}
+    </section>
+  );
+}
+
+// money: what we bill and what carriers charge, straight from the orders' charges
+function ipMoney(list) {
+  const buy = ipSum(list, (d) => ipSum(d.charges, (c) => c.buy)); const sell = ipSum(list, (d) => ipSum(d.charges, (c) => c.sell));
+  const budget = list.length * ipSum(DO_CHARGES, (c) => c.buy);
+  const extras = ipSum(list, (d) => ipSum(d.charges.filter((c) => !DO_CHARGES.some((b) => b.id === c.id)), (c) => c.buy));
+  const done = list.filter((d) => doStatus(d) === 'completed');
+  return { buy, sell, margin: sell - buy, pct: sell ? ((sell - buy) / sell) * 100 : 0, budget, extras, invoices: done.filter((d) => d.invoice).length, due: done.length };
+}
+function IpMoney({ list, onCosts }) {
+  const m = ipMoney(list); const over = m.buy > m.budget;
+  const tile = (label, value, note, sub, tone, bar) => (
+    <div className="ip-tile">
+      <span className="do-sub">{label}</span>
+      <b className="ip-tile-v">{value}</b>
+      {bar != null && <Progress percent={bar} showInfo={false} size="small" strokeColor={tone === 'warn' ? '#faad14' : '#52c41a'} />}
+      <span className={'ip-tile-note ' + (tone || '')}>{note}</span>
+      <span className="do-sub">{sub}</span>
+    </div>
+  );
+  return (
+    <section className="do-card" id="ip-money">
+      <div className="do-box-head">
+        <div><b className="ip-h">Money</b><span className="do-sub">Drayage only · projected until carrier invoices match</span></div>
+        <DoLink size="small" onClick={onCosts}>Costs by order</DoLink>
+      </div>
+      <div className="ip-tiles">
+        {tile('Margin', `${ipUsd(m.margin)} · ${m.pct.toFixed(1)}%`, 'As quoted', `Billed ${ipUsd(m.sell)} − cost ${ipUsd(m.buy)}`, m.margin < 0 ? 'err' : 'ok')}
+        {tile('Cost vs budget', ipUsd(m.buy), over ? `${ipUsd(m.buy - m.budget)} over budget` : 'On budget', `Budget ${ipUsd(m.budget)} · all rates agreed`, over ? 'warn' : 'ok', Math.min(100, (m.buy / m.budget) * 100))}
+        {tile('Extra charges', ipUsd(m.extras), m.extras ? 'Approved' : 'None', m.extras ? 'Passed through to the customer' : 'Nothing reported by carriers', m.extras ? 'warn' : 'ok')}
+        {tile('Carrier invoices', `${m.invoices} of ${list.length}`, m.due ? `${m.due - m.invoices} due` : 'None due yet', 'Each one is due after gate-in', m.due > m.invoices ? 'warn' : '', (m.invoices / list.length) * 100)}
+      </div>
+    </section>
+  );
+}
+
+function IpCosts({ list }) {
+  const rows = list.map((d) => ({ d, id: d.id, buy: ipSum(d.charges, (c) => c.buy), sell: ipSum(d.charges, (c) => c.sell) }));
+  const m = ipMoney(list);
+  return (
+    <section className="ip-costs">
+      <span className="do-sub">Buy and sell from each dispatch order’s charges</span>
+      <Table size="middle" rowKey="id" pagination={false} className="do-table" dataSource={rows} scroll={{ x: 720 }}
+        onRow={(r) => ({ onClick: () => ipOpen(r.id), style: { cursor: 'pointer' } })}
+        columns={[
+          { title: 'Order', dataIndex: 'id', width: 110, render: (v) => <a href={href(`${DISPATCH_PATH}/${v}`)} onClick={(e) => e.stopPropagation()}>{v}</a> },
+          { title: 'Container', key: 'c', render: (_, r) => r.d.number || <span className="muted">Not assigned</span> },
+          { title: 'Carrier', key: 'car', render: (_, r) => (r.d.dispatched ? DO_CARRIERS[r.d.carrier].short : <span className="muted">—</span>) },
+          { title: 'Status', key: 'st', width: 120, render: (_, r) => <DoStatusTag d={r.d} /> },
+          { title: 'Buy', dataIndex: 'buy', width: 110, align: 'right', render: (v) => money(v) },
+          { title: 'Sell', dataIndex: 'sell', width: 110, align: 'right', render: (v) => money(v) },
+          { title: 'Profit', key: 'p', width: 110, align: 'right', render: (_, r) => <span className={r.sell - r.buy < 0 ? 'neg' : 'pos'}>{money(r.sell - r.buy)}</span> },
+        ]}
+        summary={() => (
+          <Table.Summary.Row className="ip-sum">
+            <Table.Summary.Cell index={0} colSpan={4}><b>Total · {list.length} orders</b></Table.Summary.Cell>
+            <Table.Summary.Cell index={4} align="right"><b>{money(m.buy)}</b></Table.Summary.Cell>
+            <Table.Summary.Cell index={5} align="right"><b>{money(m.sell)}</b></Table.Summary.Cell>
+            <Table.Summary.Cell index={6} align="right"><b className={m.margin < 0 ? 'neg' : 'pos'}>{money(m.margin)}</b></Table.Summary.Cell>
+          </Table.Summary.Row>
+        )} />
+    </section>
+  );
+}
+
+function IpOcean() {
+  return (
+    <section className="do-card">
+      <div className="do-box-head"><b className="do-grow ip-h">Ocean</b><DoLink size="small" onClick={() => go(SHIPMENT_PATH)}>Planning &amp; Tracking</DoLink></div>
+      <DoFields rows={[[['Carrier', 'Maersk'], ['Booking', IP_BOOKING], ['Vessel / voyage', DO_VESSEL]], [['Terminal', DO_TERMINAL], ['Port cutoff', IP_CUTOFFS.port.format('ddd D MMM, HH:mm')], ['VGM cutoff', IP_CUTOFFS.vgm.format('ddd D MMM, HH:mm')]]]} />
+    </section>
+  );
+}
+function IpCustomer() {
+  return (
+    <section className="do-card">
+      <div className="do-box-head"><b className="do-grow ip-h">Customer</b><DoLink size="small" onClick={() => go('/contacts')}>Open</DoLink></div>
+      <DoFields rows={[[['Company', 'Maxton Inc'], ['Contact', 'Vladimir Nikolaev · +1 212 555 0147'], ['Skypace operator', 'Bridget Moore']]]} />
+    </section>
+  );
+}
+
+/* ---------- page ---------- */
+function InlandPickupPage() {
+  const list = useDispatchOrders();
+  const [costs, setCosts] = useState(false);
+  const [openSteps, setOpenSteps] = useState({});
+  const [edits, setEdits] = useState({});
+  const [editing, setEditing] = useState(null);
+  const [msgApi, msgCtx] = message.useMessage();
+  return (
+    <ShipmentShell selected="ip-overview">
+      {msgCtx}
+      <div className="do-page">
+          <div className="do-cols ip-cols">
+            <div className="do-main">
+              <section className="do-card">
+                <div className="do-box-head"><b className="do-grow ip-h">Step by step</b>
+                </div>
+                <div className="ip-steps">
+                  {IP_STEPS.map((s) => <IpStep key={s.key} step={s} list={list} open={!!openSteps[s.key]}
+                    onToggle={() => setOpenSteps(({ [s.key]: was, ...rest }) => (was ? rest : { ...rest, [s.key]: true }))} />)}
+                </div>
+              </section>
+              <IpLocations list={list} edits={edits} onEdit={setEditing} />
+              <IpFreeTime msg={msgApi} />
+              <IpMoney list={list} onCosts={() => setCosts(true)} />
+              <IpOcean />
+              <IpCustomer />
+            </div>
+            <div className="do-side">
+              <IpYourPart list={list} msg={msgApi} />
+              <IpUpdates />
+            </div>
+          </div>
+      </div>
+      {costs && (
+        <Drw title="Costs by order" width={880} onClose={() => setCosts(false)} bordered className="do-drawer"><IpCosts list={list} /></Drw>
+      )}
+      {editing && (
+        <DoFormDrawer title={`Edit ${editing.name}`} intro="Changes apply to every dispatch order that uses this place." initial={{ name: editing.name, address: editing.address, contact: editing.contact, phone: editing.phone }}
+          onClose={() => setEditing(null)} onSave={(v) => { setEdits({ ...edits, [editing.key]: v }); setEditing(null); msgApi.success(`${v.name} saved`); }}>
+          <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Enter a name' }]}><Input /></Form.Item>
+          <Form.Item name="address" label="Address" rules={[{ required: true, message: 'Enter the address' }]}><Input.TextArea autoSize={{ minRows: 2 }} /></Form.Item>
+          <Form.Item name="contact" label="Contact"><Input placeholder="Name" /></Form.Item>
+          <Form.Item name="phone" label="Phone"><Input placeholder="+1" /></Form.Item>
+        </DoFormDrawer>
+      )}
+    </ShipmentShell>
+  );
+}
+
 
 function PlaceholderPage({ title }) {
   return <div className="card"><Empty description={<span><b>{title}</b><br />This page isn’t designed yet.</span>}><Button type="primary" onClick={() => go('/overview')}>Back to Overview</Button></Empty></div>;
@@ -8957,6 +9391,9 @@ function resolvePage(path, query) {
   if (path === '/profile') return { navKey: '', crumbs: [HOME, crumb('Profile')], el: <ProfilePage key={query.tab || 'documents'} initialTab={query.tab} /> };
   if (path === DISPATCH_PATH) {
     return { navKey: '/shipments', collapsed: true, crumbs: [crumb('Shipments', '/shipments'), crumb(SHIPMENT_ID, SHIPMENT_PATH), crumb('Inland Pickup · Dispatches')], el: <DispatchOrdersPage key={query.f || 'list'} f={query.f} /> };
+  }
+  if (path === IP_PATH) {
+    return { navKey: '/shipments', collapsed: true, crumbs: [crumb('Shipments', '/shipments'), crumb(SHIPMENT_ID, SHIPMENT_PATH), crumb('Inland Pickup · Overview')], el: <InlandPickupPage /> };
   }
   const dspRoute = path.startsWith(DISPATCH_PATH + '/') && path.slice(DISPATCH_PATH.length + 1);
   if (dspRoute && /^ID-\d+$/.test(dspRoute)) {
@@ -9018,6 +9455,7 @@ const PAGE_SCREENS = [
   ['1535:51136', 'Auth · Change password', '/auth/reset'], ['1535:50871', 'Auth · Sign Up', '/auth/sign-up'], ['1535:50810', 'Auth · Verify email', '/auth/verify'],
   ['—', 'Shipment · Containers', CONTAINERS_PATH], ['—', 'Shipment · Container (not assigned)', CONTAINERS_PATH + '/10682'],
   ['—', 'Shipment · Container (with load plan)', CONTAINERS_PATH + '/10683'],
+  ['—', 'Inland Pickup · Overview', IP_PATH],
   ['7249:122947', 'Dispatch orders · 0 list', DISPATCH_PATH + '?f=0'],
   ['7522:224042', 'Dispatch · 1 unassigned · editor · drop & pick, appointment', DISPATCH_PATH + '/ID-9984?f=1'],
   ['7526:148221', 'Dispatch · 1a recommended days', DISPATCH_PATH + '/ID-9984?f=1a'],
