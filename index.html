@@ -1580,6 +1580,9 @@
   .do-mail-help > div { display: flex; flex-direction: column; }
   .do-mail-help b { color: #323656; font-weight: 500; font-size: 13px; }
   .do-mail-foot { margin-top: 20px; font-size: 11px; line-height: 16px; color: #6a6f88; }
+  .do-row-link { font-size: 12px; line-height: 20px; color: var(--link); text-decoration: underline; cursor: pointer; }
+  .do-row-link.warn { color: #d48806; }
+  .do-cell .muted { color: #7c838d; }
   .do-due { width: 240px; flex: none; display: flex; gap: 8px; align-items: flex-start; }
   .do-due-ic { color: #414663; margin-top: 3px; }
   .do-due-txt { flex: 1; display: flex; flex-direction: column; gap: 0; }
@@ -8739,30 +8742,26 @@ function DispatchOrderPage({ id, f }) {
 }
 
 /* ---------- list (frame 0) ---------- */
+// list row, as Figma 7249:122947: next step in bold with one action / fact under it
 function doRow(d) {
-  const st = doStatus(d); const c = DO_CARRIERS[d.carrier]; const t = doTimes(d); const a = d.actual; const p = d.plan;
-  const r = { d, id: d.id, st, container: d.number || 'Not assigned', bold: !!d.number, containerSub: `20'ST · ${d.siteTitle}`, carrier: '—', carrierSub: null, idSub: null };
+  const st = doStatus(d); const c = DO_CARRIERS[d.carrier]; const a = d.actual; const p = d.plan;
+  const dropAt = p.drop ? `${dayjs(doDay(p.drop).iso).format('D MMM')}, ${(p.dropWin || '').split('–')[0] || '13:00'}` : null;
+  const r = { d, id: d.id, st, container: d.number || 'Not assigned', bold: !!d.number, containerSub: "20'ST", carrier: '—', weight: d.cargo.weight || null };
   if (st === 'draft') {
-    const tight = d.rec === 'tue2';
-    r.idSub = doMissing(d).includes('weight') ? ['Weight missing', 'warn'] : !p.drop && tight ? ['Tight date', 'warn'] : null;
-    r.fix = 'days:drop';
-    [r.next, r.nextSub, r.nextWarn] = !p.drop ? ['Not planned yet', `Recommended: ${doDay(d.rec).label}${tight ? ' · tight' : ''}`, tight]
-      : [`Drop ${doDay(p.drop).label}${p.pickup ? ` · pickup ${doDay(p.pickup).label}` : ''}`, 'Not sent to a carrier yet'];
-    [r.deadline, r.deadlineSub, r.deadlineWarn, r.order] = [d.deadline.title, d.deadline.sub, d.deadline.warn, d.deadline.order];
+    const by = { 'Dispatch by today 16:00': '27 May, 16:00', 'Dispatch by Thu 16:00': '28 May, 16:00', 'Dispatch by Fri 16:00': '29 May, 16:00' }[d.deadline.title] || d.deadline.title.replace(/^Dispatch by /, '');
+    r.next = dropAt ? `Empty drop: ${dropAt}` : 'Not planned yet';
+    r.sub = { text: `Dispatch by: ${by}`, kind: 'link', open: null };
   } else {
     r.carrier = c.name;
-    if (st === 'dispatched') { [r.next, r.nextSub] = ['Waiting for confirmation', `Empty pickup ${t.pickup}`]; r.carrierSub = `Dispatched ${d.dispatchedAt}`; [r.deadline, r.deadlineSub, r.deadlineWarn, r.order] = ['Confirm by today 17:00', 'Day-before check', true, 0]; }
-    if (st === 'confirmed') { [r.next, r.nextSub] = [`Empty pickup ${t.pickup}`, DO_CY_SHORT]; r.carrierSub = `Confirmed ${d.confirmedAt}`; [r.deadline, r.deadlineSub, r.order] = ['Empty pickup tomorrow 06:00', DO_CY_SHORT, 5]; }
+    if (st === 'dispatched') { r.next = `Empty drop: ${dropAt}`; r.sub = { text: 'Confirm with carrier by 27 May, 17:00', kind: 'warn-link', open: 'm:confirm' }; }
+    if (st === 'confirmed') { r.next = `Empty pickup: ${doTimes(d).pickup.replace(/^\w+ /, '')}`; r.sub = { text: `Confirmed ${d.confirmedAt}`, kind: 'muted' }; }
     if (st === 'progress') {
-      // as on the Figma list: the next milestone with its planned time
       const lg = doLegs(d); const nx = lg.flatMap((l) => doKeyRows(l)).find((x) => !x.act);
       const nm = nx && ({ 'l2-arr': 'Empty drop' }[nx.k] || nx.label);
-      if (nx?.missing) r.fix = `leg:${lg.find((l) => l.rows.includes(nx)).id}`;
-      [r.next, r.nextSub, r.nextWarn] = nx ? [`${nm}: ${nx.est.format('D MMM, HH:mm')}`, nx.missing ? `${nm} event missing` : null, nx.missing] : ['All legs done', null, false];
-      r.carrierSub = 'Updated 08:40 · phone'; [r.deadline, r.deadlineSub, r.order] = ['Gate-in today 15:00', 'Day 1 of 4 free days', 1];
-      if (d.exception?.open) r.idSub = [d.exception.kind === 'seal' ? 'Seal exception' : 'Exception', 'err'];
+      r.next = nx ? `${nm}: ${nx.est.format('D MMM, HH:mm')}` : 'All legs done';
+      r.sub = nx?.missing ? { text: `${nm} event missing`, kind: 'missing', open: `leg:${lg.find((l) => l.rows.includes(nx)).id}` } : { text: 'Port cutoff 02 Jun, 18:00', kind: 'muted' };
     }
-    if (st === 'completed') { [r.next, r.nextSub] = [d.invoice ? 'Invoice added' : 'Carrier invoice', `Gated in 28 May ${a.gatedIn || ''}`]; r.carrierSub = 'All legs done'; [r.deadline, r.deadlineSub, r.order] = d.invoice ? ['—', 'Nothing due', 9] : ['Carrier invoice by Thu 4 Jun', '7 days after gate-in', 8]; if (d.extra === 'pending') r.idSub = ['Extra charge', 'warn']; }
+    if (st === 'completed') { r.next = d.invoice ? 'Invoice added' : '—'; r.sub = { text: `Gated in 28 May, ${a.gatedIn || '14:10'}`, kind: 'muted' }; }
   }
   r.attention = doNeedsAttention(d);
   return r;
@@ -8784,14 +8783,19 @@ function DispatchOrdersPage({ f }) {
   const drafts = rows.filter((r) => r.st === 'draft');
   const selDrafts = sel.filter((id) => drafts.some((r) => r.id === id));
   const open = (id) => go(`${DISPATCH_PATH}/${id}`);
-  const two = (main, sub, tone, bold) => <div className="do-cell"><span className={bold ? 'do-strong' : ''}>{main}</span>{sub && <span className={'do-sub' + (tone ? ' ' + tone : '')}>{sub}</span>}</div>;
-  const openFix = (r) => { doPendingDrawer = r.fix; open(r.id); };
+  const openWith = (r, drawer) => { doPendingDrawer = drawer; open(r.id); };
+  const sub = (r) => {
+    const x = r.sub; if (!x) return null;
+    if (x.kind === 'missing') return <DoWarnLink onClick={() => openWith(r, x.open)}>{x.text}</DoWarnLink>;
+    if (x.kind === 'muted') return <span className="do-sub">{x.text}</span>;
+    return <a className={'do-row-link' + (x.kind === 'warn-link' ? ' warn' : '')} onClick={(e) => { e.stopPropagation(); openWith(r, x.open); }}>{x.text}</a>;
+  };
   const cols = [
     { title: 'DO ID', dataIndex: 'id', width: 112, render: (v, r) => <div className="do-cell"><a href={href(`${DISPATCH_PATH}/${v}`)} onClick={(e) => e.stopPropagation()}>{v}</a></div> },
-    { title: 'Container', key: 'c', width: 176, render: (_, r) => two(r.container, r.containerSub, null, r.bold) },
-    { title: 'Next step', key: 'n', width: 221, render: (_, r) => (r.nextWarn && r.fix ? <div className="do-cell"><span>{r.next}</span><span className="do-sub"><DoWarnLink onClick={() => openFix(r)}>{r.nextSub}</DoWarnLink></span></div> : two(r.next, r.nextSub, r.nextWarn ? 'warn' : null)) },
-    { title: 'Drayage carrier', key: 'car', width: 156, render: (_, r) => two(r.carrier, r.carrierSub) },
-    { title: 'Deadline', key: 'dl', width: 176, sorter: (x, y) => x.order - y.order, render: (_, r) => <div className="do-cell"><span className={r.deadlineWarn ? 'warn' : ''}>{r.deadline}</span><span className="do-sub">{r.deadlineSub}</span></div> },
+    { title: 'Container', key: 'c', width: 176, render: (_, r) => <div className="do-cell"><span className={r.bold ? '' : 'muted'}>{r.container}</span><span className="do-sub">{r.containerSub}</span></div> },
+    { title: 'Next step', key: 'n', width: 221, render: (_, r) => <div className="do-cell"><span>{r.next}</span>{sub(r)}</div> },
+    { title: 'Drayage carrier', key: 'car', width: 156, render: (_, r) => <div className="do-cell"><span>{r.carrier}</span></div> },
+    { title: 'Cargo weight', key: 'w', width: 176, sorter: (x, y) => (x.weight || 0) - (y.weight || 0), render: (_, r) => <div className="do-cell">{r.weight ? <span>{num(r.weight).replace(/,/g, ' ')} kg</span> : <span className="warn">Missing</span>}</div> },
     { title: 'Status', key: 'st', width: 103, render: (_, r) => <DoStatusTag d={r.d} /> },
     { key: 'go', width: 56, render: (_, r) => <Button size="small" className="arrow-btn" icon={<I.RightOutlined />} aria-label={`Open ${r.id}`} onClick={(e) => { e.stopPropagation(); open(r.id); }} /> },
   ];
