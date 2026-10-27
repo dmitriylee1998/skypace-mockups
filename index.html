@@ -8265,7 +8265,7 @@ function doByLocation(d, rows, leg) {
   for (const x of rows) {
     const place = x.place || leg?.place || '';
     const prev = out.at(-1);
-    if (prev && prev.place === place && !x.group) { prev.events.push(x); continue; }
+    if (prev && prev.place === place && prev.mode === (x.mode || DO_TRUCK) && !x.group) { prev.events.push(x); continue; }
     out.push({ key: x.k, place, group: x.group, mode: x.mode || DO_TRUCK, ...where(place), events: [x] });
   }
   return out;
@@ -8273,9 +8273,9 @@ function doByLocation(d, rows, leg) {
 
 /* Edit milestones drawer — key events of one leg; "Show all events" opens the full list (Origin / Ocean / Destination) */
 function DoLegDrawer({ d, legId, close, msg }) {
+  // one drawer for every edit in Route details: all events in one list, scrolled to the leg it was opened from
   const leg = doLegs(d).find((l) => l.id === legId);
-  const all = doAllEvents(d); const total = Object.values(all).flat().length;
-  const [full, setFull] = useState(false); const [tab, setTab] = useState('Origin');
+  const all = doAllEvents(d);
   const [vals, setVals] = useState({});
   const val = (x, f) => (x.k in vals && f in vals[x.k] ? vals[x.k][f] : x[f]);
   const set = (k, f, v) => setVals((s) => ({ ...s, [k]: { ...s[k], [f]: v } }));
@@ -8284,16 +8284,15 @@ function DoLegDrawer({ d, legId, close, msg }) {
     for (const [k, v] of Object.entries(vals)) ms[k] = { ...(ms[k] || {}), ...Object.fromEntries(Object.entries(v).map(([f, x]) => [f, x ? x.format('YYYY-MM-DDTHH:mm') : null])) };
     const next = { ...d, ms };
     doPatch(d.id, { ms, ...doFromLegs(next) });
-    msg.success(full ? 'Events saved' : `Leg ${leg.n} · ${leg.title}: milestones saved`); close();
+    msg.success('Events saved'); close();
   };
-  const rows = full ? all[tab] : doLegEvents(leg);
+  const rows = Object.values(all).flat().map(({ group, ...x }) => x);
+  const focus = leg && (DO_LEG_EVENTS[leg.id] || [])[0];
+  useEffect(() => { if (focus) setTimeout(() => document.querySelector(`[data-ev="${focus}"]`)?.scrollIntoView({ block: 'center' }), 300); }, [focus]);
   return (
-    <Drw title={full ? `All events · ${d.id} · ${d.number || 'container'}` : `Edit milestones · Leg ${leg.n} · ${leg.title}`} width={900} onClose={close} bordered className="do-drawer"
+    <Drw title={`All events · ${d.id} · ${d.number || 'container'}`} width={900} onClose={close} bordered className="do-drawer"
       footer={<><Button type="text" onClick={close}>Cancel</Button><Button type="primary" className="do-dark" onClick={save}>Save</Button></>}>
       <div className="do-edit">
-        {full ? <Tabs type="card" activeKey={tab} onChange={setTab} items={Object.entries(all).map(([k, v]) => ({ key: k, label: `${k} · ${v.length}` }))} />
-          : <><div className="do-edit-head"><div><b>{leg.title}</b><span className="do-sub">{leg.place}</span></div></div>
-            {(leg.fixed.length > 0 || leg.method) && <div className="do-leg-fixed">{leg.fixed.map(([l, v]) => <DoV key={l} label={l} value={v} />)}{leg.method?.map(([l, v]) => <DoV key={l} label={l} value={v} />)}</div>}</>}
         <div className="do-loc-cols"><span>Location</span><span>Event</span><span>Estimated</span><span>Actual</span></div>
         <div className="do-edit-rows">
           {doByLocation(d, rows, leg).map((g, i, arr) => (
@@ -8304,7 +8303,7 @@ function DoLegDrawer({ d, legId, close, msg }) {
                 <div className="do-loc-place"><b>{g.city}</b><span>{g.term}</span><span>{g.mode}</span></div>
                 <div className="do-loc-events">
                   {g.events.map((x) => (
-                    <div key={x.k} className="do-loc-ev">
+                    <div key={x.k} className="do-loc-ev" data-ev={x.k}>
                       <span>{x.label}</span>
                       <DoPicker value={val(x, 'est')} allowClear onChange={(v) => set(x.k, 'est', v)} aria-label={`${x.label} estimated`} />
                       <DoPicker value={val(x, 'act')} allowClear status={x.missing && !val(x, 'act') ? 'warning' : ''} placeholder={x.missing ? 'Add the actual time' : 'DD/MM/YY'} onChange={(v) => set(x.k, 'act', v)} aria-label={`${x.label} actual`} />
@@ -8315,7 +8314,6 @@ function DoLegDrawer({ d, legId, close, msg }) {
             </div></React.Fragment>
           ))}
         </div>
-        <DoLink onClick={() => setFull(!full)}>{full ? 'Show key events only' : `Show all events (${total})`}</DoLink>
       </div>
     </Drw>
   );
