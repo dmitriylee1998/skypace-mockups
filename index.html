@@ -1603,6 +1603,18 @@
   .do-loc-ev { display: grid; grid-template-columns: minmax(0, 1fr) 180px 180px; gap: 8px; align-items: center; }
   .do-loc-ev + .do-loc-ev { padding-top: 6px; border-top: 1px solid #eeeff1; }
   .do-loc-ev .do-dp.ant-picker { width: 100%; }
+  /* order page as Figma flow 6–9 */
+  .do-icon-edit.ant-btn { color: var(--link); }
+  .do-ft-box.do-ft-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
+  .do-ft-grid > b { padding-bottom: 8px; border-bottom: 1px solid #eeeff1; }
+  .do-ft-grid > div { display: flex; flex-direction: column; gap: 4px; }
+  .do-doc-row { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding: 12px 16px; border-radius: 8px; background: #f9fafb; }
+  .do-doc-row > div { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+  .do-doc-name { font-weight: 600; display: inline-flex; align-items: center; gap: 8px; }
+  .do-doc-dot { width: 6px; height: 6px; border-radius: 50%; background: #52c41a; }
+  .do-route-box { padding: 4px 0; }
+  .do-add-charge { align-self: flex-start; }
+  .do-car-box { padding: 0; }
   .do-due { width: 240px; flex: none; display: flex; gap: 8px; align-items: flex-start; }
   .do-due-ic { color: #414663; margin-top: 3px; }
   .do-due-txt { flex: 1; display: flex; flex-direction: column; gap: 0; }
@@ -8149,12 +8161,14 @@ function doLegs(d) {
   const r = (k, label, est, act) => { const a2 = ms[k] && 'act' in ms[k] ? (ms[k].act ? dayjs(ms[k].act) : null) : act; return { k, label, est: ms[k]?.est ? dayjs(ms[k].est) : est, act: a2, missing: !a2 && (d.missing || []).includes(k) }; };
   const l1 = d.legsDone >= 1; const l2in = d.legsDone >= 2 || d.inLeg; const l2 = d.legsDone >= 2; const l3 = d.legsDone >= 3;
   const legs = [
-    { id: 'l1', n: '1', title: 'Empty container pickup', place: d.places.cy.name, fixed: [['Earliest release', '27 May, 08:00']], rows: [
+    { id: 'l1', n: '1', title: 'Empty container pickup', place: d.places.cy.name, head: `${d.places.cy.name} · ${doCityOf(d.places.cy.address).replace(/, US$/, '')}`, fixed: [['Earliest release', '27 May, 08:00']], rows: [
       r('l1-arr', 'Arrival at depot', at(pk.day, pk.start, -30), l1 ? at(pk.day, a.pickedUp, -30) : null),
       r('l1-gin', 'Gate in', at(pk.day, pk.start, -20), l1 ? at(pk.day, a.pickedUp, -20) : null),
       r('l1-rel', 'Container released', at(pk.day, pk.start, -10), l1 ? at(pk.day, a.pickedUp, -10) : null),
       r('l1-gout', 'Gate out', at(pk.day, pk.start), l1 ? at(pk.day, a.pickedUp) : null)] },
-    { id: 'l2', n: '2', title: 'Loading & full pickup', place: d.places.load.short || d.places.load.name, method: [['Receiving Method', DO_LOADING[d.plan.loading]], ['Loading method', d.plan.access === 'appt' ? 'Appointment' : 'First come, first served']], fixed: [['Earliest release', '27 May, 08:00']], rows: [
+    { id: 'l2', n: '2', title: 'Loading & full pickup', place: d.places.load.short || d.places.load.name, fixed: [['Cargo ready', '27 May, 08:00']],
+      method: [['Loading method', DO_LOADING[d.plan.loading]], ['Facility access', d.plan.access === 'appt' ? 'Appointment' : 'First come, first served'],
+        ...(d.plan.loading === 'dp' ? [['Drop references', d.plan.dropRef || '—'], ['Pickup references', d.plan.pickupRef || '—']] : d.plan.access === 'appt' ? [['Appointment reference', d.plan.apptRef || '—']] : [])], rows: [
       r('l2-arr', 'Arrival', at(ld.day, ld.start), l2in ? at(ld.day, a.arrived) : null),
       r('l2-start', 'Loading started', at(ld.day, ld.start, 15), l2in ? at(ld.day, a.loadingSince || a.arrived, a.loadingSince ? 0 : 15) : null),
       r('l2-done', 'Loading completed', at(ld.day, ld.end, -30), l2 ? at(ld.day, a.loaded, -10) : null),
@@ -8162,7 +8176,7 @@ function doLegs(d) {
     d.extra && { id: 'ly', n: '+', yard: true, title: 'Yard stop · appointment only next day', place: `${DO_CARRIERS[d.carrier].short} yard, Elizabeth NJ`, fixed: [], rows: [
       r('ly-arr', 'Arrived at yard', doAt('wed27', '11:40'), doAt('wed27', '11:40')),
       r('ly-dep', 'Departed from yard', doAt('thu28', '12:10'), doAt('thu28', '12:10'))] },
-    { id: 'l3', n: '3', title: 'Full container return', place: DO_TERMINAL, fixed: [['Earliest return', '27 May, 08:00'], ['Terminal cutoff', '02 Jun, 18:00']], rows: [
+    { id: 'l3', n: '3', title: 'Full container return', place: DO_TERMINAL, fixed: [['Earliest return', '27 May, 08:00'], ['Port cutoff', '02 Jun, 18:00']], rows: [
       r('l3-arr', 'Arrived at terminal', at(gt.day, gt.start, -30), l3 ? at(gt.day, a.gatedIn, -10) : null),
       r('l3-gin', 'Gate in', at(gt.day, gt.start), l3 ? at(gt.day, a.gatedIn) : null),
       r('l3-acc', 'Container accepted', at(gt.day, gt.start, 30), l3 ? at(gt.day, a.gatedIn, 20) : null)] },
@@ -8200,10 +8214,10 @@ function DoLegCard({ leg, last, onEdit }) {
       <div className="do-leg-card">
         <div className="do-leg-head">
           <div className="do-leg-name">
-            <div className="do-leg-title"><b>{leg.title}</b><Tag className="do-tag" title={evs.map((x) => `${x.label}: ${x.act ? 'done' : 'not recorded'}`).join('\n')}>{status}</Tag></div>
-            <span className="do-leg-addr">{leg.place}</span>
+            <div className="do-leg-title"><b>{leg.head || leg.place}</b><Tag color={{ Completed: 'green', 'In progress': 'geekblue' }[status]} className="do-tag" title={evs.map((x) => `${x.label}: ${x.act ? 'done' : 'not recorded'}`).join('\n')}>{status}</Tag></div>
+            <span className="do-leg-addr">{leg.title}</span>
           </div>
-          {!leg.yard && <DoLink icon={<I.EditOutlined />} onClick={onEdit}>Edit</DoLink>}
+          {!leg.yard && <Button type="text" size="small" className="do-icon-edit" icon={<I.EditOutlined />} aria-label={`Edit ${leg.title}`} onClick={onEdit} />}
         </div>
         {(leg.fixed.length > 0 || leg.method) && <div className="do-leg-fixed">{leg.fixed.map(([l, v]) => <DoV key={l} label={l} value={v} />)}{leg.method?.map(([l, v]) => <DoV key={l} label={l} value={v} />)}</div>}
         <div className="do-ms">
@@ -8556,7 +8570,7 @@ function DoEditor({ d, close, open, msg }) {
   const typeLabel = { '20 ft Standard': '20 Dry standard', '40 ft Standard': '40 Dry standard', '40 ft High Cube': '40 High cube' }[d.cargo.type] || d.cargo.type;
   const kg = (v) => (v ? num(v).replace(/,/g, ' ') : '');
   // Route details: each place picked from the saved places, the drawer (Edit) also holds the site contact
-  const placeOpts = DO_SAVED_PLACES.map((x) => ({ value: x.name, label: `${x.name} ${x.address.replace(/, USA$/, '')}` }));
+  const placeOpts = DO_SAVED_PLACES.map((x) => ({ value: x.name, label: x.kind === DO_PLACE_CY.kind ? x.name : `${x.name} ${x.address.replace(/, USA$/, '')}` }));
   const setPlace = (k, name) => { const x = DO_SAVED_PLACES.find((y) => y.name === name); if (x) doPatch(d.id, (o) => ({ places: { ...o.places, [k]: { ...o.places[k], ...x, kind: o.places[k].kind } } })); };
   const sendIt = () => {
     if (!d.plan.drop) { msg.warning('Enter the empty drop date first'); return; }
@@ -8576,16 +8590,16 @@ function DoEditor({ d, close, open, msg }) {
       <div className="do-editor-body">
         <div className="do-editor-form">
           <DoSec id="do-step-carrier" title="Carrier information" sub="The drayage carrier gets the dispatch order and handles every leg">
-            <div className="do-ed-box do-car-box">
+            <div className="do-car-box">
               <DoF label="Drayage carrier"><Select showSearch optionFilterProp="label" value={d.carrier} onChange={(v) => doPatch(d.id, { carrier: v, carrierContact: null })}
                 options={Object.entries(DO_CARRIERS).map(([value, x]) => ({ value, label: x.name.toUpperCase() }))} /></DoF>
             </div>
           </DoSec>
           <DoPlanner d={d} open={open} msg={msg} />
           {!d.places.load.contact && <DoWarn action="Add contact" onAction={() => open('route')}>Loading site contact is missing · required on the dispatch order</DoWarn>}
-          <DoSec id="do-step-route" title="Route details" sub="Edits apply to every dispatch order using the place" tag={!d.places.load.contact && <GoldTag>1 required missing</GoldTag>}>
+          <DoSec id="do-step-route" title="Route details" tag={!d.places.load.contact && <GoldTag>1 required missing</GoldTag>}>
             {[['cy', 'Empty pickup CY'], ['load', 'Loading location'], ['ret', 'Full return (Terminal)']].map(([k, label]) => (
-              <div className="do-ed-box do-route-box" key={k}>
+              <div className="do-route-box" key={k}>
                 <DoF label={label}><Select showSearch optionFilterProp="label" value={d.places[k].name} options={placeOpts} onChange={(v) => setPlace(k, v)} /></DoF>
               </div>
             ))}
@@ -8608,13 +8622,6 @@ function DoEditor({ d, close, open, msg }) {
               <div className="do-pf-row">
                 <DoPF label="Description"><Input value={d.cargo.desc} disabled /></DoPF>
                 <DoPF label="Estimated load weight"><Input id="do-est-weight" value={kg(d.cargo.weight)} status={d.cargo.weight ? '' : 'warning'} placeholder="kg" onChange={(e) => patchCargo({ weight: Number(e.target.value.replace(/\D/g, '')) || null })} /></DoPF>
-              </div>
-            </div>
-            <div className="do-ed-box">
-              <b>Cargo</b>
-              <div className="do-pf-row">
-                <DoPF label="Description"><Input value={d.cargo.desc} disabled /></DoPF>
-                <DoPF label="Actual load weight"><Input value={kg(d.cargo.actualWeight)} placeholder="After loading" disabled /></DoPF>
               </div>
             </div>
           </DoSec>
@@ -8687,24 +8694,22 @@ function DoDetailPage({ d, open, msg }) {
       <div className="do-cols">
         <div className="do-main">
           <section className="do-card">
-            <div className="do-box-head"><span className="do-icon-tile"><I.CarOutlined /></span><div><b>Transport legs</b></div></div>
+            <div className="do-box-head"><div><b>Route details</b></div></div>
             <div className="do-legs">
               {legs.map((l, i) => <DoLegCard key={l.id} leg={l} last={i === legs.length - 1} onEdit={() => open(`leg:${l.id}`)} />)}
             </div>
-            <div className="do-legs-free">
-              <b>Free time</b>
-              <div className="do-ft-box">
-                <b>Origin Free time</b>
-                <div className="do-ft-row">
-                  <div><span>{dd} of 15 Working days Detention</span><Progress percent={dd / 15 * 100} showInfo={false} size="small" strokeColor="#323b9e" /></div>
-                  <div><span>{dm} of 15 Calendar days Demurrage</span><Progress percent={dm / 15 * 100} showInfo={false} size="small" strokeColor="#323b9e" /></div>
-                </div>
-              </div>
+          </section>
+          <section className="do-card">
+            <div className="do-box-head"><div><b>Free time</b></div></div>
+            <div className="do-ft-box do-ft-grid">
+              <b>Detention</b><b>Demurrage</b>
+              <div><span>used {dd} of 15 free days (calendar)</span><Progress percent={dd / 15 * 100} showInfo={false} size="small" strokeColor="#323b9e" /></div>
+              <div><span>used {dm} of 15 free days (calendar)</span><Progress percent={dm / 15 * 100} showInfo={false} size="small" strokeColor="#323b9e" /></div>
             </div>
           </section>
           {d.extra === 'pending' && <DoWarn action="Review charge" onAction={() => open('m:extra')}>Extra charge from the carrier to approve before invoicing</DoWarn>}
           <section className="do-card do-charges-card" id="do-charges">
-            <div className="do-box-head"><b className="do-grow">Charges</b><DoLink icon={<I.PlusOutlined />} onClick={() => open('m:charge')}>Add charge</DoLink></div>
+            <div className="do-box-head"><b className="do-grow">Charges</b></div>
             <Table size="middle" rowKey="id" pagination={false} className="do-table" dataSource={d.charges} scroll={{ x: 560 }}
               columns={[
                 { title: 'Service', dataIndex: 'service' },
@@ -8720,19 +8725,20 @@ function DoDetailPage({ d, open, msg }) {
                   </span>
                 ) },
               ]} />
+            <div className="do-add-charge"><DoLink icon={<I.PlusOutlined />} onClick={() => open('m:charge')}>Add charge</DoLink></div>
           </section>
         </div>
         <div className="do-side">
           {sealBad && <DoWarn action="Review" onAction={() => open('m:resolve')}>Seal number doesn't match the booking · gate-in today 15:00</DoWarn>}
           <section className="do-card">
-            <div className="do-box-head"><b className="do-grow">Container</b><DoLink icon={<I.EditOutlined />} onClick={() => open('cargo')}>Edit</DoLink></div>
+            <div className="do-box-head"><b className="do-grow">Container</b><Button type="text" size="small" className="do-icon-edit" icon={<I.EditOutlined />} aria-label="Edit container" onClick={() => open('cargo')} /></div>
             <DoFields rows={[[['Container', <span className="do-inline">{d.number || 'At empty pickup'}<Tag className="do-tag">{sizeTag}</Tag></span>], ['Seal Number', d.legsDone >= 2 ? (sealBad ? `${a.seal} · doesn't match booking` : a.seal) : d.cargo.sealNo || 'After loading', sealBad ? 'warn' : null]]]} />
             <DoFields rows={[[['Cargo', d.cargo.desc], d.legsDone >= 2 ? ['Gross weight', `${a.gross} · scale ticket`] : ['Cargo weight', d.cargo.weight ? `${num(d.cargo.weight)} kg (est.)` : 'Missing', d.cargo.weight ? null : 'warn']]]} />
             <DoFields rows={[[['Temperature', d.cargo.temp || '—'], ['Genset', d.cargo.genset ? 'Yes' : 'No']]]} />
             <div className="do-fields"><DoField label="References" value={<span className="do-inline">{DO_REFS.slice(0, 2).map((r) => <Tag key={r} className="do-tag">{r}</Tag>)}<Tag className="do-tag">+{DO_REFS.length - 2}</Tag></span>} /></div>
           </section>
           <section className="do-card">
-            <div className="do-box-head"><b className="do-grow">Carrier</b><DoLink icon={<I.EditOutlined />} onClick={() => open('m:carrier')}>Edit</DoLink></div>
+            <div className="do-box-head"><b className="do-grow">Carrier</b><Button type="text" size="small" className="do-icon-edit" icon={<I.EditOutlined />} aria-label="Edit carrier" onClick={() => open('m:carrier')} /></div>
             <DoFields rows={[[['Carrier', c.name]]]} />
             <DoFields rows={[[['Contact', <span>{c.contact}<br />{c.phone}</span>]]]} />
             {d.confirmed && <DoFields rows={[[['Confirmed', `${d.confirmedAt || '27 May, 16:25'} · ${d.confirmedBy || c.contact}`], ['Driver · truck', d.driver || 'Not recorded yet']]]} />}
@@ -8748,6 +8754,15 @@ function DoDetailPage({ d, open, msg }) {
                 <li>Send seal number and scale ticket after loading</li>
                 {d.notes && <li>{d.notes}</li>}
               </ul>
+            </section>
+          )}
+          {st === 'dispatched' && (
+            <section className="do-card">
+              <b>Documents</b>
+              <div className="do-doc-row">
+                <div><span className="do-doc-name"><i className="do-doc-dot" />Dispatch Order</span><span className="do-sub"><I.ClockCircleOutlined /> 27 May, 2026</span></div>
+                <Button icon={<I.DownloadOutlined />} onClick={() => go(`${DOC_PATH}?v=${d.plan.loading === 'dp' ? 'export' : 'export-live'}`)}>Download</Button>
+              </div>
             </section>
           )}
         </div>
