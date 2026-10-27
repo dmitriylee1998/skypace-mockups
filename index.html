@@ -8363,7 +8363,6 @@ function DoSendModal({ d, close, msg }) {
   const [to, setTo] = useState(d.carrierContact?.email || c.email);
   const [cc, setCc] = useState(['ops@maxton.com', 'v.nikolaev@maxton.com']);
   const [note, setNote] = useState(`Dispatch order ${d.id} for ${d.number || 'MSCU7493112'} is attached. Please confirm by Wed 27 May 18:00.`);
-  const [how, setHow] = useState('phone');
   const email = mode === 'send';
   const dispatch = (text) => {
     doPatch(d.id, { dispatched: true, confirmed: false, legsDone: 0, inLeg: false, dispatchedAt: '27 May, 09:40', snoozed: [], ms: {} });
@@ -8387,7 +8386,6 @@ function DoSendModal({ d, close, msg }) {
             <label className="do-input"><span>Message (optional)</span><Input.TextArea value={note} onChange={(e) => setNote(e.target.value)} autoSize={{ minRows: 4 }} /></label>
           </> : <>
             <Alert type="info" showIcon title="No email is sent" description={`${d.id} is marked as dispatched for ${c.name}. Use it when the order already reached the carrier another way.`} />
-            <label className="do-input"><span>How was it sent?</span><Select value={how} onChange={setHow} options={[{ value: 'phone', label: 'By phone' }, { value: 'email', label: 'From my own email' }, { value: 'portal', label: "Carrier's portal" }]} /></label>
           </>}
         </div>
         <div className="do-send2-doc">
