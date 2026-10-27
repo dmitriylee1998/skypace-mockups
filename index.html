@@ -8585,8 +8585,7 @@ function DoEditor({ d, close, open, msg }) {
           </DoSec>
           <DoPlanner d={d} open={open} msg={msg} />
           {!d.places.load.contact && <DoWarn action="Add contact" onAction={() => open('route')}>Loading site contact is missing · required on the dispatch order</DoWarn>}
-          <DoSec id="do-step-route" title="Route details" sub="Edits apply to every dispatch order using the place" tag={!d.places.load.contact && <GoldTag>1 required missing</GoldTag>}
-            action={<DoLink icon={<I.EditOutlined />} onClick={() => open('route')}>Edit</DoLink>}>
+          <DoSec id="do-step-route" title="Route details" sub="Edits apply to every dispatch order using the place" tag={!d.places.load.contact && <GoldTag>1 required missing</GoldTag>}>
             {[['cy', 'Empty pickup CY'], ['load', 'Loading location'], ['ret', 'Full return (Terminal)']].map(([k, label]) => (
               <div className="do-ed-box do-route-box" key={k}>
                 <DoF label={label}><Select showSearch optionFilterProp="label" value={d.places[k].name} options={placeOpts} onChange={(v) => setPlace(k, v)} /></DoF>
