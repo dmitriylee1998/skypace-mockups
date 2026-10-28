@@ -9106,12 +9106,12 @@ function DispatchesAllPage() {
             return (
               <Col key={k.key} flex="1 1 200px">
                 <Card size="small" variant="borderless" className={'dog-ov-card' + (on ? ' on' : '')} role="button" tabIndex={0} aria-pressed={on} onClick={toggle} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), toggle())}
-                  style={{ height: '100%', cursor: 'pointer' }} styles={{ body: { padding: token.padding } }}>
+                  style={{ height: '100%', cursor: 'pointer' }} styles={{ body: { padding: `${token.paddingSM}px ${token.padding}px` } }}>
                   <Flex justify="space-between" align="center" gap={token.marginXS}>
                     <Text strong ellipsis>{k.title}</Text>
                     <Text type={on ? undefined : 'secondary'} style={on ? { color: token.colorPrimary } : undefined}>{k.icon}</Text>
                   </Flex>
-                  <Title level={2} style={{ margin: `${token.marginSM}px 0 ${token.marginXS}px`, color: xs.length ? undefined : token.colorTextQuaternary }}>{xs.length}</Title>
+                  <Title level={3} style={{ margin: `${token.marginXXS}px 0`, color: xs.length ? undefined : token.colorTextQuaternary }}>{xs.length}</Title>
                   {k.sub ? k.sub(xs).map((s) => (s.tone ? <Tag key={s.text} color="error" variant="filled">{s.text}</Tag> : <Text key={s.text} type="secondary" style={{ fontSize: token.fontSizeSM }}>{s.text}</Text>))
                     : <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>{k.note}</Text>}
                 </Card>
