@@ -2157,7 +2157,7 @@ function TopBar({ crumbs, navKey, shipmentMenu }) {
         {shipmentMenu && (
           <>
             <div className="nav-group-title">{SHIPMENT_ID}</div>
-            <Menu mode="inline" items={SIDE_ITEMS} defaultOpenKeys={['ocean']} defaultSelectedKeys={['planning']} inlineIndent={24} onClick={() => setNav(false)} />
+            <Menu mode="inline" expandIcon={({ isOpen }) => <ExpandArrow open={isOpen} />} items={SIDE_ITEMS} defaultOpenKeys={['ocean']} defaultSelectedKeys={['planning']} inlineIndent={24} onClick={() => setNav(false)} />
           </>
         )}
       </Drawer>
@@ -2231,7 +2231,7 @@ function SideMenu({ selected = 'planning' }) {
   const [openKeys, setOpenKeys] = useState(() => [SIDE_PARENT[selected] || 'ocean']);
   return (
     <aside className="side">
-      <Menu mode="inline" items={SIDE_ITEMS} openKeys={openKeys} onOpenChange={setOpenKeys} selectedKeys={[selected]} inlineIndent={24}
+      <Menu mode="inline" expandIcon={({ isOpen }) => <ExpandArrow open={isOpen} />} items={SIDE_ITEMS} openKeys={openKeys} onOpenChange={setOpenKeys} selectedKeys={[selected]} inlineIndent={24}
         onClick={({ key }) => SIDE_ROUTES[key] && go(SIDE_ROUTES[key]())} />
     </aside>
   );
@@ -3247,7 +3247,7 @@ function GlobalMenu({ navKey, onNavigate }) {
   // Accordion: when the page changes, open only the section that contains it
   useEffect(() => { setOpenKeys(NAV_PARENT[navKey] ? [NAV_PARENT[navKey]] : []); }, [navKey]);
   return (
-    <Menu mode="inline" className="global-menu" items={NAV} selectedKeys={[navKey]} openKeys={openKeys} onOpenChange={setOpenKeys}
+    <Menu mode="inline" expandIcon={({ isOpen }) => <ExpandArrow open={isOpen} />} className="global-menu" items={NAV} selectedKeys={[navKey]} openKeys={openKeys} onOpenChange={setOpenKeys}
       inlineIndent={24} onClick={({ key }) => { go(key); onNavigate && onNavigate(); }} />
   );
 }
