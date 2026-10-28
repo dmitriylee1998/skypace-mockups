@@ -1481,7 +1481,7 @@
   .do-free-foot { display: flex; justify-content: space-between; gap: 12px; }
   .do-info { background: #f9fafb; border-radius: 8px; padding: 8px 16px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
   .dog-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; padding: 16px; }
-  .dog-kpi { position: relative; display: flex; flex-direction: row; align-items: center; gap: 12px; min-width: 0; padding: 12px 16px; border: 1px solid #f0f1f4; border-radius: 8px; background: #f9fafb; font: inherit; color: #323656; cursor: pointer; text-align: left; transition: background .2s, border-color .2s, box-shadow .2s; }
+  .dog-kpi { position: relative; display: grid; grid-template-columns: 48px minmax(0, 1fr); align-items: center; column-gap: 12px; row-gap: 8px; min-width: 0; padding: 12px 16px; border: 1px solid #f0f1f4; border-radius: 8px; background: #f9fafb; font: inherit; color: #323656; cursor: pointer; text-align: left; transition: background .2s, border-color .2s, box-shadow .2s; }
   .dog-kpi:hover { background: #fff; border-color: #e3e5ee; box-shadow: 0 2px 8px rgba(31, 35, 64, .06); }
   .dog-kpi.on { border-color: #5f68c0; background: #f0f1fa; box-shadow: none; }
   .dog-kpi-body { display: flex; flex-direction: column; min-width: 0; flex: 1; }
@@ -1490,10 +1490,9 @@
   .dog-kpi:hover .dog-kpi-icon.ant-avatar { background: #f0f1fa; color: #5f68c0; }
   .dog-kpi.on .dog-kpi-icon.ant-avatar { background: #5f68c0; color: #fff; }
   .dog-kpi-x { position: absolute; top: 10px; right: 10px; font-size: 10px; color: #5f68c0; }
-  .dog-kpi-val { display: flex; flex-direction: column; min-width: 0; }
   .dog-kpi b { flex: none; font-size: 24px; line-height: 30px; font-weight: 600; color: #1f2340; font-variant-numeric: tabular-nums; }
   .dog-kpi b.zero { color: #b6b9c8; }
-  .dog-kpi-sub { display: flex; flex-direction: column; min-width: 0; font-size: 12px; line-height: 20px; }
+  .dog-kpi-sub { grid-column: 1 / -1; display: flex; flex-direction: column; min-width: 0; font-size: 12px; line-height: 20px; }
   .dog-kpi-sub > .muted { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .dog-kpi-sub .ant-badge { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .dog-kpi .dog-kpi-sub .ant-badge .ant-badge-status-text { font-size: 12px; line-height: 20px; color: #414663; margin-inline-start: 0; }
@@ -9080,7 +9079,7 @@ function DispatchesAllPage() {
   const today = DOG_NOW.format('YYYY-MM-DD');
   const active = (r) => r.st !== 'completed';
   const KPIS = [
-    { key: 'action', title: 'Action required', icon: <I.ExclamationCircleOutlined />, test: (r) => r.attention, note: 'Missing events, issues' },
+    { key: 'action', title: 'Action required', icon: <I.ExclamationCircleOutlined />, test: (r) => r.attention, note: 'Missing events and exceptions' },
     { key: 'dispatch', title: 'To dispatch', icon: <I.SendOutlined />, test: (r) => r.st === 'draft', sub: (xs) => dogDueSub(xs, 'Nothing unassigned') },
     { key: 'confirm', title: 'To confirm', icon: <I.CheckCircleOutlined />, test: (r) => r.st === 'dispatched', sub: (xs) => dogDueSub(xs, 'All confirmed') },
     { key: 'moving', title: 'Moving today', icon: <I.CarOutlined />, test: (r) => r.move === today, note: 'Pickups, drops, returns' },
@@ -9123,13 +9122,11 @@ function DispatchesAllPage() {
               <Avatar shape="square" size={48} icon={k.icon} className={'dog-kpi-icon ' + k.key} />
               {on && <I.CloseOutlined className="dog-kpi-x" aria-label="Clear filter" />}
               <span className="dog-kpi-body">
-              <span className="dog-kpi-title">{k.title}</span>
-              <span className="dog-kpi-val">
+                <span className="dog-kpi-title">{k.title}</span>
                 <b className={xs.length ? '' : 'zero'}>{xs.length}</b>
-                <span className="dog-kpi-sub">
-                  {k.sub ? k.sub(xs).map((s) => <Badge key={s.text} status={{ warn: 'warning', err: 'error' }[s.tone] || 'default'} text={s.text} className={s.tone} />) : <span className="muted">{k.note}</span>}
-                </span>
               </span>
+              <span className="dog-kpi-sub">
+                {k.sub ? k.sub(xs).map((s) => <Badge key={s.text} status={{ warn: 'warning', err: 'error' }[s.tone] || 'default'} text={s.text} className={s.tone} />) : <span className="muted">{k.note}</span>}
               </span>
             </button>
           );
