@@ -1278,6 +1278,11 @@
   .do-sub.err, .err { color: #d9363e; }
   .do-light { font-weight: 400; color: #414663; }
   .do-strong { font-weight: 600; }
+  /* overview cards: antd fill tokens, hover like antd text/list items */
+  .dog-ov-card.ant-card { box-shadow: none; background: var(--ant-color-fill-tertiary); transition: background var(--ant-motion-duration-mid); }
+  .dog-ov-card.ant-card:hover { background: var(--ant-color-fill-secondary); }
+  .dog-ov-card.ant-card.on { background: var(--ant-color-primary-bg); }
+  .dog-ov-card.ant-card.on:hover { background: var(--ant-color-primary-bg-hover); }
   .dog-table .ant-table-tbody > tr > td, .dog-table .ant-table-thead > tr > th { white-space: nowrap; }
   .dog-table .ant-table-tbody > tr > td, .dog-table .ant-table-thead > tr > th { padding-inline: 12px; }
   .do-grow { flex: 1; }
@@ -9100,8 +9105,8 @@ function DispatchesAllPage() {
             const xs = rows.filter(k.test); const on = kpi === k.key; const toggle = () => setKpi(on ? null : k.key);
             return (
               <Col key={k.key} flex="1 1 200px">
-                <Card size="small" hoverable role="button" tabIndex={0} aria-pressed={on} onClick={toggle} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), toggle())}
-                  style={{ height: '100%', ...(on && { borderColor: token.colorPrimary, background: token.colorPrimaryBg }) }} styles={{ body: { padding: token.padding } }}>
+                <Card size="small" variant="borderless" className={'dog-ov-card' + (on ? ' on' : '')} role="button" tabIndex={0} aria-pressed={on} onClick={toggle} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), toggle())}
+                  style={{ height: '100%', cursor: 'pointer' }} styles={{ body: { padding: token.padding } }}>
                   <Flex justify="space-between" align="center" gap={token.marginXS}>
                     <Text strong ellipsis>{k.title}</Text>
                     <Text type={on ? undefined : 'secondary'} style={on ? { color: token.colorPrimary } : undefined}>{k.icon}</Text>
