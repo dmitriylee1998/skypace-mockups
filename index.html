@@ -1480,24 +1480,17 @@
   .do-free { background: #f9fafb; border-radius: 8px; padding: 12px 16px; display: flex; flex-direction: column; gap: 6px; }
   .do-free-foot { display: flex; justify-content: space-between; gap: 12px; }
   .do-info { background: #f9fafb; border-radius: 8px; padding: 8px 16px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
-  .dog-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; padding: 16px; }
-  .dog-kpi { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; padding: 10px 16px; border: 1px solid transparent; border-radius: 8px; background: #f9fafb; font: inherit; color: #323656; cursor: pointer; text-align: left; transition: border-color .2s, box-shadow .2s; }
-  .dog-kpi:hover { border-color: #d9dbe8; }
-  .dog-kpi.on { border-color: #5f68c0; background: #f0f1fa; }
-  .dog-kpi-title { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 22px; color: #7a7f99; }
-  .dog-kpi-icon { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 6px; font-size: 12px; background: #eeeff1; color: #7a7f99; }
-  .dog-kpi b { font-size: 24px; line-height: 32px; font-weight: 600; }
-  .dog-kpi-sub { display: flex; flex-direction: column; gap: 2px; min-height: 20px; font-size: 12px; line-height: 20px; }
-  .dog-kpi-sub .ant-badge { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .dog-kpi-sub .ant-badge-status-text { font-size: 12px; color: #414663; margin-inline-start: 6px; }
-  .dog-kpi-sub .warn .ant-badge-status-text { color: #d46b08; }
-  .dog-kpi-sub .err .ant-badge-status-text { color: #cf1322; }
+  .dog-kpis.stat-row { grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 12px; }
+  .dog-kpis .stat-btn span { color: #414663; }
+  .dog-kpis .stat-btn .anticon { color: #7a7f99; }
+  .dog-kpis .stat-btn b { position: relative; }
+  .dog-late { position: absolute; left: 100%; bottom: 3px; margin-left: 6px; white-space: nowrap; font-style: normal; font-size: 12px; line-height: 20px; font-weight: 400; color: #cf1322; }
   .dog-kpi-tag { margin-left: 8px; font-weight: 400; }
   .do-strong { font-weight: 600; }
   .dog-table .ant-table-tbody > tr > td, .dog-table .ant-table-thead > tr > th { white-space: nowrap; }
   .dog-table .ant-table-tbody > tr > td, .dog-table .ant-table-thead > tr > th { padding-inline: 12px; }
-  @media (max-width: 1200px) { .dog-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-  @media (max-width: 700px) { .dog-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 1100px) { .dog-kpis.stat-row { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 700px) { .dog-kpis.stat-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   .do-list { padding-bottom: 12px; }
   .do-list-head { display: flex; align-items: center; gap: 8px; padding: 16px; }
   .do-list-head > b { flex: 1; font-weight: 600; }
@@ -9105,17 +9098,17 @@ function DispatchesAllPage() {
   return (
     <div className="page-stack">
       {msgCtx}
-      <section className="card-flat dog-kpis">
+      <section className="card-flat stat-row dog-kpis">
         {KPIS.map((k) => {
           const xs = rows.filter(k.test); const on = kpi === k.key;
+          const late = k.sub ? xs.filter((r) => dayjs(r.due).isBefore(DOG_NOW.startOf('day'))).length : 0;
           return (
-            <button type="button" key={k.key} className={'dog-kpi' + (on ? ' on' : '')} aria-pressed={on} onClick={() => setKpi(on ? null : k.key)}>
-              <span className="dog-kpi-title"><span className={'dog-kpi-icon ' + k.key}>{k.icon}</span>{k.title}</span>
-              <b>{xs.length}</b>
-              <span className="dog-kpi-sub">
-                {k.sub ? k.sub(xs).map((s) => <Badge key={s.text} status={{ warn: 'warning', err: 'error' }[s.tone] || 'default'} text={s.text} className={s.tone} />) : <span className="muted">{k.note}</span>}
-              </span>
-            </button>
+            <Tooltip key={k.key} title={k.note || (late ? `${dogN(late)} past the due date` : null)} mouseEnterDelay={0.4}>
+              <button type="button" className={'stat-btn' + (on ? ' on' : '')} aria-pressed={on} onClick={() => setKpi(on ? null : k.key)}>
+                <b>{xs.length}{late > 0 && <em className="dog-late">{late} overdue</em>}</b>
+                <span>{k.icon}{k.title}</span>
+              </button>
+            </Tooltip>
           );
         })}
       </section>
