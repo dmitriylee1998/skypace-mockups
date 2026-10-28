@@ -1957,11 +1957,12 @@ const LinkBtn = ({ icon, children, onClick }) => (
   <Button type="link" className="link-btn" icon={icon} onClick={(e) => { e.stopPropagation(); onClick && onClick(); }}>{children}</Button>
 );
 const KV = ({ k, v }) => <div><div className="lbl">{k}</div><div>{v}</div></div>;
-// Expand/collapse arrow (Figma «Outlined/right» ↓/↑): small, secondary-colored chevron
+// Expand/collapse arrow — Figma library glyph «Outlined/right», rotated ↓/↑, via antd Icon
+const CHEVRON_PATH = 'M5.95622 12.1674C5.95622 11.9542 6.02597 11.7409 6.16548 11.5784L9.23077 8.00077L6.16381 4.42265C5.88479 4.09713 5.88479 3.56978 6.16381 3.24426C6.44283 2.91874 6.89483 2.91874 7.17385 3.24426L10.7453 7.41093C11.0243 7.73645 11.0243 8.26379 10.7453 8.58931L7.17385 12.756C6.89483 13.0815 6.44283 13.0815 6.16381 12.756C6.02541 12.5945 5.95622 12.381 5.95622 12.1674Z';
+const ChevronSvg = (p) => <svg viewBox="0 0 16 16" width="1em" height="1em" fill="currentColor" {...p}><path d={CHEVRON_PATH} /></svg>;
 const ExpandArrow = ({ open }) => {
   const { token } = antd.theme.useToken();
-  const Icon = open ? I.UpOutlined : I.DownOutlined;
-  return <Icon style={{ fontSize: token.fontSizeSM, color: token.colorTextSecondary }} />;
+  return <icons.default component={ChevronSvg} rotate={open ? -90 : 90} style={{ fontSize: token.fontSizeLG, color: token.colorIcon }} />;
 };
 const Chevron = ({ open }) => <Button type="text" icon={<ExpandArrow open={open} />} aria-label={open ? 'Collapse' : 'Expand'} />;
 const DATE_PH = 'DD/MM/YY';
