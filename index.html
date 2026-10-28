@@ -1479,18 +1479,26 @@
   .do-free-foot { display: flex; justify-content: space-between; gap: 12px; }
   .do-info { background: #f9fafb; border-radius: 8px; padding: 8px 16px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
   .dog-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; padding: 16px; }
-  .dog-kpi { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 12px; border: 1px solid transparent; border-radius: 8px; background: #f9fafb; font: inherit; color: #323656; cursor: pointer; text-align: center; }
-  .dog-kpi:hover { border-color: #d9dbe8; }
-  .dog-kpi.on { border-color: #5f68c0; background: #f0f1fa; }
-  .dog-kpi-title { font-size: 12px; line-height: 20px; color: #414663; }
-  .dog-kpi b { font-size: 20px; line-height: 28px; font-weight: 600; }
-  .dog-kpi-sub { font-size: 12px; line-height: 20px; color: #7a7f99; }
-  .dog-kpi-sub > span { white-space: nowrap; }
-  .dog-kpi-sub .warn { color: #d46b08; }
-  .dog-kpi-sub .err { color: #cf1322; }
+  .dog-kpi { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; padding: 12px 16px; border: 1px solid #eeeff1; border-radius: 8px; background: #fff; font: inherit; color: #323656; cursor: pointer; text-align: left; transition: border-color .2s, box-shadow .2s; }
+  .dog-kpi:hover { border-color: #c5c8e6; box-shadow: 0 1px 2px rgba(0,0,0,.03), 0 2px 8px rgba(0,0,0,.06); }
+  .dog-kpi.on { border-color: #5f68c0; box-shadow: 0 0 0 2px rgba(95,104,192,.12); }
+  .dog-kpi-title { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 22px; color: #7a7f99; }
+  .dog-kpi-icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 6px; font-size: 13px; background: #f0f1fa; color: #5f68c0; }
+  .dog-kpi-icon.dispatch { background: #fff7e6; color: #d46b08; }
+  .dog-kpi-icon.confirm { background: #f9f0ff; color: #722ed1; }
+  .dog-kpi-icon.moving { background: #e6f4ff; color: #1677ff; }
+  .dog-kpi-icon.lfd { background: #fff1f0; color: #cf1322; }
+  .dog-kpi-icon.action { background: #fffbe6; color: #d48806; }
+  .dog-kpi b { font-size: 30px; line-height: 38px; font-weight: 600; }
+  .dog-kpi-sub { display: flex; flex-direction: column; gap: 2px; min-height: 44px; font-size: 12px; line-height: 20px; }
+  .dog-kpi-sub .ant-badge { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dog-kpi-sub .ant-badge-status-text { font-size: 12px; color: #414663; margin-inline-start: 6px; }
+  .dog-kpi-sub .warn .ant-badge-status-text { color: #d46b08; }
+  .dog-kpi-sub .err .ant-badge-status-text { color: #cf1322; }
   .dog-kpi-tag { margin-left: 8px; font-weight: 400; }
   .do-strong { font-weight: 600; }
-  @media (max-width: 900px) { .dog-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 1200px) { .dog-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 700px) { .dog-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   .do-list { padding-bottom: 12px; }
   .do-list-head { display: flex; align-items: center; gap: 8px; padding: 16px; }
   .do-list-head > b { flex: 1; font-weight: 600; }
@@ -9073,11 +9081,11 @@ function DispatchesAllPage() {
   const today = DOG_NOW.format('YYYY-MM-DD');
   const active = (r) => r.st !== 'completed';
   const KPIS = [
-    { key: 'dispatch', title: 'To dispatch', test: (r) => r.st === 'draft', sub: (xs) => dogDueSub(xs, 'Nothing unassigned') },
-    { key: 'confirm', title: 'To confirm', test: (r) => r.st === 'dispatched', sub: (xs) => dogDueSub(xs, 'All confirmed') },
-    { key: 'moving', title: 'Moving today', test: (r) => r.move === today },
-    { key: 'lfd', title: 'Last free day', test: (r) => active(r) && r.lfd && r.lfd <= today },
-    { key: 'action', title: 'Need action', test: (r) => r.attention },
+    { key: 'dispatch', title: 'To dispatch', icon: <I.SendOutlined />, test: (r) => r.st === 'draft', sub: (xs) => dogDueSub(xs, 'Nothing unassigned') },
+    { key: 'confirm', title: 'To confirm', icon: <I.CheckCircleOutlined />, test: (r) => r.st === 'dispatched', sub: (xs) => dogDueSub(xs, 'All confirmed') },
+    { key: 'moving', title: 'Moving today', icon: <I.CarOutlined />, test: (r) => r.move === today, note: 'Pickups, drops, returns' },
+    { key: 'lfd', title: 'Last free day', icon: <I.FieldTimeOutlined />, test: (r) => active(r) && r.lfd && r.lfd <= today, note: 'Free time ends today' },
+    { key: 'action', title: 'Need action', icon: <I.ExclamationCircleOutlined />, test: (r) => r.attention, note: 'Missing events and exceptions' },
   ];
   const kpiTest = KPIS.find((k) => k.key === kpi)?.test || (() => true);
   const inTab = (r, k) => k === 'all' || (k === 'attention' ? r.attention : r.st === k);
@@ -9113,9 +9121,11 @@ function DispatchesAllPage() {
           const xs = rows.filter(k.test); const on = kpi === k.key;
           return (
             <button type="button" key={k.key} className={'dog-kpi' + (on ? ' on' : '')} aria-pressed={on} onClick={() => setKpi(on ? null : k.key)}>
-              <span className="dog-kpi-title">{k.title}</span>
+              <span className="dog-kpi-title"><span className={'dog-kpi-icon ' + k.key}>{k.icon}</span>{k.title}</span>
               <b>{xs.length}</b>
-              {k.sub && <span className="dog-kpi-sub">{k.sub(xs).map((s, i) => <React.Fragment key={i}>{i > 0 && ' - '}<span className={s.tone}>{s.text}</span></React.Fragment>)}</span>}
+              <span className="dog-kpi-sub">
+                {k.sub ? k.sub(xs).map((s) => <Badge key={s.text} status={{ warn: 'warning', err: 'error' }[s.tone] || 'default'} text={s.text} className={s.tone} />) : <span className="muted">{k.note}</span>}
+              </span>
             </button>
           );
         })}
