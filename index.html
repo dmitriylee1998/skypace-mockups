@@ -1478,6 +1478,19 @@
   .do-free { background: #f9fafb; border-radius: 8px; padding: 12px 16px; display: flex; flex-direction: column; gap: 6px; }
   .do-free-foot { display: flex; justify-content: space-between; gap: 12px; }
   .do-info { background: #f9fafb; border-radius: 8px; padding: 8px 16px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
+  .dog-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; padding: 16px; }
+  .dog-kpi { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 12px; border: 1px solid transparent; border-radius: 8px; background: #f9fafb; font: inherit; color: #323656; cursor: pointer; text-align: center; }
+  .dog-kpi:hover { border-color: #d9dbe8; }
+  .dog-kpi.on { border-color: #5f68c0; background: #f0f1fa; }
+  .dog-kpi-title { font-size: 12px; line-height: 20px; color: #414663; }
+  .dog-kpi b { font-size: 20px; line-height: 28px; font-weight: 600; }
+  .dog-kpi-sub { font-size: 12px; line-height: 20px; color: #7a7f99; }
+  .dog-kpi-sub > span { white-space: nowrap; }
+  .dog-kpi-sub .warn { color: #d46b08; }
+  .dog-kpi-sub .err { color: #cf1322; }
+  .dog-kpi-tag { margin-left: 8px; font-weight: 400; }
+  .do-strong { font-weight: 600; }
+  @media (max-width: 900px) { .dog-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   .do-list { padding-bottom: 12px; }
   .do-list-head { display: flex; align-items: center; gap: 8px; padding: 16px; }
   .do-list-head > b { flex: 1; font-weight: 600; }
@@ -9000,6 +9013,133 @@ function DispatchOrdersPage({ f }) {
   );
 }
 
+/* ---------- Dispatches · all shipments (Figma 8033:203131) — KPI cards (8033:204736) + table (8033:203199) ---------- */
+// the prototype's "now": Wed 27 May 2026, 12:30 — same day the shipment's dispatch orders count from
+const DOG_NOW = dayjs('2026-05-27T12:30');
+const DOG_ASSIGNEES = ['anna.k@skypace.com', 'mark.t@skypace.com', 'olga.s@skypace.com'];
+const DOG_DUE = { 'Dispatch by today 16:00': '2026-05-27T16:00', 'Dispatch by Thu 16:00': '2026-05-28T16:00', 'Dispatch by Fri 16:00': '2026-05-29T16:00' };
+// orders of other shipments, only as list rows
+const DOG_OTHER = [
+  { id: 'ID-9971', shipment: 'SP-000268', container: null, ctype: "40'HC", load: 'Neenah, 54956', type: 'Export', st: 'draft', next: 'Not planned yet', sub: { text: 'Dispatch by: 26 May, 16:00', kind: 'link' }, customer: 'Maxton Shipping', carrier: '—', due: '2026-05-26T16:00', move: null, lfd: '2026-05-30', attention: true, who: 1 },
+  { id: 'ID-9974', shipment: 'SP-000281', container: 'MSCU7741025', ctype: "40'ST", load: 'Elizabeth, 07201', type: 'Import', st: 'dispatched', next: 'Full pickup: 28 May, 08:00', sub: { text: 'Confirm with carrier by 28 May, 12:00', kind: 'warn-link' }, customer: 'Blue Ocean Ltd', carrier: 'FastFreight LLC', due: '2026-05-28T12:00', move: '2026-05-28', lfd: '2026-05-29', who: 0 },
+  { id: 'ID-9975', shipment: 'SP-000281', container: 'MSCU7741031', ctype: "40'ST", load: 'Elizabeth, 07201', type: 'Import', st: 'dispatched', next: 'Full pickup: 28 May, 10:00', sub: { text: 'Confirm with carrier by 28 May, 14:00', kind: 'warn-link' }, customer: 'Blue Ocean Ltd', carrier: 'FastFreight LLC', due: '2026-05-28T14:00', move: '2026-05-28', lfd: '2026-05-29', who: 0 },
+  { id: 'ID-9977', shipment: 'SP-000290', container: 'TGHU5520983', ctype: "20'ST", load: 'Jersey City, 07302', type: 'Import', st: 'dispatched', next: 'Full pickup: 2 Jun, 09:00', sub: { text: 'Confirm with carrier by 1 Jun, 12:00', kind: 'warn-link' }, customer: 'Nordic Lines', carrier: 'Swift Transport Inc', due: '2026-06-01T12:00', move: '2026-06-02', lfd: '2026-06-03', who: 2 },
+  { id: 'ID-9978', shipment: 'SP-000290', container: 'TGHU5520977', ctype: "20'ST", load: 'Secaucus, 07094', type: 'Import', st: 'confirmed', next: 'Full pickup: 27 May, 14:00', sub: { text: 'Confirmed 26 May, 11:05', kind: 'muted' }, customer: 'Nordic Lines', carrier: 'Swift Transport Inc', move: '2026-05-27', lfd: '2026-05-27', who: 2 },
+  { id: 'ID-9979', shipment: 'SP-000284', container: 'CMAU3302114', ctype: "40'HC", load: 'Newark, 07114', type: 'Import', st: 'progress', next: 'Empty return: 27 May, 17:00', sub: { text: 'Gate-in event missing', kind: 'missing' }, customer: 'Tesla Inc', carrier: 'FastFreight LLC', move: '2026-05-27', lfd: '2026-05-27', attention: true, who: 1 },
+];
+const dogZip = (address) => (address.match(/\b(\d{5})\b/) || [])[1];
+function dogRows(list) {
+  const own = list.map((d) => {
+    const r = doRow(d); const st = r.st; const p = d.plan;
+    const site = d.places.load; const city = (doCityOf(site.address) || '').split(',')[0];
+    const moveDay = p.drop ? doDay(p.drop).iso : null;
+    return { ...r, shipment: SHIPMENT_ID, own: true, ctype: "20'ST", load: `${city}, ${dogZip(site.address) || ''}`, type: 'Export', customer: 'Tesla Inc',
+      due: st === 'draft' ? DOG_DUE[d.deadline.title] : st === 'dispatched' ? '2026-05-27T17:00' : null, move: st === 'completed' ? null : moveDay, lfd: '2026-06-01', who: d.n % 3 };
+  });
+  const other = DOG_OTHER.map((x) => ({ ...x, own: false, bold: !!x.container, container: x.container || 'Not assigned', containerSub: x.ctype }));
+  return [...own, ...other].map((r) => ({ ...r, assignee: DOG_ASSIGNEES[r.who] }));
+}
+// "Next due: today (2 DOs) - Overdue: 1 DO" — the To dispatch / To confirm sub-title
+const dogN = (n) => `${n} DO${n === 1 ? '' : 's'}`;
+function dogDueSub(rows, empty) {
+  if (!rows.length) return [{ text: empty }];
+  const today = DOG_NOW.startOf('day');
+  const due = rows.map((r) => dayjs(r.due));
+  const overdue = due.filter((x) => x.isBefore(today)).length;
+  const ahead = due.filter((x) => !x.isBefore(today)).sort((a, b) => a - b);
+  const out = [];
+  if (ahead.length) {
+    const first = ahead[0]; const n = ahead.filter((x) => x.isSame(first, 'day')).length;
+    const day = first.isSame(today, 'day') ? 'today' : first.isSame(today.add(1, 'day'), 'day') ? 'tomorrow' : first.format('MMM, D');
+    out.push({ text: `Next due: ${day} (${dogN(n)})`, tone: day === 'today' && first.diff(DOG_NOW, 'minute') < 240 ? 'warn' : '' });
+  }
+  if (overdue) out.push({ text: `Overdue: ${dogN(overdue)}`, tone: 'err' });
+  return out;
+}
+
+function DispatchesAllPage() {
+  const list = useDispatchOrders();
+  const [tab, setTab] = useState('all');
+  const [kpi, setKpi] = useState(null);
+  const [q, setQ] = useState('');
+  const [sel, setSel] = useState([]);
+  const [msgApi, msgCtx] = message.useMessage();
+  const rows = dogRows(list);
+  const today = DOG_NOW.format('YYYY-MM-DD');
+  const active = (r) => r.st !== 'completed';
+  const KPIS = [
+    { key: 'dispatch', title: 'To dispatch', test: (r) => r.st === 'draft', sub: (xs) => dogDueSub(xs, 'Nothing unassigned') },
+    { key: 'confirm', title: 'To confirm', test: (r) => r.st === 'dispatched', sub: (xs) => dogDueSub(xs, 'All confirmed') },
+    { key: 'moving', title: 'Moving today', test: (r) => r.move === today },
+    { key: 'lfd', title: 'Last free day', test: (r) => active(r) && r.lfd && r.lfd <= today },
+    { key: 'action', title: 'Need action', test: (r) => r.attention },
+  ];
+  const kpiTest = KPIS.find((k) => k.key === kpi)?.test || (() => true);
+  const inTab = (r, k) => k === 'all' || (k === 'attention' ? r.attention : r.st === k);
+  const shown = rows.filter((r) => inTab(r, tab) && kpiTest(r) && includesQ(q, r.id, r.shipment, r.container, r.carrier, r.customer, r.load));
+  const open = (r, drawer) => {
+    if (!r.own) { msgApi.info(`${r.id} belongs to ${r.shipment} · not part of this prototype`); return; }
+    if (drawer) doPendingDrawer = drawer;
+    go(`${DISPATCH_PATH}/${r.id}`);
+  };
+  const sub = (r) => {
+    const x = r.sub; if (!x) return null;
+    if (x.kind === 'missing') return <DoWarnLink onClick={() => open(r, x.open)}>{x.text}</DoWarnLink>;
+    if (x.kind === 'muted') return <span className="do-sub">{x.text}</span>;
+    return <a className={'do-row-link' + (x.kind === 'warn-link' ? ' warn' : '')} onClick={(e) => { e.stopPropagation(); open(r, x.open); }}>{x.text}</a>;
+  };
+  const cols = [
+    { title: 'DO ID', dataIndex: 'id', width: 84, render: (v, r) => <div className="do-cell"><a onClick={(e) => { e.stopPropagation(); open(r); }}>{v}</a></div> },
+    { title: 'Shipment', dataIndex: 'shipment', width: 92, render: (v, r) => <div className="do-cell">{r.own ? <a href={href(SHIPMENT_PATH)} onClick={(e) => e.stopPropagation()}>{v}</a> : <span>{v}</span>}</div> },
+    { title: 'Container', key: 'c', width: 116, render: (_, r) => <div className="do-cell"><span className={r.bold ? 'do-strong' : 'muted'}>{r.container}</span><span className="do-sub">{r.containerSub}</span></div> },
+    { title: 'Load/Unload', dataIndex: 'load', width: 112, render: (v) => <div className="do-cell"><span>{v}</span></div> },
+    { title: 'Type', dataIndex: 'type', width: 76, filters: [{ text: 'Export', value: 'Export' }, { text: 'Import', value: 'Import' }], onFilter: (v, r) => r.type === v },
+    { title: 'Next action', key: 'n', render: (_, r) => <div className="do-cell"><span>{r.next}</span>{sub(r)}</div> },
+    { title: 'Customer', dataIndex: 'customer', width: 110 },
+    { title: 'Carrier', dataIndex: 'carrier', width: 124 },
+    { title: 'Status', key: 'st', width: 104, render: (_, r) => <DoStatusTag st={r.st} /> },
+    { key: 'go', width: 44, render: (_, r) => <Button size="small" className="arrow-btn" icon={<I.RightOutlined />} aria-label={`Open ${r.id}`} onClick={(e) => { e.stopPropagation(); open(r); }} /> },
+  ];
+  return (
+    <div className="page-stack">
+      {msgCtx}
+      <section className="card-flat dog-kpis">
+        {KPIS.map((k) => {
+          const xs = rows.filter(k.test); const on = kpi === k.key;
+          return (
+            <button type="button" key={k.key} className={'dog-kpi' + (on ? ' on' : '')} aria-pressed={on} onClick={() => setKpi(on ? null : k.key)}>
+              <span className="dog-kpi-title">{k.title}</span>
+              <b>{xs.length}</b>
+              {k.sub && <span className="dog-kpi-sub">{k.sub(xs).map((s, i) => <React.Fragment key={i}>{i > 0 && ' - '}<span className={s.tone}>{s.text}</span></React.Fragment>)}</span>}
+            </button>
+          );
+        })}
+      </section>
+      <div className="card-flat tabs-card do-tabs">
+        <Tabs activeKey={tab} onChange={(k) => { setTab(k); setSel([]); }} items={DO_TABS.map(([k, l]) => {
+          const n = rows.filter((r) => inTab(r, k) && kpiTest(r)).length;
+          return { key: k, label: <span className="do-tab">{l}<span className={'do-tab-count' + (k === 'attention' && n ? ' warn' : k === tab ? ' on' : '')}>{n}</span></span> };
+        })} />
+      </div>
+      <section className="card-flat do-list">
+        <div className="do-list-head">
+          <b>Dispatches{kpi && <Tag closable className="dog-kpi-tag" onClose={() => setKpi(null)}>{KPIS.find((k) => k.key === kpi).title}</Tag>}</b>
+          <Input allowClear className="do-search" placeholder="Container, dispatch ID, shipment, customer" value={q} onChange={(e) => setQ(e.target.value)} suffix={!q && <I.SearchOutlined className="muted" />} />
+        </div>
+        <Table rowKey="id" className="do-list-table" columns={cols} dataSource={shown} pagination={false} scroll={{ x: 1150 }}
+          rowSelection={{ selectedRowKeys: sel, onChange: setSel, columnWidth: 40 }}
+          onRow={(r) => ({ onClick: () => open(r), style: { cursor: 'pointer' } })}
+          expandable={{
+            columnWidth: 40,
+            expandIcon: ({ expanded: ex, onExpand, record }) => <Button size="small" type="text" icon={ex ? <I.MinusOutlined /> : <I.PlusOutlined />} aria-label={ex ? 'Collapse' : 'Expand'} onClick={(e) => { e.stopPropagation(); onExpand(record, e); }} />,
+            expandedRowRender: (r) => <DoFields rows={[[['Assigned to', r.assignee], ['Last free day', dayjs(r.lfd).format('D MMM YYYY')], ['Moving', r.move ? dayjs(r.move).format('D MMM YYYY') : '—']]]} />,
+          }}
+          locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No dispatch orders here" /> }} />
+      </section>
+    </div>
+  );
+}
+
 /* =====================================================================
    Inland Pickup · Overview — one page for every drayage move of the shipment.
    Built from the Dispatch order blocks (DoFields, DoLink, DoWarn, DoStatusTag…) and the same
@@ -9427,7 +9567,7 @@ function resolvePage(path, query) {
     '/action-center/notifications': ['Notifications', <NotificationsPage />, 'Action Center'],
     '/quote-requests': ['Quote requests', <QuoteRequestsPage />],
     '/guest-bookings': ['Guest bookings', <GuestBookingsPage />],
-    '/dispatches': ['Dispatches', <DispatchesPage />],
+    '/dispatches': ['Dispatches', <DispatchesAllPage />],
     '/shipments': ['Shipments', <ShipmentsPage />],
     '/containers': ['Containers', <AllContainersPage />],
     '/contacts': ['Contacts', <ContactsPage />],
