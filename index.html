@@ -1480,31 +1480,9 @@
   .do-free { background: #f9fafb; border-radius: 8px; padding: 12px 16px; display: flex; flex-direction: column; gap: 6px; }
   .do-free-foot { display: flex; justify-content: space-between; gap: 12px; }
   .do-info { background: #f9fafb; border-radius: 8px; padding: 8px 16px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
-  .dog-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; padding: 16px; }
-  .dog-kpi { position: relative; display: grid; grid-template-columns: 48px minmax(0, 1fr); align-items: center; column-gap: 12px; row-gap: 8px; min-width: 0; padding: 12px 16px; border: 1px solid #f0f1f4; border-radius: 8px; background: #f9fafb; font: inherit; color: #323656; cursor: pointer; text-align: left; transition: background .2s, border-color .2s, box-shadow .2s; }
-  .dog-kpi:hover { background: #fff; border-color: #e3e5ee; box-shadow: 0 2px 8px rgba(31, 35, 64, .06); }
-  .dog-kpi.on { border-color: #5f68c0; background: #f0f1fa; box-shadow: none; }
-  .dog-kpi-body { display: flex; flex-direction: column; min-width: 0; flex: 1; }
-  .dog-kpi-title { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 13px; line-height: 20px; color: #7a7f99; white-space: nowrap; }
-  .dog-kpi .dog-kpi-icon.ant-avatar { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 12px; font-size: 22px; background: #eeeff1; color: #7a7f99; transition: background .2s, color .2s; }
-  .dog-kpi:hover .dog-kpi-icon.ant-avatar { background: #f0f1fa; color: #5f68c0; }
-  .dog-kpi.on .dog-kpi-icon.ant-avatar { background: #5f68c0; color: #fff; }
-  .dog-kpi-x { position: absolute; top: 10px; right: 10px; font-size: 10px; color: #5f68c0; }
-  .dog-kpi b { flex: none; font-size: 24px; line-height: 30px; font-weight: 600; color: #1f2340; font-variant-numeric: tabular-nums; }
-  .dog-kpi b.zero { color: #b6b9c8; }
-  .dog-kpi-sub { grid-column: 1 / -1; display: flex; flex-direction: column; min-width: 0; font-size: 12px; line-height: 20px; }
-  .dog-kpi-sub > .muted { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .dog-kpi-sub .ant-badge { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .dog-kpi .dog-kpi-sub .ant-badge .ant-badge-status-text { font-size: 12px; line-height: 20px; color: #414663; margin-inline-start: 0; }
-  .dog-kpi .dog-kpi-sub .ant-badge-status-dot { display: none; }
-  .dog-kpi .dog-kpi-sub .warn .ant-badge-status-text { color: #d46b08; }
-  .dog-kpi .dog-kpi-sub .err .ant-badge-status-text { color: #cf1322; }
-  .dog-kpi-tag { margin-left: 8px; font-weight: 400; }
   .do-strong { font-weight: 600; }
   .dog-table .ant-table-tbody > tr > td, .dog-table .ant-table-thead > tr > th { white-space: nowrap; }
   .dog-table .ant-table-tbody > tr > td, .dog-table .ant-table-thead > tr > th { padding-inline: 12px; }
-  @media (max-width: 1200px) { .dog-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-  @media (max-width: 700px) { .dog-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   .do-list { padding-bottom: 12px; }
   .do-list-head { display: flex; align-items: center; gap: 8px; padding: 16px; }
   .do-list-head > b { flex: 1; font-weight: 600; }
@@ -9065,13 +9043,15 @@ const dogN = (n) => `${n} DO${n === 1 ? '' : 's'}`;
 function dogDueSub(rows, empty) {
   if (!rows.length) return [{ text: empty }];
   const overdue = rows.filter((r) => dayjs(r.due).isBefore(DOG_NOW.startOf('day'))).length;
-  return overdue ? [{ text: `Overdue: ${dogN(overdue)}`, tone: 'err' }] : [];
+  return overdue ? [{ text: `${overdue} overdue`, tone: 'err' }] : [];
 }
 
 function DispatchesAllPage() {
   const list = useDispatchOrders();
   const [tab, setTab] = useState('all');
   const [kpi, setKpi] = useState(null);
+  const { token } = antd.theme.useToken();
+  const { Text, Title } = Typography; const { Row, Col } = antd;
   const [q, setQ] = useState('');
   const [sel, setSel] = useState([]);
   const [msgApi, msgCtx] = message.useMessage();
@@ -9114,24 +9094,33 @@ function DispatchesAllPage() {
   return (
     <div className="page-stack">
       {msgCtx}
-      <section className="card-flat dog-kpis">
-        {KPIS.map((k) => {
-          const xs = rows.filter(k.test); const on = kpi === k.key;
-          return (
-            <button type="button" key={k.key} className={'dog-kpi' + (on ? ' on' : '')} aria-pressed={on} onClick={() => setKpi(on ? null : k.key)}>
-              <Avatar shape="square" size={48} icon={k.icon} className={'dog-kpi-icon ' + k.key} />
-              {on && <I.CloseOutlined className="dog-kpi-x" aria-label="Clear filter" />}
-              <span className="dog-kpi-body">
-                <span className="dog-kpi-title">{k.title}</span>
-                <b className={xs.length ? '' : 'zero'}>{xs.length}</b>
-              </span>
-              <span className="dog-kpi-sub">
-                {k.sub ? k.sub(xs).map((s) => <Badge key={s.text} status={{ warn: 'warning', err: 'error' }[s.tone] || 'default'} text={s.text} className={s.tone} />) : <span className="muted">{k.note}</span>}
-              </span>
-            </button>
-          );
-        })}
-      </section>
+      <Card variant="borderless" title="Dispatch overview" extra={<Text type="secondary">Today</Text>} styles={{ header: { borderBottom: 'none', minHeight: 0, paddingTop: token.paddingMD }, body: { paddingTop: token.paddingSM } }}>
+        <Row gutter={[token.marginSM, token.marginSM]}>
+          {KPIS.map((k) => {
+            const xs = rows.filter(k.test); const on = kpi === k.key; const toggle = () => setKpi(on ? null : k.key);
+            return (
+              <Col key={k.key} flex="1 1 200px">
+                <Card size="small" hoverable role="button" tabIndex={0} aria-pressed={on} onClick={toggle} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), toggle())}
+                  style={{ height: '100%', ...(on && { borderColor: token.colorPrimary, background: token.colorPrimaryBg }) }} styles={{ body: { padding: token.padding } }}>
+                  <Flex justify="space-between" align="center" gap={token.marginXS}>
+                    <Text strong ellipsis>{k.title}</Text>
+                    <Text type={on ? undefined : 'secondary'} style={on ? { color: token.colorPrimary } : undefined}>{k.icon}</Text>
+                  </Flex>
+                  <Title level={2} style={{ margin: `${token.marginSM}px 0 ${token.marginXS}px`, color: xs.length ? undefined : token.colorTextQuaternary }}>{xs.length}</Title>
+                  {k.sub ? k.sub(xs).map((s) => (s.tone ? <Tag key={s.text} color="error" variant="filled">{s.text}</Tag> : <Text key={s.text} type="secondary" style={{ fontSize: token.fontSizeSM }}>{s.text}</Text>))
+                    : <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>{k.note}</Text>}
+                </Card>
+              </Col>
+            );
+          })}
+        </Row>
+        {kpi && (
+          <Flex gap={token.marginXS} style={{ marginTop: token.marginSM }}>
+            <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>Showing: {KPIS.find((k) => k.key === kpi).title} · {dogN(rows.filter(kpiTest).length)}</Text>
+            <Typography.Link style={{ fontSize: token.fontSizeSM }} onClick={() => setKpi(null)}>Clear</Typography.Link>
+          </Flex>
+        )}
+      </Card>
       <div className="card-flat tabs-card do-tabs">
         <Tabs activeKey={tab} onChange={(k) => { setTab(k); setSel([]); }} items={DO_TABS.map(([k, l]) => {
           const n = rows.filter((r) => inTab(r, k) && kpiTest(r)).length;
@@ -9140,7 +9129,7 @@ function DispatchesAllPage() {
       </div>
       <section className="card-flat do-list">
         <div className="do-list-head">
-          <b>Dispatches{kpi && <Tag closable className="dog-kpi-tag" onClose={() => setKpi(null)}>{KPIS.find((k) => k.key === kpi).title}</Tag>}</b>
+          <b>Dispatches{kpi && <Tag closable style={{ marginInlineStart: token.marginXS, fontWeight: token.fontWeightNormal ?? 400 }} onClose={() => setKpi(null)}>{KPIS.find((k) => k.key === kpi).title}</Tag>}</b>
           <Input allowClear className="do-search" placeholder="Container, dispatch ID, shipment, customer" value={q} onChange={(e) => setQ(e.target.value)} suffix={!q && <I.SearchOutlined className="muted" />} />
         </div>
         <Table rowKey="id" className="do-list-table dog-table" columns={cols} dataSource={shown} pagination={false} scroll={{ x: 1150 }}
