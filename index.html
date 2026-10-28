@@ -1074,7 +1074,6 @@
   .ns-opt-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; }
   .ns-opt-txt > span { font-size: 13px; line-height: 20px; color: var(--muted); }
   .ns-opt-arrow { color: #a3a9bf; font-size: 12px; }
-  .ns-opt.open .ns-opt-arrow { transform: rotate(90deg); }
   .ns-how-link { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; color: var(--link); font-size: 13px; line-height: 20px; }
   .ns-how-link:hover { text-decoration: underline; }
   .ns-callback { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px 16px 80px; }
@@ -3454,7 +3453,7 @@ function NotificationsPage() {
         <DataTable columns={cols} dataSource={rows} pagination={PAGINATION}
           expandable={{
             onExpand: (open, n) => open && markRead(n.key),
-            expandIcon: ({ expanded, onExpand, record }) => <Button size="small" shape="circle" type="text" className="exp-btn" icon={expanded ? <I.UpOutlined /> : <I.DownOutlined />} onClick={(e) => onExpand(record, e)} />,
+            expandIcon: ({ expanded, onExpand, record }) => <Button size="small" type="text" className="exp-btn" icon={expanded ? <I.UpOutlined /> : <I.DownOutlined />} onClick={(e) => onExpand(record, e)} />,
             expandedRowRender: (n) => (
               <div className="notif-body">
                 <p>{n.name} for shipment <PageLink to={SHIPMENT_PATH}>{n.object}</PageLink>. Received {n.received.format('D MMM YYYY, HH:mm')} · {n.module}.</p>
@@ -3606,7 +3605,7 @@ function DispatchesPage() {
         <DataTable columns={cols} dataSource={rows} pagination={PAGINATION} minWidth={1100}
           rowSelection={{ selectedRowKeys: selected, onChange: setSelected }}
           expandable={{
-            expandIcon: ({ expanded, onExpand, record }) => <Button size="small" type="text" className="exp-btn" icon={expanded ? <I.MinusOutlined /> : <I.PlusOutlined />} onClick={(e) => onExpand(record, e)} />,
+            expandIcon: ({ expanded, onExpand, record }) => <Button size="small" type="text" className="exp-btn" icon={expanded ? <I.UpOutlined /> : <I.DownOutlined />} aria-label={expanded ? 'Collapse' : 'Expand'} onClick={(e) => onExpand(record, e)} />,
             expandedRowRender: (r) => (
               <div className="dispatch-detail">
                 <KV k="Pickup" v={`Maher Terminal, Elizabeth, NJ · ${NOW.format('D MMM')}, 06:00`} />
@@ -4488,7 +4487,7 @@ function OfferFilters({ offers, flt, q }) {
         {flt.active > 0 && <a className="flt-reset" onClick={flt.reset}>Reset ({flt.active})</a>}
       </div>
       <label className="flt-alt"><Checkbox checked={f.alt} onChange={(e) => set({ alt: e.target.checked })} /> Show alternative routes</label>
-      <Collapse ghost className="flt-collapse" items={items} expandIcon={({ isActive }) => <I.RightOutlined rotate={isActive ? 90 : 0} style={{ fontSize: 12 }} />} />
+      <Collapse ghost className="flt-collapse" items={items} expandIconPlacement="end" expandIcon={({ isActive }) => (isActive ? <I.UpOutlined /> : <I.DownOutlined />)} />
     </div>
   );
 }
@@ -4823,7 +4822,7 @@ function NextStepMenu({ sel, setView, onChat, onSignUp, onCalled }) {
                   <a className="ns-how-link" href={HOW_IT_WORKS_URL} target="_blank" rel="noopener noreferrer"><I.PlayCircleOutlined /> How it works</a>
                 )}
               </span>
-              <I.RightOutlined className="ns-opt-arrow" />
+              {op.key === 'call' ? (call ? <I.UpOutlined className="ns-opt-arrow" /> : <I.DownOutlined className="ns-opt-arrow" />) : <I.RightOutlined className="ns-opt-arrow" />}
             </div>
             {op.key === 'call' && call && <CallBack onDone={onCalled} />}
           </div>
@@ -5862,7 +5861,7 @@ function ContainersListPage() {
           <div className="stat-tile"><b>{sealed}/{list.length}</b><span>Sealed</span></div>
           <div className="stat-tile"><b>{pcsTotal ? Math.round((pcsLoaded / pcsTotal) * 100) : 0}%</b><span>Cargo loaded</span></div>
         </div>
-        <Collapse ghost className="cn-alloc" items={[{
+        <Collapse ghost className="cn-alloc" expandIconPlacement="end" expandIcon={({ isActive }) => (isActive ? <I.UpOutlined /> : <I.DownOutlined />)} items={[{
           key: 'a', label: <span><b>Cargo allocation</b> <span className="muted">· {num(pcsLoaded)} of {num(pcsTotal)} pcs loaded</span></span>,
           children: (
             <div className="cn-alloc-list">
