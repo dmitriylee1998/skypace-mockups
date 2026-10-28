@@ -9114,12 +9114,6 @@ function DispatchesAllPage() {
             );
           })}
         </Row>
-        {kpi && (
-          <Flex gap={token.marginXS} style={{ marginTop: token.marginSM }}>
-            <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>Showing: {KPIS.find((k) => k.key === kpi).title} · {dogN(rows.filter(kpiTest).length)}</Text>
-            <Typography.Link style={{ fontSize: token.fontSizeSM }} onClick={() => setKpi(null)}>Clear</Typography.Link>
-          </Flex>
-        )}
       </Card>
       <div className="card-flat tabs-card do-tabs">
         <Tabs activeKey={tab} onChange={(k) => { setTab(k); setSel([]); }} items={DO_TABS.map(([k, l]) => {
