@@ -1278,6 +1278,8 @@
   .do-sub.err, .err { color: #d9363e; }
   .do-light { font-weight: 400; color: #414663; }
   .do-strong { font-weight: 600; }
+  .dog-table .ant-table-tbody > tr > td, .dog-table .ant-table-thead > tr > th { white-space: nowrap; }
+  .dog-table .ant-table-tbody > tr > td, .dog-table .ant-table-thead > tr > th { padding-inline: 12px; }
   .do-grow { flex: 1; }
   .do-tag.ant-tag { margin: 0; background: #fafafa; border-color: #d9d9d9; color: #323656; font-size: 12px; line-height: 20px; }
   .do-tag.ok.ant-tag { background: #f6ffed; border-color: #b7eb8f; color: #389e0d; }
@@ -1492,6 +1494,8 @@
   .dog-kpi-sub .err .ant-badge-status-text { color: #cf1322; }
   .dog-kpi-tag { margin-left: 8px; font-weight: 400; }
   .do-strong { font-weight: 600; }
+  .dog-table .ant-table-tbody > tr > td, .dog-table .ant-table-thead > tr > th { white-space: nowrap; }
+  .dog-table .ant-table-tbody > tr > td, .dog-table .ant-table-thead > tr > th { padding-inline: 12px; }
   @media (max-width: 1200px) { .dog-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
   @media (max-width: 700px) { .dog-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   .do-list { padding-bottom: 12px; }
@@ -9066,11 +9070,11 @@ function DispatchesAllPage() {
   const today = DOG_NOW.format('YYYY-MM-DD');
   const active = (r) => r.st !== 'completed';
   const KPIS = [
+    { key: 'action', title: 'Action required', icon: <I.ExclamationCircleOutlined />, test: (r) => r.attention, note: 'Missing events and exceptions' },
     { key: 'dispatch', title: 'To dispatch', icon: <I.SendOutlined />, test: (r) => r.st === 'draft', sub: (xs) => dogDueSub(xs, 'Nothing unassigned') },
     { key: 'confirm', title: 'To confirm', icon: <I.CheckCircleOutlined />, test: (r) => r.st === 'dispatched', sub: (xs) => dogDueSub(xs, 'All confirmed') },
     { key: 'moving', title: 'Moving today', icon: <I.CarOutlined />, test: (r) => r.move === today, note: 'Pickups, drops, returns' },
     { key: 'lfd', title: 'Last free day', icon: <I.FieldTimeOutlined />, test: (r) => active(r) && r.lfd && r.lfd <= today, note: 'Free time ends today' },
-    { key: 'action', title: 'Need action', icon: <I.ExclamationCircleOutlined />, test: (r) => r.attention, note: 'Missing events and exceptions' },
   ];
   const kpiTest = KPIS.find((k) => k.key === kpi)?.test || (() => true);
   const inTab = (r, k) => k === 'all' || (k === 'attention' ? r.attention : r.st === k);
@@ -9087,15 +9091,15 @@ function DispatchesAllPage() {
     return <a className={'do-row-link' + (x.kind === 'warn-link' ? ' warn' : '')} onClick={(e) => { e.stopPropagation(); open(r, x.open); }}>{x.text}</a>;
   };
   const cols = [
-    { title: 'DO ID', dataIndex: 'id', width: 84, render: (v, r) => <div className="do-cell"><a onClick={(e) => { e.stopPropagation(); open(r); }}>{v}</a></div> },
-    { title: 'Shipment', dataIndex: 'shipment', width: 92, render: (v, r) => <div className="do-cell">{r.own ? <a href={href(SHIPMENT_PATH)} onClick={(e) => e.stopPropagation()}>{v}</a> : <span>{v}</span>}</div> },
-    { title: 'Container', key: 'c', width: 116, render: (_, r) => <div className="do-cell"><span className={r.bold ? 'do-strong' : 'muted'}>{r.container}</span><span className="do-sub">{r.containerSub}</span></div> },
-    { title: 'Load/Unload', dataIndex: 'load', width: 112, render: (v) => <div className="do-cell"><span>{v}</span></div> },
-    { title: 'Type', dataIndex: 'type', width: 76, filters: [{ text: 'Export', value: 'Export' }, { text: 'Import', value: 'Import' }], onFilter: (v, r) => r.type === v },
+    { title: 'DO ID', dataIndex: 'id', render: (v, r) => <div className="do-cell"><a onClick={(e) => { e.stopPropagation(); open(r); }}>{v}</a></div> },
+    { title: 'Shipment', dataIndex: 'shipment', render: (v, r) => <div className="do-cell">{r.own ? <a href={href(SHIPMENT_PATH)} onClick={(e) => e.stopPropagation()}>{v}</a> : <span>{v}</span>}</div> },
+    { title: 'Container', key: 'c', render: (_, r) => <div className="do-cell"><span className={r.bold ? 'do-strong' : 'muted'}>{r.container}</span><span className="do-sub">{r.containerSub}</span></div> },
+    { title: 'Load/Unload', dataIndex: 'load', render: (v) => <div className="do-cell"><span>{v}</span></div> },
+    { title: 'Type', dataIndex: 'type', filters: [{ text: 'Export', value: 'Export' }, { text: 'Import', value: 'Import' }], onFilter: (v, r) => r.type === v },
     { title: 'Next action', key: 'n', render: (_, r) => <div className="do-cell"><span>{r.next}</span>{sub(r)}</div> },
     { title: 'Customer', dataIndex: 'customer', width: 110 },
     { title: 'Carrier', dataIndex: 'carrier', width: 124 },
-    { title: 'Status', key: 'st', width: 104, render: (_, r) => <DoStatusTag st={r.st} /> },
+    { title: 'Status', key: 'st', render: (_, r) => <DoStatusTag st={r.st} /> },
     { key: 'go', width: 44, render: (_, r) => <Button size="small" className="arrow-btn" icon={<I.RightOutlined />} aria-label={`Open ${r.id}`} onClick={(e) => { e.stopPropagation(); open(r); }} /> },
   ];
   return (
@@ -9126,7 +9130,7 @@ function DispatchesAllPage() {
           <b>Dispatches{kpi && <Tag closable className="dog-kpi-tag" onClose={() => setKpi(null)}>{KPIS.find((k) => k.key === kpi).title}</Tag>}</b>
           <Input allowClear className="do-search" placeholder="Container, dispatch ID, shipment, customer" value={q} onChange={(e) => setQ(e.target.value)} suffix={!q && <I.SearchOutlined className="muted" />} />
         </div>
-        <Table rowKey="id" className="do-list-table" columns={cols} dataSource={shown} pagination={false} scroll={{ x: 1150 }}
+        <Table rowKey="id" className="do-list-table dog-table" columns={cols} dataSource={shown} pagination={false} scroll={{ x: 1150 }}
           rowSelection={{ selectedRowKeys: sel, onChange: setSel, columnWidth: 40 }}
           onRow={(r) => ({ onClick: () => open(r), style: { cursor: 'pointer' } })}
           expandable={{
