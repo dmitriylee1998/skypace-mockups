@@ -1846,9 +1846,6 @@
   /* Inland Pickup · Overview — built on the DO blocks */
   .ip-h { font-size: 16px; line-height: 24px; font-weight: 600; }
   .ip-eyebrow { font-size: 12px; line-height: 20px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #6a6f88; }
-  .ip-eyebrow-row { display: flex; align-items: center; justify-content: space-between; }
-  .ip-group { display: flex; flex-direction: column; gap: 8px; }
-  .ip-group + .ip-group { padding-top: 16px; border-top: 1px solid var(--split); }
   .ip-ic { font-size: 16px; color: #6a6f88; }
   .ip-ic.warn { color: #faad14; }
   .ip-steps { display: flex; flex-direction: column; }
@@ -1873,7 +1870,6 @@
   .ip-clear > .anticon { color: #52c41a; font-size: 16px; margin-top: 3px; }
   .ip-clear > div { display: flex; flex-direction: column; }
   .do-sub.ok { color: #389e0d; }
-  .ip-tl.ant-timeline { margin-top: 4px; }
   .ip-tl-when { font-size: 12px; line-height: 20px; color: #6a6f88; }
   .ip-tl-when b { font-weight: 600; color: var(--link); }
   .ip-tl-body { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; padding: 4px 8px; margin: -4px -8px 0; border-radius: 8px; }
@@ -1882,7 +1878,6 @@
   .ip-tl-body:focus-visible { outline: 2px solid var(--primary); }
   .ip-tl-body b { font-weight: 600; }
   .ip-tl-body .ant-tag { margin-top: 2px; }
-  .ip-wait { display: flex; gap: 12px; align-items: center; }
   .ip-feed { display: flex; flex-direction: column; }
   .ip-feed-row { display: grid; grid-template-columns: 56px 8px minmax(0, 1fr); gap: 12px; padding: 8px; margin: 0 -8px; border-radius: 8px; color: inherit; line-height: 20px; }
   .ip-feed-row:hover { background: var(--gray-1); color: inherit; }
@@ -1890,7 +1885,7 @@
   .ip-feed-dot { width: 8px; height: 8px; margin-top: 6px; border-radius: 50%; background: #d1d7e2; }
   .ip-feed-row:first-child .ip-feed-dot { background: #5f68c0; }
   .ip-feed-txt { display: flex; flex-direction: column; min-width: 0; }
-  .ip-places { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .ip-places { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
   .ip-place { border: 1px solid var(--split); border-radius: 8px; padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 12px; }
   .ip-place-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: -8px; }
   .ip-place-name { display: flex; flex-direction: column; }
@@ -9165,16 +9160,17 @@ const ipNext = (d) => {
 
 /* ---------- progress: one row per step, every container under it ---------- */
 const IP_STEPS = [
-  { key: 'dispatched', label: 'Dispatched to carrier', done: (d) => d.dispatched, when: () => 'Not dispatched' },
-  { key: 'confirmed', label: 'Confirmed by carrier', done: (d) => d.confirmed, when: (d) => (d.dispatched ? 'Waiting for carrier' : 'Not dispatched') },
-  { key: 'picked', label: 'Empty picked up', done: (d) => d.legsDone >= 1, when: (d) => doTimes(d).pickup },
+  { key: 'dispatched', complete: true, label: 'Dispatched to carrier', done: (d) => d.dispatched, when: () => 'Not dispatched' },
+  { key: 'confirmed', complete: true, label: 'Confirmed by carrier', done: (d) => d.confirmed, when: (d) => (d.dispatched ? 'Waiting for carrier' : 'Not dispatched') },
+  { key: 'picked', complete: true, label: 'Empty picked up', done: (d) => d.legsDone >= 1, when: (d) => doTimes(d).pickup },
   { key: 'loaded', label: 'Loaded at site', done: (d) => d.legsDone >= 2, when: (d) => doTimes(d).load },
   { key: 'gated', label: 'Gated in at terminal', done: (d) => d.legsDone >= 3, when: (d) => doTimes(d).gate },
   { key: 'vgm', label: 'VGM and container data', done: (d) => d.vgm, when: () => `VGM cutoff ${IP_CUTOFFS.vgm.format('ddd D MMM, HH:mm')}` },
 ];
 function IpStep({ step, list, open, onToggle }) {
-  const done = list.filter(step.done); const n = done.length; const all = n === list.length;
-  const pending = list.filter((d) => !step.done(d));
+  const isDone = step.complete ? () => true : step.done; // first steps shown as finished for every container in this frame
+  const done = list.filter(isDone); const n = done.length; const all = n === list.length;
+  const pending = list.filter((d) => !isDone(d));
   const firstPlanned = pending.find((d) => d.dispatched);
   const note = all ? 'All done' : n === 0 && !firstPlanned ? `${pending.length} not dispatched yet` : firstPlanned ? `Next: ${step.when(firstPlanned)}` : `${pending.length} not dispatched yet`;
   return (
@@ -9189,7 +9185,7 @@ function IpStep({ step, list, open, onToggle }) {
       {open && (
         <div className="ip-step-body">
           {list.map((d) => {
-            const ok = step.done(d);
+            const ok = isDone(d);
             return (
               <a key={d.id} className="ip-chip" href={href(`${DISPATCH_PATH}/${d.id}`)}>
                 <span className="ip-chip-id">{d.id}</span>
@@ -9229,13 +9225,13 @@ function ipDates(list) {
 }
 const ipWaiting = (list) => list.filter((d) => doStatus(d) === 'dispatched').map((d) => ({ d, title: `Confirmation · ${d.id}`, sub: `${DO_CARRIERS[d.carrier].name} · dispatched ${d.dispatchedAt}`, due: 'Expected by 27 May, 17:00' }));
 
+// To do · Dates to watch · Waiting on others — separate cards with the same heading as the rest of the page
 function IpYourPart({ list, msg }) {
   const todos = ipTodos(list); const dates = ipDates(list); const waiting = ipWaiting(list);
   return (
-    <section className="do-card ip-part">
-      <div className="do-box-head"><b className="do-grow ip-h">Your part</b></div>
-      <div className="ip-group">
-        <span className="ip-eyebrow">To do</span>
+    <>
+      <section className="do-card">
+        <div className="do-box-head"><b className="do-grow ip-h">To do</b></div>
         {todos.length ? (
           <div className="do-attn">
             {todos.map((t) => (
@@ -9249,9 +9245,9 @@ function IpYourPart({ list, msg }) {
         ) : (
           <div className="ip-clear"><I.CheckCircleFilled /><div><b>Nothing needs you right now</b><span className="do-sub">All orders are dispatched and confirmed. Carriers report each move.</span></div></div>
         )}
-      </div>
-      <div className="ip-group">
-        <div className="ip-eyebrow-row"><span className="ip-eyebrow">Dates to watch</span><DoLink size="small" onClick={() => msg.info('Calendar view is coming next')}>Calendar</DoLink></div>
+      </section>
+      <section className="do-card">
+        <div className="do-box-head"><b className="do-grow ip-h">Dates to watch</b><DoLink size="small" onClick={() => msg.info('Calendar view is coming next')}>Calendar</DoLink></div>
         <Timeline className="ip-tl" mode="start" items={dates.map((x) => ({
           color: { ok: 'green', warn: 'gold' }[x.tone] || 'gray',
           content: (
@@ -9262,17 +9258,22 @@ function IpYourPart({ list, msg }) {
             </button>
           ),
         }))} />
-      </div>
-      <div className="ip-group">
-        <span className="ip-eyebrow">Waiting on others · {waiting.length}</span>
-        {waiting.length ? waiting.map((w) => (
-          <div key={w.d.id} className="ip-wait">
-            <div className="do-attn-txt"><b>{w.title}</b><span className="do-sub">{w.sub}</span><span className="do-sub">{w.due}</span></div>
-            <Button size="small" icon={<I.SendOutlined />} onClick={() => msg.success(`Reminder sent to ${DO_CARRIERS[w.d.carrier].contact}`)}>Chase</Button>
+      </section>
+      <section className="do-card">
+        <div className="do-box-head"><b className="do-grow ip-h">Waiting on others</b></div>
+        {waiting.length ? (
+          <div className="do-attn">
+            {waiting.map((w) => (
+              <div key={w.d.id} className="do-attn-item">
+                <I.ClockCircleOutlined className="ip-ic" />
+                <div className="do-attn-txt"><b>{w.title}</b><span className="do-sub">{w.sub}</span><span className="do-sub">{w.due}</span></div>
+                <Button size="small" icon={<I.SendOutlined />} onClick={() => msg.success(`Reminder sent to ${DO_CARRIERS[w.d.carrier].contact}`)}>Chase</Button>
+              </div>
+            ))}
           </div>
-        )) : <span className="do-sub">No one owes us a reply</span>}
-      </div>
-    </section>
+        ) : <div className="do-fields"><span className="do-sub">No one owes us a reply</span></div>}
+      </section>
+    </>
   );
 }
 
@@ -9303,20 +9304,17 @@ function IpUpdates() {
 }
 
 /* ---------- left column ---------- */
-const ipPlaces = (list) => {
-  return [
-    { ...DO_PLACE_CY, key: 'cy', kind: 'Empty pickup', rows: [[['Release', `Booking ${IP_BOOKING} · Maersk · ${list.length} containers`]], [['Hours', 'Mon–Fri 06:00–17:00'], ['Earliest release', '27 May, 08:00']]] },
-    { ...DO_SITE_A, key: 'a', kind: 'Loading · Chicago, IL', rows: [[['Contact', `${DO_SITE_A.contact} · ${DO_SITE_A.phone}`]], [['Loading', 'Live load · 2 h free'], ['Access', 'Appointment · 24 h ahead']]] },
-    { ...DO_SITE_B, key: 'b', kind: 'Loading · Neenah, WI', contact: 'The Transport Manager', rows: [[['Contact', `The Transport Manager · ${DO_SITE_B.phone}`]], [['Loading', 'Drop and pick'], ['Access', 'Appointment · 24 h ahead']]] },
-    { ...DO_PLACE_RET, key: 'ret', kind: 'Full return', rows: [[['Receiving from', 'Wed 27 May, 08:00'], ['Gate hours', 'Mon–Sat 07:00–16:30']], [['Cutoffs', `VGM ${IP_CUTOFFS.vgm.format('ddd D MMM, HH:mm')} · port ${IP_CUTOFFS.port.format('HH:mm')}`], ['Appointments', 'Booked by each carrier']]] },
-  ];
-};
-function IpLocations({ list, edits, onEdit }) {
+const IP_PLACES = [
+  { ...DO_PLACE_CY, key: 'cy', kind: 'Empty pickup' },
+  { ...DO_SITE_A, key: 'a', kind: 'Loading · Chicago, IL' },
+  { ...DO_PLACE_RET, key: 'ret', kind: 'Full return' },
+];
+function IpLocations({ edits, onEdit }) {
   return (
     <section className="do-card">
       <div className="do-box-head"><b className="do-grow ip-h">Locations</b></div>
       <div className="ip-places">
-        {ipPlaces(list).map((p0) => {
+        {IP_PLACES.map((p0) => {
           const p = { ...p0, ...edits[p0.key] };
           return (
             <div key={p.key} className="ip-place">
@@ -9325,7 +9323,6 @@ function IpLocations({ list, edits, onEdit }) {
                 <Button type="text" size="small" className="do-icon-edit" icon={<I.EditOutlined />} aria-label={`Edit ${p.kind}`} onClick={() => onEdit(p)} />
               </div>
               <div className="ip-place-name"><b>{p.name}</b><span className="do-sub">{p.address}</span></div>
-              <DoFields rows={p.rows} />
             </div>
           );
         })}
@@ -9473,10 +9470,10 @@ function InlandPickupPage() {
                     onToggle={() => setOpenSteps(({ [s.key]: was, ...rest }) => (was ? rest : { ...rest, [s.key]: true }))} />)}
                 </div>
               </section>
-              <IpLocations list={list} edits={edits} onEdit={setEditing} />
+              <IpOcean />
+              <IpLocations edits={edits} onEdit={setEditing} />
               <IpFreeTime msg={msgApi} />
               <IpMoney list={list} onCosts={() => setCosts(true)} />
-              <IpOcean />
               <IpCustomer />
             </div>
             <div className="do-side">
@@ -9489,12 +9486,10 @@ function InlandPickupPage() {
         <Drw title="Costs by order" width={880} onClose={() => setCosts(false)} bordered className="do-drawer"><IpCosts list={list} /></Drw>
       )}
       {editing && (
-        <DoFormDrawer title={`Edit ${editing.name}`} intro="Changes apply to every dispatch order that uses this place." initial={{ name: editing.name, address: editing.address, contact: editing.contact, phone: editing.phone }}
+        <DoFormDrawer title={`Edit ${editing.name}`} intro="Changes apply to every dispatch order that uses this place." initial={{ name: editing.name, address: editing.address }}
           onClose={() => setEditing(null)} onSave={(v) => { setEdits({ ...edits, [editing.key]: v }); setEditing(null); msgApi.success(`${v.name} saved`); }}>
           <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Enter a name' }]}><Input /></Form.Item>
           <Form.Item name="address" label="Address" rules={[{ required: true, message: 'Enter the address' }]}><Input.TextArea autoSize={{ minRows: 2 }} /></Form.Item>
-          <Form.Item name="contact" label="Contact"><Input placeholder="Name" /></Form.Item>
-          <Form.Item name="phone" label="Phone"><Input placeholder="+1" /></Form.Item>
         </DoFormDrawer>
       )}
     </ShipmentShell>
