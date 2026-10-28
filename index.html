@@ -9047,22 +9047,12 @@ function dogRows(list) {
   const other = DOG_OTHER.map((x) => ({ ...x, own: false, bold: !!x.container, container: x.container || 'Not assigned', containerSub: x.ctype }));
   return [...own, ...other].map((r) => ({ ...r, assignee: DOG_ASSIGNEES[r.who] }));
 }
-// "Next due: today (2 DOs) - Overdue: 1 DO" — the To dispatch / To confirm sub-title
+// To dispatch / To confirm sub-title: only the overdue count
 const dogN = (n) => `${n} DO${n === 1 ? '' : 's'}`;
 function dogDueSub(rows, empty) {
   if (!rows.length) return [{ text: empty }];
-  const today = DOG_NOW.startOf('day');
-  const due = rows.map((r) => dayjs(r.due));
-  const overdue = due.filter((x) => x.isBefore(today)).length;
-  const ahead = due.filter((x) => !x.isBefore(today)).sort((a, b) => a - b);
-  const out = [];
-  if (ahead.length) {
-    const first = ahead[0]; const n = ahead.filter((x) => x.isSame(first, 'day')).length;
-    const day = first.isSame(today, 'day') ? 'today' : first.isSame(today.add(1, 'day'), 'day') ? 'tomorrow' : first.format('MMM, D');
-    out.push({ text: `Next due: ${day} (${dogN(n)})`, tone: day === 'today' && first.diff(DOG_NOW, 'minute') < 240 ? 'warn' : '' });
-  }
-  if (overdue) out.push({ text: `Overdue: ${dogN(overdue)}`, tone: 'err' });
-  return out;
+  const overdue = rows.filter((r) => dayjs(r.due).isBefore(DOG_NOW.startOf('day'))).length;
+  return overdue ? [{ text: `Overdue: ${dogN(overdue)}`, tone: 'err' }] : [];
 }
 
 function DispatchesAllPage() {
