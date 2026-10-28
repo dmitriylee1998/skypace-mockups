@@ -8986,7 +8986,7 @@ function DispatchOrdersPage({ f }) {
           onRow={(r) => ({ onClick: () => open(r.id), style: { cursor: 'pointer' } })}
           expandable={{
             expandedRowKeys: expanded, onExpandedRowsChange: setExpanded, columnWidth: 40,
-            expandIcon: ({ expanded: ex, onExpand, record }) => <Button size="small" type="text" icon={ex ? <I.MinusOutlined /> : <I.PlusOutlined />} aria-label={ex ? 'Collapse' : 'Expand'} onClick={(e) => { e.stopPropagation(); onExpand(record, e); }} />,
+            expandIcon: ({ expanded: ex, onExpand, record }) => <Button size="small" type="text" icon={ex ? <I.UpOutlined /> : <I.DownOutlined />} aria-label={ex ? 'Collapse' : 'Expand'} onClick={(e) => { e.stopPropagation(); onExpand(record, e); }} />,
             expandedRowRender: (r) => (
               <DoFields rows={[[['Route', `${r.d.places.cy.name} → ${r.d.places.load.name} → ${r.d.places.ret.name}`], ['Loading', `${DO_LOADING[r.d.plan.loading]} · ${r.d.plan.access === 'appt' ? 'appointment' : 'first come, first served'}`], ['Cargo', `${r.d.cargo.desc} · ${r.d.cargo.weight ? `${num(r.d.cargo.weight)} kg` : 'weight missing'}`]]]} />
             ),
@@ -9136,7 +9136,7 @@ function DispatchesAllPage() {
           onRow={(r) => ({ onClick: () => open(r), style: { cursor: 'pointer' } })}
           expandable={{
             columnWidth: 40,
-            expandIcon: ({ expanded: ex, onExpand, record }) => <Button size="small" type="text" icon={ex ? <I.MinusOutlined /> : <I.PlusOutlined />} aria-label={ex ? 'Collapse' : 'Expand'} onClick={(e) => { e.stopPropagation(); onExpand(record, e); }} />,
+            expandIcon: ({ expanded: ex, onExpand, record }) => <Button size="small" type="text" icon={ex ? <I.UpOutlined /> : <I.DownOutlined />} aria-label={ex ? 'Collapse' : 'Expand'} onClick={(e) => { e.stopPropagation(); onExpand(record, e); }} />,
             expandedRowRender: (r) => <DoFields rows={[[['Assigned to', r.assignee], ['Last free day', dayjs(r.lfd).format('D MMM YYYY')], ['Moving', r.move ? dayjs(r.move).format('D MMM YYYY') : '—']]]} />,
           }}
           locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No dispatch orders here" /> }} />
