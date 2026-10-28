@@ -1486,9 +1486,9 @@
   .dog-kpi.on { border-color: #5f68c0; background: #f0f1fa; box-shadow: none; }
   .dog-kpi-body { display: flex; flex-direction: column; min-width: 0; flex: 1; }
   .dog-kpi-title { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 13px; line-height: 20px; color: #7a7f99; white-space: nowrap; }
-  .dog-kpi-icon { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 12px; font-size: 22px; background: #eeeff1; color: #7a7f99; transition: background .2s, color .2s; }
-  .dog-kpi:hover .dog-kpi-icon { background: #f0f1fa; color: #5f68c0; }
-  .dog-kpi.on .dog-kpi-icon { background: #5f68c0; color: #fff; }
+  .dog-kpi .dog-kpi-icon.ant-avatar { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 12px; font-size: 22px; background: #eeeff1; color: #7a7f99; transition: background .2s, color .2s; }
+  .dog-kpi:hover .dog-kpi-icon.ant-avatar { background: #f0f1fa; color: #5f68c0; }
+  .dog-kpi.on .dog-kpi-icon.ant-avatar { background: #5f68c0; color: #fff; }
   .dog-kpi-x { position: absolute; top: 10px; right: 10px; font-size: 10px; color: #5f68c0; }
   .dog-kpi-val { display: flex; flex-direction: column; min-width: 0; }
   .dog-kpi b { flex: none; font-size: 24px; line-height: 30px; font-weight: 600; color: #1f2340; font-variant-numeric: tabular-nums; }
@@ -9120,7 +9120,7 @@ function DispatchesAllPage() {
           const xs = rows.filter(k.test); const on = kpi === k.key;
           return (
             <button type="button" key={k.key} className={'dog-kpi' + (on ? ' on' : '')} aria-pressed={on} onClick={() => setKpi(on ? null : k.key)}>
-              <span className={'dog-kpi-icon ' + k.key}>{k.icon}</span>
+              <Avatar shape="square" size={48} icon={k.icon} className={'dog-kpi-icon ' + k.key} />
               {on && <I.CloseOutlined className="dog-kpi-x" aria-label="Clear filter" />}
               <span className="dog-kpi-body">
               <span className="dog-kpi-title">{k.title}</span>
