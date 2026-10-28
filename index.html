@@ -3190,7 +3190,7 @@ function Toolbar({ search, onSearch, placeholder = 'Search', children }) {
 function SortBtn({ options, value, onChange, label = 'Sorty by' }) {
   return (
     <Dropdown trigger={['click']} menu={{ items: options.map(([k, l]) => ({ key: k, label: l })), selectable: true, selectedKeys: [value], onClick: ({ key }) => onChange(key) }}>
-      <Button>{label} <I.DownOutlined style={{ fontSize: 12 }} /></Button>
+      <Button>{label} <ChevronIcon dir="down" /></Button>
     </Dropdown>
   );
 }
@@ -4611,7 +4611,7 @@ function InternalResults({ q }) {
           <Dropdown trigger={['click']} menu={{ selectable: true, selectedKeys: [other], onClick: ({ key }) => { setOther(key); setTab('other'); },
             items: [{ key: 'earliest', label: 'Earliest departure' }, { key: 'fastest', label: 'Fastest transit' }] }}>
             <button type="button" className={'rq-tab rq-other' + (tab === 'other' ? ' on' : '')}>
-              <b>Other options</b><span>{other === 'earliest' ? 'Earliest departure' : 'Fastest transit'}</span><I.DownOutlined className="rq-chev" />
+              <b>Other options</b><span>{other === 'earliest' ? 'Earliest departure' : 'Fastest transit'}</span><ChevronIcon dir="down" className="rq-chev" />
             </button>
           </Dropdown>
         </div>
@@ -5091,7 +5091,7 @@ function PublicQuotesPage({ query }) {
                 <button type="button" className="pq-tag pq-btn" onClick={() => { navigator.clipboard?.writeText(location.href); msgApi.success('Link copied'); }}><I.ShareAltOutlined /> Share</button>
                 <Dropdown trigger={['click']} menu={{ selectable: true, selectedKeys: [sort], onClick: ({ key }) => setSort(key),
                   items: [['recommended', 'Recommended'], ['cheapest', 'Cheapest'], ['fastest', 'Fastest'], ['earliest', 'Earliest departure']].map(([k, l]) => ({ key: k, label: l })) }}>
-                  <button type="button" className="pq-tag pq-btn">{{ recommended: 'Recommended', cheapest: 'Cheapest', fastest: 'Fastest', earliest: 'Earliest departure' }[sort]} <I.DownOutlined style={{ fontSize: 10 }} /></button>
+                  <button type="button" className="pq-tag pq-btn">{{ recommended: 'Recommended', cheapest: 'Cheapest', fastest: 'Fastest', earliest: 'Earliest departure' }[sort]} <ChevronIcon dir="down" /></button>
                 </Dropdown>
                 <button type="button" className="pq-tag pq-btn" onClick={() => (gate.registered ? msgApi.success('Search saved') : gate.setModal('signup'))}><I.BookOutlined /> Save</button>
               </div>
@@ -9751,7 +9751,7 @@ function App() {
   const page = resolvePage(route.path, route.query);
   useEffect(() => { document.title = `${page.crumbs[page.crumbs.length - 1].title} · Skypace`; }, [route.path]);
   return (
-    <ConfigProvider theme={theme}>
+    <ConfigProvider theme={theme} select={{ suffixIcon: <ChevronIcon dir="down" /> }}>
       {page.bare ? <div className="page" key={route.path.startsWith('/auth/') ? '/auth' : route.path}>{page.el}</div> : (
         <div className={'app' + (page.collapsed ? ' collapsed' : ' full')}>
           {page.collapsed ? <Rail navKey={page.navKey} /> : <Sidebar navKey={page.navKey} />}
