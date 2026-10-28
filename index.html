@@ -1957,7 +1957,13 @@ const LinkBtn = ({ icon, children, onClick }) => (
   <Button type="link" className="link-btn" icon={icon} onClick={(e) => { e.stopPropagation(); onClick && onClick(); }}>{children}</Button>
 );
 const KV = ({ k, v }) => <div><div className="lbl">{k}</div><div>{v}</div></div>;
-const Chevron = ({ open }) => <Button type="text" icon={open ? <I.UpOutlined /> : <I.DownOutlined />} />;
+// Expand/collapse arrow (Figma «Outlined/right» ↓/↑): small, secondary-colored chevron
+const ExpandArrow = ({ open }) => {
+  const { token } = antd.theme.useToken();
+  const Icon = open ? I.UpOutlined : I.DownOutlined;
+  return <Icon style={{ fontSize: token.fontSizeSM, color: token.colorTextSecondary }} />;
+};
+const Chevron = ({ open }) => <Button type="text" icon={<ExpandArrow open={open} />} aria-label={open ? 'Collapse' : 'Expand'} />;
 const DATE_PH = 'DD/MM/YY';
 const DP = (p) => <DatePicker placeholder={DATE_PH} format="DD/MM/YY" style={{ width: '100%' }} {...p} />;
 
@@ -2905,7 +2911,7 @@ function ScheduleDrawer({ close }) {
                 {exp !== i && (i === 0
                   ? <Button className="cut-btn warn" icon={<I.WarningFilled style={{ color: '#faad14' }} />}>Cutoffs</Button>
                   : <Button className="cut-btn" icon={<I.InfoCircleOutlined />}>Cutoffs</Button>)}
-                <Button icon={exp === i ? <I.UpOutlined /> : <I.DownOutlined />} style={exp === i ? { borderColor: '#5f68c0', color: '#5f68c0' } : null}
+                <Button type="text" icon={<ExpandArrow open={exp === i} />} aria-label={exp === i ? 'Collapse' : 'Expand'}
                   onClick={() => setExp(exp === i ? -1 : i)} />
               </div>
               {exp === i && (
@@ -3453,7 +3459,7 @@ function NotificationsPage() {
         <DataTable columns={cols} dataSource={rows} pagination={PAGINATION}
           expandable={{
             onExpand: (open, n) => open && markRead(n.key),
-            expandIcon: ({ expanded, onExpand, record }) => <Button size="small" type="text" className="exp-btn" icon={expanded ? <I.UpOutlined /> : <I.DownOutlined />} onClick={(e) => onExpand(record, e)} />,
+            expandIcon: ({ expanded, onExpand, record }) => <Button size="small" type="text" className="exp-btn" icon={<ExpandArrow open={expanded} />} onClick={(e) => onExpand(record, e)} />,
             expandedRowRender: (n) => (
               <div className="notif-body">
                 <p>{n.name} for shipment <PageLink to={SHIPMENT_PATH}>{n.object}</PageLink>. Received {n.received.format('D MMM YYYY, HH:mm')} · {n.module}.</p>
@@ -3605,7 +3611,7 @@ function DispatchesPage() {
         <DataTable columns={cols} dataSource={rows} pagination={PAGINATION} minWidth={1100}
           rowSelection={{ selectedRowKeys: selected, onChange: setSelected }}
           expandable={{
-            expandIcon: ({ expanded, onExpand, record }) => <Button size="small" type="text" className="exp-btn" icon={expanded ? <I.UpOutlined /> : <I.DownOutlined />} aria-label={expanded ? 'Collapse' : 'Expand'} onClick={(e) => onExpand(record, e)} />,
+            expandIcon: ({ expanded, onExpand, record }) => <Button size="small" type="text" className="exp-btn" icon={<ExpandArrow open={expanded} />} aria-label={expanded ? 'Collapse' : 'Expand'} onClick={(e) => onExpand(record, e)} />,
             expandedRowRender: (r) => (
               <div className="dispatch-detail">
                 <KV k="Pickup" v={`Maher Terminal, Elizabeth, NJ · ${NOW.format('D MMM')}, 06:00`} />
@@ -4487,7 +4493,7 @@ function OfferFilters({ offers, flt, q }) {
         {flt.active > 0 && <a className="flt-reset" onClick={flt.reset}>Reset ({flt.active})</a>}
       </div>
       <label className="flt-alt"><Checkbox checked={f.alt} onChange={(e) => set({ alt: e.target.checked })} /> Show alternative routes</label>
-      <Collapse ghost className="flt-collapse" items={items} expandIconPlacement="end" expandIcon={({ isActive }) => (isActive ? <I.UpOutlined /> : <I.DownOutlined />)} />
+      <Collapse ghost className="flt-collapse" items={items} expandIconPlacement="end" expandIcon={({ isActive }) => <ExpandArrow open={isActive} />} />
     </div>
   );
 }
@@ -4822,7 +4828,7 @@ function NextStepMenu({ sel, setView, onChat, onSignUp, onCalled }) {
                   <a className="ns-how-link" href={HOW_IT_WORKS_URL} target="_blank" rel="noopener noreferrer"><I.PlayCircleOutlined /> How it works</a>
                 )}
               </span>
-              {op.key === 'call' ? (call ? <I.UpOutlined className="ns-opt-arrow" /> : <I.DownOutlined className="ns-opt-arrow" />) : <I.RightOutlined className="ns-opt-arrow" />}
+              {op.key === 'call' ? <span className="ns-opt-arrow"><ExpandArrow open={call} /></span> : <I.RightOutlined className="ns-opt-arrow" />}
             </div>
             {op.key === 'call' && call && <CallBack onDone={onCalled} />}
           </div>
@@ -5861,7 +5867,7 @@ function ContainersListPage() {
           <div className="stat-tile"><b>{sealed}/{list.length}</b><span>Sealed</span></div>
           <div className="stat-tile"><b>{pcsTotal ? Math.round((pcsLoaded / pcsTotal) * 100) : 0}%</b><span>Cargo loaded</span></div>
         </div>
-        <Collapse ghost className="cn-alloc" expandIconPlacement="end" expandIcon={({ isActive }) => (isActive ? <I.UpOutlined /> : <I.DownOutlined />)} items={[{
+        <Collapse ghost className="cn-alloc" expandIconPlacement="end" expandIcon={({ isActive }) => <ExpandArrow open={isActive} />} items={[{
           key: 'a', label: <span><b>Cargo allocation</b> <span className="muted">· {num(pcsLoaded)} of {num(pcsTotal)} pcs loaded</span></span>,
           children: (
             <div className="cn-alloc-list">
@@ -8985,7 +8991,7 @@ function DispatchOrdersPage({ f }) {
           onRow={(r) => ({ onClick: () => open(r.id), style: { cursor: 'pointer' } })}
           expandable={{
             expandedRowKeys: expanded, onExpandedRowsChange: setExpanded, columnWidth: 40,
-            expandIcon: ({ expanded: ex, onExpand, record }) => <Button size="small" type="text" icon={ex ? <I.UpOutlined /> : <I.DownOutlined />} aria-label={ex ? 'Collapse' : 'Expand'} onClick={(e) => { e.stopPropagation(); onExpand(record, e); }} />,
+            expandIcon: ({ expanded: ex, onExpand, record }) => <Button size="small" type="text" icon={<ExpandArrow open={ex} />} aria-label={ex ? 'Collapse' : 'Expand'} onClick={(e) => { e.stopPropagation(); onExpand(record, e); }} />,
             expandedRowRender: (r) => (
               <DoFields rows={[[['Route', `${r.d.places.cy.name} → ${r.d.places.load.name} → ${r.d.places.ret.name}`], ['Loading', `${DO_LOADING[r.d.plan.loading]} · ${r.d.plan.access === 'appt' ? 'appointment' : 'first come, first served'}`], ['Cargo', `${r.d.cargo.desc} · ${r.d.cargo.weight ? `${num(r.d.cargo.weight)} kg` : 'weight missing'}`]]]} />
             ),
@@ -9135,7 +9141,7 @@ function DispatchesAllPage() {
           onRow={(r) => ({ onClick: () => open(r), style: { cursor: 'pointer' } })}
           expandable={{
             columnWidth: 40,
-            expandIcon: ({ expanded: ex, onExpand, record }) => <Button size="small" type="text" icon={ex ? <I.UpOutlined /> : <I.DownOutlined />} aria-label={ex ? 'Collapse' : 'Expand'} onClick={(e) => { e.stopPropagation(); onExpand(record, e); }} />,
+            expandIcon: ({ expanded: ex, onExpand, record }) => <Button size="small" type="text" icon={<ExpandArrow open={ex} />} aria-label={ex ? 'Collapse' : 'Expand'} onClick={(e) => { e.stopPropagation(); onExpand(record, e); }} />,
             expandedRowRender: (r) => <DoFields rows={[[['Assigned to', r.assignee], ['Last free day', dayjs(r.lfd).format('D MMM YYYY')], ['Moving', r.move ? dayjs(r.move).format('D MMM YYYY') : '—']]]} />,
           }}
           locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No dispatch orders here" /> }} />
