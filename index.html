@@ -9099,7 +9099,7 @@ function DispatchesAllPage() {
   return (
     <div className="page-stack">
       {msgCtx}
-      <Card variant="borderless" title="Dispatch overview" extra={<Text type="secondary">Today</Text>} styles={{ header: { borderBottom: 'none', minHeight: 0, paddingTop: token.paddingMD }, body: { paddingTop: token.paddingSM } }}>
+      <Card variant="borderless" styles={{ body: { padding: token.padding } }}>
         <Row gutter={[token.marginSM, token.marginSM]}>
           {KPIS.map((k) => {
             const xs = rows.filter(k.test); const on = kpi === k.key; const toggle = () => setKpi(on ? null : k.key);
