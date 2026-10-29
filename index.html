@@ -3631,42 +3631,102 @@ function DispatchesPage() {
 
 /* ---------- 7. Shipments ---------- */
 const SHIP_TABS = [['active', 'Active'], ['completed', 'Completed'], ['cancelled', 'Cancelled'], ['unverified', 'Unverified']];
-const SHIPMENTS = range(36, (i) => ({
-  key: 's' + i, id: i === 0 ? SHIPMENT_ID : `SP-00${1698 + i}`, ref: pick(['Shipment reference', 'PO 4F0268', 'REF 77812'], i),
-  origin: pick(['Houston, US', 'Manhattan, NY, US', 'Savannah, US'], i), etd: NOW.add(i - 10, 'day'), dest: pick(['Jebel Ali, AE', 'Nha Trang, VN', 'Hamburg, DE'], i),
-  eta: NOW.add(i, 'day'), cargo: pick(["20’ FT × 1, 40’ Dry ×2", "40’ HC × 3", "20’ ST × 6"], i), desc: pick(['Auto parts and accessories', 'Frozen seafood', 'Furniture'], i),
-  state: pick(['active', 'active', 'completed', 'active', 'unverified', 'cancelled', 'completed'], i),
-  status: pick([['Confirmed', '#75cb3f'], ['In transit', '#5f68c0'], ['Awaiting docs', '#faad14']], i), tracker: pick(['On schedule', 'Delayed 2 days', 'Tracking pending'], i),
-  tasks: i % 4, alerts: (i + 1) % 3,
-}));
+const SHIP_OPS = 'Max Regular Partner';
+const SHIPMENTS = [
+  { id: 'SP-005550', bn: '5550', logo: 'logo-hapag', origin: 'Chicago, US', door: true, dep: ['ETD', '7 Nov, 20:28'], dest: 'Gdynia, PL', arr: ['ETA', '17 Dec, 07:44'], customer: 'Northwind Polymers', ops: SHIP_OPS, status: 'Confirmed', tracker: null, tasks: 0, alerts: 3 },
+  { id: 'SP-005549', bn: '5549', logo: 'carrier-logo', origin: 'New York, US', dep: ['ETD', '5 Nov, 12:00'], dest: 'Shanghai, CN', arr: ['ETA', '9 Nov, 12:00'], customer: 'Blue Ocean Ltd', ops: SHIP_OPS, status: 'In Transit', tracker: 'Container(s) Outgated (empty)', tasks: 0, alerts: 3 },
+  { id: 'SP-005548', bn: null, logo: 'carrier-logo', origin: 'New York, US', dep: null, dest: 'Shanghai, CN', arr: null, customer: 'Tesla Inc', ops: SHIP_OPS, status: 'Pending Confirmation', tracker: null, tasks: 0, alerts: 1 },
+  { id: 'SP-005544', bn: null, logo: 'carrier-logo', origin: 'Gdynia, PL', dep: null, dest: 'New York, US', arr: null, customer: 'Baltic Amber Trade', ops: 'User Booking PL', status: 'Pending Confirmation', tracker: null, tasks: 0, alerts: 0 },
+  { id: 'SP-005543', bn: '5543', logo: 'logo-one', origin: 'New York, US', dep: ['ETD', '8 Nov, 08:00'], dest: 'Shanghai, CN', arr: ['ETA', '9 Dec, 17:00'], customer: 'Maxton Shipping', ops: SHIP_OPS, status: 'Confirmed', tracker: null, tasks: 0, alerts: 2 },
+  { id: 'SP-005542', bn: '5542', logo: 'carrier-logo', origin: 'New York, US', dep: ['ATD', '4 Nov, 12:00'], dest: 'Shanghai, CN', arr: ['ETA', '8 Nov, 12:00'], customer: 'Nordic Lines', ops: SHIP_OPS, status: 'In Transit', tracker: 'On the way to Discharge Port', tasks: 0, alerts: 2 },
+  { id: 'SP-005540', bn: '5540', logo: 'logo-hapag', origin: 'Vancouver, CA', dep: ['ATD', '26 Oct, 00:00'], dest: 'Mundra, IN', arr: ['ETA', '20 Dec, 00:00'], customer: 'Pacific Timber Co', ops: SHIP_OPS, status: 'In Transit', tracker: 'Container(s) Outgated (full)', tasks: 0, alerts: 2 },
+].map((s) => ({ ...s, key: s.id, state: s.status === 'Pending Confirmation' ? 'unverified' : 'active' }));
+// layout of Dispatches · All (Figma 8102:321): KPI cards + tabs + table, with the shipments' data
+const SHIP_STATUS_COLOR = { Confirmed: 'green', 'In Transit': 'green', 'Pending Confirmation': 'purple' };
 function ShipmentsPage() {
-  const [tab, setTab] = useState('active');
+  const { token } = antd.theme.useToken();
+  const { Text, Title } = Typography; const { Row, Col } = antd;
+  const [tab, setTab] = useState('all');
+  const [kpi, setKpi] = useState(null);
   const [q, setQ] = useState('');
-  const [sort, setSort] = useState('etd');
-  const rows = SHIPMENTS.filter((s) => s.state === tab).filter((s) => includesQ(q, s.id, s.ref, s.origin, s.dest, s.cargo))
-    .sort((a, b) => (sort === 'etd' ? a.etd - b.etd : sort === 'eta' ? a.eta - b.eta : byKey('id')(a, b)));
+  const [sel, setSel] = useState([]);
+  const KPIS = [
+    { key: 'action', title: 'Action required', icon: <I.ExclamationCircleOutlined />, test: (s) => s.alerts > 0, note: 'Unread notifications' },
+    { key: 'pending', title: 'Pending confirmation', icon: <I.CheckCircleOutlined />, test: (s) => s.status === 'Pending Confirmation', note: 'Waiting for the carrier' },
+    { key: 'confirmed', title: 'Confirmed', icon: <I.SendOutlined />, test: (s) => s.status === 'Confirmed', note: 'Booked, not departed yet' },
+    { key: 'transit', title: 'In transit', icon: <I.CarOutlined />, test: (s) => s.status === 'In Transit', note: 'On the way' },
+    { key: 'tbd', title: 'Missing dates', icon: <I.FieldTimeOutlined />, test: (s) => !s.dep || !s.arr, note: 'ETD or ETA is TBD' },
+  ];
+  const kpiTest = KPIS.find((k) => k.key === kpi)?.test || (() => true);
+  const inTab = (s, k) => k === 'all' || s.state === k;
+  const shown = SHIPMENTS.filter((s) => inTab(s, tab) && kpiTest(s) && includesQ(q, s.id, s.bn, s.origin, s.dest, s.customer, s.ops));
+  const open = () => go(SHIPMENT_PATH);
+  const small = { fontSize: token.fontSizeSM };
+  const two = (top, bottom) => <Flex vertical><Text>{top}</Text>{bottom && <Text type="secondary" style={small}>{bottom}</Text>}</Flex>;
+  const iconBox = { width: token.controlHeight, height: token.controlHeight, flex: 'none', borderRadius: token.borderRadius, background: token.colorFillTertiary, color: token.colorText };
+  const place = (icon, top, bottom) => <Flex gap={token.marginXS} align="center"><Flex align="center" justify="center" style={iconBox}><Ic n={icon} size={14} /></Flex>{two(top, bottom)}</Flex>;
+  const when = (d, kind) => (d ? `${d[0]} ${d[1]}` : `${kind}: TBD`);
+  const cols = [
+    { title: 'Shipment', dataIndex: 'id', width: 200, render: (v, s) => (
+      <Flex gap={token.marginSM} align="center"><Img src={`assets/${s.logo}.svg`} size={32} alt="Carrier" />
+        {two(<a href={href(SHIPMENT_PATH)} onClick={(e) => e.stopPropagation()}>{v}</a>, `BN: ${s.bn || 'TBD'}`)}</Flex>
+    ) },
+    { title: 'Origin', key: 'o', width: 190, render: (_, s) => place(s.door ? 'warehouse' : 'port', s.origin, when(s.dep, 'ETD')) },
+    { title: 'Destination', key: 'd', width: 190, render: (_, s) => place('port', s.dest, when(s.arr, 'ETA')) },
+    { title: 'Customer/Ops', key: 'c', render: (_, s) => two(s.customer, `Ops: ${s.ops}`) },
+    { title: 'Status', key: 'st', width: 220,
+      render: (_, s) => <Flex vertical><Badge color={SHIP_STATUS_COLOR[s.status]} text={s.status} />{s.tracker && <Text type="secondary" style={small}>{s.tracker}</Text>}</Flex> },
+    { title: 'Actions', key: 'a', width: 140, render: (_, s) => (
+      <Flex gap={token.marginXS}>
+        <Tooltip title={`${s.tasks} open tasks`}><Button size="small" icon={<I.CheckCircleOutlined />} onClick={(e) => e.stopPropagation()}>{s.tasks}</Button></Tooltip>
+        <Tooltip title={`${s.alerts} notifications`}><Button size="small" variant="filled" color="default" icon={<I.BellOutlined />} onClick={(e) => e.stopPropagation()}>{s.alerts}</Button></Tooltip>
+      </Flex>
+    ) },
+    { key: 'go', width: 44, render: (_, s) => <Button size="small" className="arrow-btn" icon={<ChevronIcon />} aria-label={`Open ${s.id}`} onClick={(e) => { e.stopPropagation(); open(); }} /> },
+  ];
   return (
     <div className="page-stack">
-      <Toolbar search={q} onSearch={setQ} placeholder="Search by shipment, reference or port">
-        <SortBtn value={sort} onChange={setSort} options={[['etd', 'ETD'], ['eta', 'ETA'], ['id', 'Shipment number']]} />
-      </Toolbar>
-      <div className="card-flat tabs-card">
-        <Tabs activeKey={tab} onChange={setTab} items={SHIP_TABS.map(([k, l]) => ({ key: k, label: <span>{l} <span className="count-badge">{SHIPMENTS.filter((s) => s.state === k).length}</span></span> }))} />
+      <Card variant="borderless" styles={{ body: { padding: token.padding } }}>
+        <Row gutter={[token.marginSM, token.marginSM]}>
+          {KPIS.map((k) => {
+            const n = SHIPMENTS.filter(k.test).length; const on = kpi === k.key; const toggle = () => setKpi(on ? null : k.key);
+            return (
+              <Col key={k.key} flex="1 1 200px">
+                <Card size="small" variant="borderless" className={'dog-ov-card' + (on ? ' on' : '')} role="button" tabIndex={0} aria-pressed={on} onClick={toggle} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), toggle())}
+                  style={{ height: '100%', cursor: 'pointer' }} styles={{ body: { padding: `${token.paddingSM}px ${token.padding}px` } }}>
+                  <Flex justify="space-between" align="center" gap={token.marginXS}>
+                    <Text strong ellipsis>{k.title}</Text>
+                    <Text type={on ? undefined : 'secondary'} style={on ? { color: token.colorPrimary } : undefined}>{k.icon}</Text>
+                  </Flex>
+                  <Title level={3} style={{ margin: `${token.marginXXS}px 0`, color: n ? undefined : token.colorTextQuaternary }}>{n}</Title>
+                  <Text type="secondary" style={small}>{k.note}</Text>
+                </Card>
+              </Col>
+            );
+          })}
+        </Row>
+      </Card>
+      <div className="card-flat tabs-card do-tabs">
+        <Tabs activeKey={tab} onChange={(k) => { setTab(k); setSel([]); }} items={[['all', 'All'], ...SHIP_TABS].map(([k, l]) => {
+          const n = SHIPMENTS.filter((s) => inTab(s, k) && kpiTest(s)).length;
+          return { key: k, label: <span className="do-tab">{l}<span className={'do-tab-count' + (k === tab ? ' on' : '')}>{n}</span></span> };
+        })} />
       </div>
-      {rows.length ? rows.map((s) => (
-        <a key={s.key} className="list-card ship-card" href={href(SHIPMENT_PATH)} onClick={(e) => { e.currentTarget.style.viewTransitionName = 'shipment-hero'; }}>
-          <Img src="assets/carrier-logo.svg" size={40} alt="Carrier" />
-          <div className="sc-col sc-id"><div>{s.id}</div><div className="lbl muted2">{s.ref}</div></div>
-          <div className="sc-col sc-port"><Ic n="warehouse" size={14} style={{ color: '#d1d7e2', marginTop: 4 }} /><div><div>{s.origin}</div><div className="lbl muted2">ETD {s.etd.format('D MMM YYYY')}</div></div></div>
-          <div className="sc-col sc-port"><Ic n="port" size={14} style={{ color: '#d1d7e2', marginTop: 4 }} /><div><div>{s.dest}</div><div className="lbl muted2">ETA {s.eta.format('D MMM YYYY')}</div></div></div>
-          <div className="sc-col sc-cargo"><div>{s.cargo}</div><div className="lbl muted2">{s.desc}</div></div>
-          <div className="sc-col"><DotStatus color={s.status[1]}>{s.status[0]}</DotStatus><div className="lbl muted2" style={{ paddingLeft: 15 }}>{s.tracker}</div></div>
-          <div className="sc-pills">
-            <Tooltip title={`${s.tasks} open tasks`}><span className="pill task"><I.CheckCircleOutlined />{s.tasks}</span></Tooltip>
-            <Tooltip title={`${s.alerts} notifications`}><span className="pill bell"><I.BellOutlined />{s.alerts}{s.alerts > 0 && <i />}</span></Tooltip>
-          </div>
-        </a>
-      )) : <div className="card-flat"><Empty description="No shipments in this tab" /></div>}
+      <section className="card-flat do-list">
+        <div className="do-list-head">
+          <b>Shipments{kpi && <Tag closable style={{ marginInlineStart: token.marginXS, fontWeight: token.fontWeightNormal ?? 400 }} onClose={() => setKpi(null)}>{KPIS.find((k) => k.key === kpi).title}</Tag>}</b>
+          <Input allowClear className="do-search" placeholder="Shipment, booking, port, customer" value={q} onChange={(e) => setQ(e.target.value)} suffix={!q && <I.SearchOutlined className="muted" />} />
+        </div>
+        <Table rowKey="key" className="do-list-table dog-table" columns={cols} dataSource={shown} pagination={false} scroll={{ x: 1150 }}
+          rowSelection={{ selectedRowKeys: sel, onChange: setSel, columnWidth: 40 }}
+          onRow={(s) => ({ onClick: () => open(s), style: { cursor: 'pointer' } })}
+          expandable={{
+            columnWidth: 40,
+            expandIcon: ({ expanded: ex, onExpand, record }) => <Button size="small" type="text" icon={<ExpandArrow open={ex} />} aria-label={ex ? 'Collapse' : 'Expand'} onClick={(e) => { e.stopPropagation(); onExpand(record, e); }} />,
+            expandedRowRender: (s) => <DoFields rows={[[['Booking number', s.bn || 'TBD'], ['Customer', s.customer], ['Ops', s.ops]]]} />,
+          }}
+          locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No shipments here" /> }} />
+      </section>
     </div>
   );
 }
