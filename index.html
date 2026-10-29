@@ -8745,7 +8745,7 @@ function DoStepCard({ id, done, current, title, note, open, onToggle, children }
   const { token } = antd.theme.useToken(); const { Text } = Typography; const { Row, Col } = antd;
   const dot = { width: token.fontSizeLG, height: token.fontSizeLG, borderRadius: '50%', flex: 'none', border: `${token.lineWidthBold}px solid ${current ? token.colorPrimary : token.colorBorder}` };
   return (
-    <Card variant="borderless" id={id} styles={{ body: { padding: 0 } }}>
+    <Card variant="borderless" id={id} style={{ boxShadow: 'none' }} styles={{ body: { padding: 0 } }}>
       <Flex align="center" gap={token.marginSM} role="button" tabIndex={0} aria-expanded={open} onClick={onToggle}
         onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onToggle())}
         style={{ padding: `${token.paddingSM}px ${token.padding}px`, cursor: 'pointer' }}>
