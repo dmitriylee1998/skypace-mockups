@@ -8844,7 +8844,7 @@ function DoDetailPage({ d, open, msg }) {
       body: <DoStepBox rows={[[['Dispatched by', d.dispatchedBy || DO_OPERATOR], ['Date', d.dispatchedAt], ['Document', <Link onClick={openDoc}><I.FileTextOutlined /> dispatch order.pdf</Link>]]]} /> },
     { key: 'confirmed', title: 'Confirmed by carrier', done: d.confirmed, note: d.confirmed ? `Confirmed ${d.confirmedAt || '—'} · ${d.confirmedBy || c.contact}` : `Next: confirm with ${c.short} by ${dropAt}`,
       body: (
-        <DoStepBox rows={[[['Confirmed by', d.confirmed ? d.confirmedBy || c.contact : '—'], ['Date', d.confirmedAt || '—'], ['Driver · truck', d.driver || 'Not recorded yet']]]}>
+        <DoStepBox rows={[[['Confirmed by', d.confirmed ? d.confirmedBy || c.contact : '—'], ['Date', d.confirmedAt || '—'], ['Document', <Link onClick={openDoc}><I.FileTextOutlined /> dispatch order.pdf</Link>]]]}>
           {!d.confirmed && <div><DoLink size="small" icon={<I.CheckOutlined />} onClick={() => open('m:confirm')}>Mark as confirmed</DoLink></div>}
         </DoStepBox>
       ) },
