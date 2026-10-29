@@ -8781,13 +8781,17 @@ function DoMsTable({ leg, nextK, onEdit }) {
   return (
     <div className="do-ms">
       <div className="do-ms-row head"><span>Milestone</span><span>Predicted</span><span>Actual</span><span /></div>
-      {doKeyRows(leg).map((x) => (
-        <div key={x.k} className="do-ms-row"><span>{x.label}</span><span>{doFmt(x.est)}</span>
-          {x.act ? <span>{doFmt(x.act)}</span> : x.missing ? <span><DoWarnLink onClick={onEdit}>Missing</DoWarnLink></span>
-            : x.k === nextK ? <span><DoLink size="small" onClick={onEdit}>Record {x.label.toLowerCase()}</DoLink></span> : <span className="muted">Not recorded</span>}
-          <Button type="text" size="small" className="do-ms-edit" icon={<I.EditOutlined />} aria-label={`Edit ${x.label}`} onClick={onEdit} />
-        </div>
-      ))}
+      {doKeyRows(leg).map((x) => {
+        // a row with its own action link (Record … / Missing) needs no separate edit button
+        const action = !x.act && (x.missing || x.k === nextK);
+        return (
+          <div key={x.k} className="do-ms-row"><span>{x.label}</span><span>{doFmt(x.est)}</span>
+            {x.act ? <span>{doFmt(x.act)}</span> : x.missing ? <span><DoWarnLink onClick={onEdit}>Missing</DoWarnLink></span>
+              : x.k === nextK ? <span><DoLink size="small" onClick={onEdit}>Record {x.label.toLowerCase()}</DoLink></span> : <span className="muted">Not recorded</span>}
+            {action ? <span /> : <Button type="text" size="small" className="do-ms-edit" icon={<I.EditOutlined />} aria-label={`Edit ${x.label}`} onClick={onEdit} />}
+          </div>
+        );
+      })}
     </div>
   );
 }
