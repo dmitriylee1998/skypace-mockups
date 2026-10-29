@@ -8740,6 +8740,60 @@ function DoExtraModal({ d, close, msg }) {
   );
 }
 
+/* Dispatch order · step by step (Figma 8145:169637 / 8145:183807): one collapsible card per step, done steps start collapsed */
+function DoStepCard({ id, done, current, title, note, open, onToggle, children }) {
+  const { token } = antd.theme.useToken(); const { Text } = Typography; const { Row, Col } = antd;
+  const dot = { width: token.fontSizeLG, height: token.fontSizeLG, borderRadius: '50%', flex: 'none', border: `${token.lineWidthBold}px solid ${current ? token.colorPrimary : token.colorBorder}` };
+  return (
+    <Card variant="borderless" id={id} styles={{ body: { padding: 0 } }}>
+      <Flex align="center" gap={token.marginSM} role="button" tabIndex={0} aria-expanded={open} onClick={onToggle}
+        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onToggle())}
+        style={{ padding: `${token.paddingSM}px ${token.padding}px`, cursor: 'pointer' }}>
+        {done ? <I.CheckCircleFilled style={{ color: token.colorSuccess, fontSize: token.fontSizeLG }} /> : <span style={dot} />}
+        <Row style={{ flex: 1, minWidth: 0 }} gutter={token.marginSM} align="middle">
+          <Col span={9}><Text strong ellipsis>{title}</Text></Col>
+          <Col span={15}><Text type={done ? 'secondary' : undefined} ellipsis>{note}</Text></Col>
+        </Row>
+        <ExpandArrow open={open} />
+      </Flex>
+      {open && <Flex vertical gap={token.marginSM} style={{ padding: `0 ${token.padding}px ${token.padding}px` }}>{children}</Flex>}
+    </Card>
+  );
+}
+// gray block: optional title / place line with an edit button, then rows of fields
+function DoStepBox({ title, sub, onEdit, editLabel, rows = [], children }) {
+  const { Text } = Typography;
+  return (
+    <div className="do-fields">
+      {(title || onEdit) && (
+        <Flex align="start" justify="space-between" gap={8}>
+          <Flex vertical>{title && <Text strong>{title}</Text>}{sub && <Text>{sub}</Text>}</Flex>
+          {onEdit && <Button type="text" size="small" className="do-icon-edit" icon={<I.EditOutlined />} aria-label={editLabel || `Edit ${title}`} onClick={onEdit} />}
+        </Flex>
+      )}
+      {rows.map((r, i) => <div key={i} className="do-fields-row">{r.filter(Boolean).map((f) => <DoField key={f[0]} label={f[0]} value={f[1]} tone={f[2]} />)}</div>)}
+      {children}
+    </div>
+  );
+}
+// key milestones of a leg: the next one without an actual time gets a "Record …" link
+function DoMsTable({ leg, nextK, onEdit }) {
+  return (
+    <div className="do-ms">
+      <div className="do-ms-row head"><span>Milestone</span><span>Predicted</span><span>Actual</span><span /></div>
+      {doKeyRows(leg).map((x) => (
+        <div key={x.k} className="do-ms-row"><span>{x.label}</span><span>{doFmt(x.est)}</span>
+          {x.act ? <span>{doFmt(x.act)}</span> : x.missing ? <span><DoWarnLink onClick={onEdit}>Missing</DoWarnLink></span>
+            : x.k === nextK ? <span><DoLink size="small" onClick={onEdit}>Record {x.label.toLowerCase()}</DoLink></span> : <span className="muted">Not recorded</span>}
+          <Button type="text" size="small" className="do-ms-edit" icon={<I.EditOutlined />} aria-label={`Edit ${x.label}`} onClick={onEdit} />
+        </div>
+      ))}
+    </div>
+  );
+}
+const DO_OPERATOR = 'Bridget Moore';
+const DO_DRIVER_NOTE = 'Call the site 30 min before arrival · send the seal number and scale ticket after loading';
+
 function DoDetailPage({ d, open, msg }) {
   const st = doStatus(d); const c = DO_CARRIERS[d.carrier]; const t = doTimes(d); const a = d.actual; const load = d.places.load;
   const exc = d.exception; const sealBad = exc?.kind === 'seal' && exc.open;
@@ -8761,6 +8815,81 @@ function DoDetailPage({ d, open, msg }) {
   const profit = (x) => x.sell - x.buy;
   const tagColor = { dispatched: '', confirmed: 'ok', progress: 'next', completed: 'ok' }[st];
   const sizeTag = d.cargo.type.startsWith('40') ? (d.cargo.type.includes('High') ? "40'HC" : "40'ST") : "20'ST";
+  const { token } = antd.theme.useToken(); const { Text, Link } = Typography;
+  const [openSteps, setOpenSteps] = useState({});
+  const openDoc = () => go(`${DOC_PATH}?v=${d.plan.loading === 'dp' ? 'export' : 'export-live'}`);
+  const sealVal = d.legsDone >= 2 ? (sealBad ? `${a.seal} · doesn't match booking` : a.seal) : d.cargo.sealNo || 'After loading';
+  const [l1, l2, l3] = main; const yard = legs.find((l) => l.yard); const p = d.plan; const dp = p.loading === 'dp';
+  const row = (leg, k) => leg.rows.find((x) => x.k === k) || {};
+  // step note: done → when it happened, otherwise the next key milestone of the step
+  const legNote = (leg, doneK) => {
+    if (row(leg, doneK).act) return `${row(leg, doneK).label} ${doFmt(row(leg, doneK).act)}`;
+    const nx = doKeyRows(leg).find((x) => !x.act);
+    return nx ? `Next: ${nx.label.toLowerCase()} ${doFmt(nx.est)}` : '';
+  };
+  const legBody = (leg, place, rows, extra) => (
+    <>
+      <DoStepBox title={place.name} sub={place.address} onEdit={() => open(`leg:${leg.id}`)} rows={rows} />
+      {extra}
+      <DoMsTable leg={leg} nextK={nextRow?.k} onEdit={() => open(`leg:${leg.id}`)} />
+    </>
+  );
+  const totalProfit = d.charges.reduce((s, x) => s + profit(x), 0);
+  const steps = [
+    { key: 'dispatched', title: 'Dispatched to carrier', done: d.dispatched, note: `Dispatched ${d.dispatchedAt} · ${c.short}`,
+      body: <DoStepBox rows={[[['Dispatched by', d.dispatchedBy || DO_OPERATOR], ['Date', d.dispatchedAt], ['Document', <Link onClick={openDoc}><I.FileTextOutlined /> dispatch order.pdf</Link>]]]} /> },
+    { key: 'confirmed', title: 'Confirmed by carrier', done: d.confirmed, note: d.confirmed ? `Confirmed ${d.confirmedAt || '—'} · ${d.confirmedBy || c.contact}` : `Next: confirm with ${c.short} by ${dropAt}`,
+      body: (
+        <DoStepBox rows={[[['Confirmed by', d.confirmed ? d.confirmedBy || c.contact : '—'], ['Date', d.confirmedAt || '—'], ['Driver · truck', d.driver || 'Not recorded yet']]]}>
+          {!d.confirmed && <div><DoLink size="small" icon={<I.CheckOutlined />} onClick={() => open('m:confirm')}>Mark as confirmed</DoLink></div>}
+        </DoStepBox>
+      ) },
+    { key: 'picked', title: 'Empty picked up', done: !!row(l1, 'l1-gout').act, note: legNote(l1, 'l1-gout'), body: legBody(l1, d.places.cy, [l1.fixed]) },
+    { key: 'loaded', title: 'Loaded at site', done: !!row(l2, 'l2-full').act, note: legNote(l2, 'l2-full'),
+      body: legBody(l2, load, [[['Contact person', load.contact || 'Missing', load.contact ? null : 'warn'], ['Email / Phone', [load.email, load.phone].filter(Boolean).join(' / ') || '—']]], (
+        <>
+          <DoStepBox title="Loading instructions" rows={[[['Cargo ready', l2.fixed[0][1]], ['Facility access', p.access === 'appt' ? 'Appointment' : 'First come, first served'], ['Loading method', DO_LOADING[p.loading]]], [['Driver instructions', d.notes || DO_DRIVER_NOTE]]]} />
+          <DoStepBox title="Planned dates" onEdit={() => open('leg:l2')} editLabel="Edit planned dates"
+            rows={dp ? [[['Planned empty drop', p.drop ? doDay(p.drop).label : '—'], ['Time window', p.dropWin || '—'], ['Drop reference', p.dropRef || '—']],
+              [['Planned full pickup', p.pickup ? doDay(p.pickup).label : '—'], ['Time window', p.pickupWin || '—'], ['Pickup reference', p.pickupRef || '—']]]
+              : [[['Planned arrival', p.drop ? doDay(p.drop).label : '—'], [p.access === 'appt' ? 'Appointment window' : 'Time window', p.dropWin || '—'], ['Appointment reference', d.appt || p.apptRef || '—']]]} />
+          {yard && <><DoStepBox title={yard.title} sub={yard.place} /><DoMsTable leg={yard} onEdit={() => open('m:extra')} /></>}
+        </>
+      )) },
+    { key: 'gated', title: 'Gated in at terminal', done: !!row(l3, 'l3-gin').act, note: legNote(l3, 'l3-gin'),
+      body: legBody(l3, d.places.ret, [l3.fixed], (
+        <DoStepBox title="Detention free time">
+          <Text>used {dd} of 15 free days (calendar)</Text>
+          <Progress percent={(dd / 15) * 100} showInfo={false} size="small" strokeColor={token.colorPrimary} />
+        </DoStepBox>
+      )) },
+    { key: 'vgm', title: 'VGM and container data', done: !!d.vgm, note: d.vgm ? `Submitted · ${a.gross || 'scale ticket'}` : 'Next: VGM cutoff Tue 2 Jun, 12:00',
+      body: <DoStepBox rows={[[['VGM', d.vgm ? `${a.gross} · scale ticket` : 'Not submitted', d.vgm ? null : 'warn'], ['Seal number', sealVal, sealBad ? 'warn' : null], ['VGM cutoff', 'Tue 2 Jun, 12:00']]]} /> },
+    { key: 'cost', title: 'Cost review', done: !!d.invoice, note: `${d.charges.length} charges · profit ${totalProfit < 0 ? '-' : ''}$${num(Math.abs(totalProfit))}${d.invoice ? ' · invoice added' : ''}`,
+      body: (
+        <>
+          {d.extra === 'pending' && <DoWarn action="Review charge" onAction={() => open('m:extra')}>Extra charge from the carrier to approve before invoicing</DoWarn>}
+          <Table size="middle" rowKey="id" pagination={false} className="do-table" dataSource={d.charges} scroll={{ x: 560 }}
+            columns={[
+              { title: 'Service', dataIndex: 'service', ellipsis: true },
+              { title: 'Buy Price', dataIndex: 'buy', width: 125, render: (v) => <Text strong>{money(v)}</Text> },
+              { title: 'Sell Price', dataIndex: 'sell', width: 125, render: (v) => <Text strong>{money(v)}</Text> },
+              { title: 'Profit', key: 'p', width: 125, render: (_, x) => <Text type={profit(x) < 0 ? 'danger' : 'success'}>{profit(x) < 0 ? '-' : ''}{money(Math.abs(profit(x))).replace(' ', '')}</Text> },
+              { title: 'Action', key: 'a', width: 88, render: (_, x) => (
+                <Flex gap={token.marginXS}>
+                  <Button size="small" icon={<I.EditOutlined />} aria-label={`Edit ${x.service}`} onClick={() => open(`m:charge:${x.id}`)} />
+                  <Popconfirm title="Delete this charge?" okText="Delete" okButtonProps={{ danger: true }} onConfirm={() => { doPatch(d.id, { charges: d.charges.filter((y) => y.id !== x.id) }); msg.success('Charge deleted'); }}>
+                    <Button size="small" icon={<I.DeleteOutlined />} aria-label={`Delete ${x.service}`} />
+                  </Popconfirm>
+                </Flex>
+              ) },
+            ]} />
+          <div><DoLink icon={<I.PlusOutlined />} onClick={() => open('m:charge')}>Add charge</DoLink></div>
+        </>
+      ) },
+  ];
+  const current = steps.find((s) => !s.done)?.key;
+  const isOpen = (s) => openSteps[d.id + s.key] ?? !s.done;
   return (
     <>
       <div className="do-card do-head2">
@@ -8784,46 +8913,16 @@ function DoDetailPage({ d, open, msg }) {
       </div>
       <div className="do-cols">
         <div className="do-main">
-          <section className="do-card">
-            <div className="do-box-head"><div><b>Route details</b></div></div>
-            <div className="do-legs">
-              {legs.map((l, i) => <DoLegCard key={l.id} leg={l} last={i === legs.length - 1} onEdit={() => open(`leg:${l.id}`)} />)}
-            </div>
-          </section>
-          <section className="do-card">
-            <div className="do-box-head"><div><b>Free time</b></div></div>
-            <div className="do-ft-box do-ft-grid">
-              <b>Detention</b><b>Demurrage</b>
-              <div><span>used {dd} of 15 free days (calendar)</span><Progress percent={dd / 15 * 100} showInfo={false} size="small" strokeColor="#323b9e" /></div>
-              <div><span>used {dm} of 15 free days (calendar)</span><Progress percent={dm / 15 * 100} showInfo={false} size="small" strokeColor="#323b9e" /></div>
-            </div>
-          </section>
-          {d.extra === 'pending' && <DoWarn action="Review charge" onAction={() => open('m:extra')}>Extra charge from the carrier to approve before invoicing</DoWarn>}
-          <section className="do-card do-charges-card" id="do-charges">
-            <div className="do-box-head"><b className="do-grow">Charges</b></div>
-            <Table size="middle" rowKey="id" pagination={false} className="do-table" dataSource={d.charges} scroll={{ x: 560 }}
-              columns={[
-                { title: 'Service', dataIndex: 'service' },
-                { title: 'Buy Price', dataIndex: 'buy', width: 125, render: (v) => <b>{money(v)}</b> },
-                { title: 'Sell Price', dataIndex: 'sell', width: 125, render: (v) => <b>{money(v)}</b> },
-                { title: 'Profit', key: 'p', width: 125, render: (_, x) => <span className={profit(x) < 0 ? 'neg' : 'pos'}>{profit(x) < 0 ? '-' : ''}{money(Math.abs(profit(x))).replace(' ', '')}</span> },
-                { title: 'Action', key: 'a', width: 80, render: (_, x) => (
-                  <span className="dsp-acts">
-                    <Button size="small" icon={<I.EditOutlined />} aria-label={`Edit ${x.service}`} onClick={() => open(`m:charge:${x.id}`)} />
-                    <Popconfirm title="Delete this charge?" okText="Delete" okButtonProps={{ danger: true }} onConfirm={() => { doPatch(d.id, { charges: d.charges.filter((y) => y.id !== x.id) }); msg.success('Charge deleted'); }}>
-                      <Button size="small" icon={<I.DeleteOutlined />} aria-label={`Delete ${x.service}`} />
-                    </Popconfirm>
-                  </span>
-                ) },
-              ]} />
-            <div className="do-add-charge"><DoLink icon={<I.PlusOutlined />} onClick={() => open('m:charge')}>Add charge</DoLink></div>
-          </section>
+          {steps.map((s) => (
+            <DoStepCard key={s.key} id={`do-step-${s.key}`} done={s.done} current={s.key === current} title={s.title} note={s.note}
+              open={isOpen(s)} onToggle={() => setOpenSteps((o) => ({ ...o, [d.id + s.key]: !isOpen(s) }))}>{s.body}</DoStepCard>
+          ))}
         </div>
         <div className="do-side">
           {sealBad && <DoWarn action="Review" onAction={() => open('m:resolve')}>Seal number doesn't match the booking · gate-in today 15:00</DoWarn>}
           <section className="do-card">
             <div className="do-box-head"><b className="do-grow">Container</b><Button type="text" size="small" className="do-icon-edit" icon={<I.EditOutlined />} aria-label="Edit container" onClick={() => open('cargo')} /></div>
-            <DoFields rows={[[['Container', <span className="do-inline">{d.number || 'At empty pickup'}<Tag className="do-tag">{sizeTag}</Tag></span>], ['Seal Number', d.legsDone >= 2 ? (sealBad ? `${a.seal} · doesn't match booking` : a.seal) : d.cargo.sealNo || 'After loading', sealBad ? 'warn' : null]]]} />
+            <DoFields rows={[[['Container', <span className="do-inline">{d.number || 'At empty pickup'}<Tag className="do-tag">{sizeTag}</Tag></span>], ['Seal Number', sealVal, sealBad ? 'warn' : null]]]} />
             <DoFields rows={[[['Cargo', d.cargo.desc], d.legsDone >= 2 ? ['Gross weight', `${a.gross} · scale ticket`] : ['Cargo weight', d.cargo.weight ? `${num(d.cargo.weight)} kg (est.)` : 'Missing', d.cargo.weight ? null : 'warn']]]} />
             <DoFields rows={[[['Temperature', d.cargo.temp || '—'], ['Genset', d.cargo.genset ? 'Yes' : 'No']]]} />
             <div className="do-fields"><DoField label="References" value={<span className="do-inline">{DO_REFS.slice(0, 2).map((r) => <Tag key={r} className="do-tag">{r}</Tag>)}<Tag className="do-tag">+{DO_REFS.length - 2}</Tag></span>} /></div>
@@ -8832,30 +8931,14 @@ function DoDetailPage({ d, open, msg }) {
             <div className="do-box-head"><b className="do-grow">Carrier</b><Button type="text" size="small" className="do-icon-edit" icon={<I.EditOutlined />} aria-label="Edit carrier" onClick={() => open('m:carrier')} /></div>
             <DoFields rows={[[['Carrier', c.name]]]} />
             <DoFields rows={[[['Contact', <span>{c.contact}<br />{c.phone}</span>]]]} />
-            {d.confirmed && <DoFields rows={[[['Confirmed', `${d.confirmedAt || '27 May, 16:25'} · ${d.confirmedBy || c.contact}`], ['Driver · truck', d.driver || 'Not recorded yet']]]} />}
           </section>
-          {st !== 'completed' && (
-            <section className="do-card">
-              <b>Instructions for the driver</b>
-              <ul className="do-instr">
-                <li>{load.name}, {load.address}</li>
-                {load.contact && <li>Contact {load.contact}{load.phone ? ` · ${load.phone}` : ''}</li>}
-                <li>{d.plan.access === 'appt' ? `Appointment ${t.load.split(' · ')[0]}` : `First come, first served · ${t.load.split(' · ')[0]}`}</li>
-                <li>{DO_LOADING[d.plan.loading]}, 2 h free{d.cargo.hazardous ? ' · hazmat placards Class 3' : ''}</li>
-                <li>Send seal number and scale ticket after loading</li>
-                {d.notes && <li>{d.notes}</li>}
-              </ul>
-            </section>
-          )}
-          {st === 'dispatched' && (
-            <section className="do-card">
-              <b>Documents</b>
-              <div className="do-doc-row">
-                <div><span className="do-doc-name"><i className="do-doc-dot" />Dispatch Order</span><span className="do-sub"><I.ClockCircleOutlined /> 27 May, 2026</span></div>
-                <Button icon={<I.DownloadOutlined />} onClick={() => go(`${DOC_PATH}?v=${d.plan.loading === 'dp' ? 'export' : 'export-live'}`)}>Download</Button>
-              </div>
-            </section>
-          )}
+          <section className="do-card">
+            <b>Documents</b>
+            <div className="do-doc-row">
+              <div><span className="do-doc-name"><i className="do-doc-dot" />Dispatch Order</span><span className="do-sub"><I.ClockCircleOutlined /> {d.dispatchedAt}</span></div>
+              <Button icon={<I.DownloadOutlined />} onClick={openDoc}>Download</Button>
+            </div>
+          </section>
         </div>
       </div>
     </>
