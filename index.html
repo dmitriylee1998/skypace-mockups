@@ -1955,7 +1955,7 @@
   .ac-expand { padding: 12px 0; border-top: 1px solid var(--split); }
   @media(max-width: 800px) { .ac-stats { grid-template-columns: repeat(2, 1fr); } }
 
-  .ported-page { gap: 16px; }
+  .ported-page { gap: 8px; }
   .ported-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:40px; padding:0 4px 4px; }
   .ported-heading-title { display:flex;align-items:center;gap:8px; }
   .ported-heading h1 { margin:0; font-size:20px; line-height:28px; font-weight:600; }
@@ -1989,9 +1989,9 @@
   .ported-quote-row > .ac-count { justify-self:center; }
   .ported-note { margin-top:24px;padding:16px;background:var(--bg);border-radius:8px; }
   .ported-note p { margin-top:8px; }
-  .ported-rate-groups { width:100%;max-width:1100px;margin:8px auto;display:flex;flex-direction:column;gap:24px; }
+  .ported-rate-groups { width:100%;max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:8px; }
   .ported-rate-groups h2 { font-size:16px;font-weight:500;margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid var(--split); }
-  .ported-rate-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:12px; }
+  .ported-rate-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:8px; }
   .ported-rate-card { border-radius:8px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;height:160px;color:var(--text)!important;border:1px solid transparent; }
   .ported-rate-card:hover { border-color:#c7cbef;background:#fafaff; }
   .ported-request-list { min-width:1200px; }
@@ -2001,6 +2001,60 @@
   .ported-wide-table .ant-table-thead > tr > th { background:var(--gray-1);color:var(--text);font-size:14px;font-weight:500; }
   @media(max-width:800px) { .ported-heading { align-items:flex-start; }.ported-rate-grid { grid-template-columns:repeat(2,1fr); }.ported-three { grid-template-columns:1fr; }.ported-filters .ant-select { flex:1 1 135px; } }
   @media(max-width:480px) { .ported-rate-grid { grid-template-columns:1fr; } }
+
+  .metric-tiles { display: grid; grid-template-columns: repeat(var(--metric-count), minmax(0, 1fr)); gap: 8px; padding: 16px; background: #fff; border-radius: 8px; box-shadow: none; }
+  @media (max-width: 1000px) { .metric-tiles { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); } }
+  .notification-filters { padding: 12px; background: #fff; border-radius: 8px; }
+  .quote-request-filters { padding: 12px; background: #fff; border-radius: 8px; }
+  .quote-new-request { margin-left: auto; }
+  .figma-rate-section { padding: 12px; background: #fff; border-radius: 8px; }
+  .figma-rate-section h2 { margin: 0 0 8px; font-size: 14px; line-height: 22px; font-weight: 500; }
+  .figma-rate-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .figma-rate-card { display: flex; align-items: center; gap: 16px; min-width: 0; padding: 12px 16px; border: 1px solid transparent; border-radius: 8px; background: var(--gray-1); color: var(--text); text-decoration: none; transition: background .15s, border-color .15s; }
+  .figma-rate-card:hover { background: var(--primary-bg); border-color: #d3d7f5; color: var(--text); }
+  .figma-rate-card:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+  .figma-rate-card > img { flex: none; }
+  .figma-rate-title { font-size: 14px; line-height: 22px; font-weight: 500; }
+  .figma-rate-count { font-size: 12px; line-height: 20px; }
+  @media (max-width: 800px) { .figma-rate-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 520px) { .figma-rate-grid { grid-template-columns: 1fr; } }
+  .rate-table-toolbar { padding: 12px; background: #fff; border-radius: 8px; }
+  .rate-table-toolbar > .ant-btn:nth-child(2) { margin-left: auto; }
+  .rate-toolbar-add { margin-left: 0; }
+  .contracts-toolbar { padding: 12px; background: #fff; border-radius: 8px; }
+
+  .request-start, .quote-results-page { width: 100%; max-width: 1170px; margin-inline: auto; }
+  .request-search-card { display: grid; grid-template-columns: 88px repeat(4,minmax(0,1fr)) 40px; gap: 8px; align-items: start; background: #fff; border-radius: 8px; padding: 16px; }
+  .request-field { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+  .request-field > label { font-size: 12px; line-height: 20px; color: var(--text-2); }
+  .request-trigger { display:flex;align-items:center;gap:8px;width:100%;height:40px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--text);padding:0 12px;text-align:left;cursor:pointer;font:inherit; }
+  .request-trigger:hover,.request-trigger[aria-expanded="true"] { border-color:var(--primary); }
+  .request-trigger > span:first-child { display:flex;color:var(--muted);flex:none; }
+  .request-trigger-text { overflow:hidden;white-space:nowrap;text-overflow:ellipsis; }
+  .request-search-button { width:40px;height:40px;margin-top:26px; }
+  .request-panel { display:flex;flex-direction:column;gap:16px;width:340px;max-width:calc(100vw - 48px);padding:4px; }
+  .request-panel-head { display:flex;justify-content:space-between;align-items:center;gap:16px; }
+  .request-input-label { display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text-2);min-width:0; }
+  .request-input-label > .ant-select,.request-input-label > .ant-picker,.request-input-label > .ant-input-number { width:100%; }
+  .request-cargo-panel { width:620px; }
+  .request-payment-panel { width:420px; }
+  .request-cargo-line { display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:8px; }
+  .request-container-line { display:grid;grid-template-columns:minmax(130px,1.4fr) 90px minmax(130px,1.3fr) 32px;gap:8px;align-items:end; }
+  .request-choice-list { display:flex;flex-direction:column;gap:12px; }
+  .request-choice-list .ant-radio-wrapper { align-items:flex-start; }
+  .request-history { max-width:960px;width:100%;margin:48px auto 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:48px;padding:0 16px; }
+  .request-history-heading { display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted);padding:0 8px 16px; }
+  .request-history-heading > span { display:flex;align-items:center;gap:12px; }
+  .request-history-heading a { display:flex;align-items:center;gap:4px;color:var(--muted);text-decoration:none; }
+  .request-history-item { display:flex;align-items:flex-start;gap:16px;width:100%;padding:12px 8px;border:0;border-radius:8px;background:transparent;color:var(--text);font:inherit;text-align:left;cursor:pointer; }
+  .request-history-item:hover { background:#fff; }
+  .request-history-route { display:flex;align-items:center;gap:8px;flex-wrap:wrap; }
+  .request-history-icon { display:flex;margin-top:4px;color:var(--primary); }
+  .request-history-section:nth-child(2) .request-history-icon { color:#caa34c; }
+  .request-error { border-color:#cf5866; }
+  .request-error-text { color:#cf5866;font-size:12px;line-height:16px; }
+  @media(max-width:1200px) { .request-search-card { grid-template-columns:80px repeat(2,minmax(0,1fr)); }.request-field-cargo { grid-column:span 1; }.request-search-button { margin-top:26px;justify-self:end; } }
+  @media(max-width:700px) { .request-search-card { grid-template-columns:repeat(2,minmax(0,1fr)); }.request-history { grid-template-columns:1fr;gap:24px;margin-top:24px; }.request-container-line { grid-template-columns:minmax(100px,1fr) 70px; }.request-cargo-line { grid-template-columns:1fr; } }
 
 </style>
 </head>
@@ -3453,6 +3507,18 @@ function OverviewPage() {
   );
 }
 
+function MetricTiles({ items, active, onPick }) {
+  const { token } = antd.theme.useToken();
+  return <div className="metric-tiles" style={{ '--metric-count': items.length }}>{items.map(k => {
+    const on = active === k.key; const toggle = () => onPick(on ? null : k.key);
+    return <Card key={k.key} size="small" variant="borderless" className={'dog-ov-card' + (on ? ' on' : '')} role="button" tabIndex={0} aria-pressed={on} onClick={toggle} onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), toggle())} style={{ cursor: 'pointer' }} styles={{ body: { padding: `${token.paddingSM}px ${token.padding}px` } }}>
+      <Flex justify="space-between" align="center" gap={token.marginXS}><Typography.Text strong ellipsis>{k.label}</Typography.Text><Typography.Text type={on ? undefined : 'secondary'} style={on ? { color: token.colorPrimary } : undefined}>{k.icon}</Typography.Text></Flex>
+      <Typography.Title level={3} style={{ margin: `${token.marginXXS}px 0`, color: k.value ? undefined : token.colorTextQuaternary }}>{k.value}</Typography.Title>
+      {k.note && <Typography.Text type="secondary" style={{ fontSize: token.fontSizeSM }}>{k.note}</Typography.Text>}
+    </Card>;
+  })}</div>;
+}
+
 /* ---------- 2. Tasks ---------- */
 const PEOPLE = ['Kate Miller', 'Liam Green', 'Olga Petrova', 'Noah Brown', 'Emma Davis', 'Ivan Sokolov'];
 const AV_COLORS = [['#fff1f0', '#f5222d'], ['#f6ffed', '#52c41a'], ['#f0f1fa', '#5f68c0'], ['#fff7e6', '#fa8c16'], ['#e6fffb', '#13c2c2'], ['#f9f0ff', '#722ed1']];
@@ -3527,10 +3593,12 @@ function TasksPage() {
       { value: 'mine', label: 'My tasks', icon: <I.UserOutlined /> },
       { value: 'org', label: 'My organization tasks', icon: <I.TeamOutlined /> },
     ]} /></div>
-    <div className="ac-stats">{[
-      ['soon', 'Due soon', 0, <I.WarningOutlined />], ['today', 'Today', 0, <I.FieldTimeOutlined />],
-      ['overdue', 'Overdue', base.filter(t => !t.later).length, <I.HistoryOutlined />], ['all', 'All tasks', base.length, <I.CheckCircleOutlined />],
-    ].map(([key, label, count, icon]) => <button key={key} className={'ac-stat ' + (quick === key ? 'active' : '')} aria-pressed={quick === key} onClick={() => { setQuick(quick === key ? null : key); if (key === 'overdue') setOpen(v => ({ ...v, Overdue: true })); }}><span className="ac-stat-label">{label}</span><span className="ac-stat-value"><span className={key === 'overdue' ? 'ac-red' : ''}>{icon}</span>{count}</span></button>)}</div>
+    <MetricTiles active={quick} onPick={key => { setQuick(key); if (key === 'overdue') setOpen(v => ({ ...v, Overdue: true })); }} items={[
+      { key: 'soon', label: 'Due soon', value: 0, icon: <I.WarningOutlined /> },
+      { key: 'today', label: 'Today', value: 0, icon: <I.FieldTimeOutlined /> },
+      { key: 'overdue', label: 'Overdue', value: base.filter(t => !t.later).length, icon: <I.HistoryOutlined /> },
+      { key: 'all', label: 'All tasks', value: base.length, icon: <I.CheckCircleOutlined /> },
+    ]} />
     <div className="ac-filters">{[['assignee', 'Assignee', ['Olga Petrova']], ['module', 'Module', ['Plan & Track']], ['status', 'Status', TASK_STATUS]].map(([key, label, options]) => <Select key={key} aria-label={label} allowClear placeholder={label} value={f[key]} onChange={v => setF({ ...f, [key]: v })} options={options.map(v => ({ value: v, label: v }))} />)}{Object.values(f).some(Boolean) && <Button type="text" onClick={() => setF({})}>Clear filters</Button>}</div>
     {renderGroup('Overdue', false)}{renderGroup('Later', true)}
   </div>;
@@ -3804,26 +3872,7 @@ function ShipmentsPage() {
   ];
   return (
     <div className="page-stack">
-      <Card variant="borderless" styles={{ body: { padding: token.padding } }}>
-        <Row gutter={[token.marginSM, token.marginSM]}>
-          {KPIS.map((k) => {
-            const n = SHIPMENTS.filter(k.test).length; const on = kpi === k.key; const toggle = () => setKpi(on ? null : k.key);
-            return (
-              <Col key={k.key} flex="1 1 200px">
-                <Card size="small" variant="borderless" className={'dog-ov-card' + (on ? ' on' : '')} role="button" tabIndex={0} aria-pressed={on} onClick={toggle} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), toggle())}
-                  style={{ height: '100%', cursor: 'pointer' }} styles={{ body: { padding: `${token.paddingSM}px ${token.padding}px` } }}>
-                  <Flex justify="space-between" align="center" gap={token.marginXS}>
-                    <Text strong ellipsis>{k.title}</Text>
-                    <Text type={on ? undefined : 'secondary'} style={on ? { color: token.colorPrimary } : undefined}>{k.icon}</Text>
-                  </Flex>
-                  <Title level={3} style={{ margin: `${token.marginXXS}px 0`, color: n ? undefined : token.colorTextQuaternary }}>{n}</Title>
-                  <Text type="secondary" style={small}>{k.note}</Text>
-                </Card>
-              </Col>
-            );
-          })}
-        </Row>
-      </Card>
+      <MetricTiles active={kpi} onPick={setKpi} items={KPIS.map(k => ({ key: k.key, label: k.title, value: SHIPMENTS.filter(k.test).length, icon: k.icon, note: k.note }))} />
       <div className="card-flat tabs-card do-tabs">
         <Tabs activeKey={tab} onChange={(k) => { setTab(k); setSel([]); }} items={[['all', 'All'], ...SHIP_TABS].map(([k, l]) => {
           const n = SHIPMENTS.filter((s) => inTab(s, k) && kpiTest(s)).length;
@@ -4060,7 +4109,8 @@ function usePortedState(key, initial) {
   return [value, setValue];
 }
 function PortedHeader({ title, back, children }) {
-  return <div className="ported-heading"><div className="ported-heading-title">{back && <Button type="text" aria-label="Back to all rates" icon={<ChevronIcon dir="left" />} onClick={() => go(back)} />}<h1>{title}</h1></div><Space wrap>{children}</Space></div>;
+  if (!back && !children) return null;
+  return <div className="ported-heading">{back && <Button type="text" aria-label="Back to all rates" icon={<ChevronIcon dir="left" />} onClick={() => go(back)} />}<Space wrap style={{ marginLeft: 'auto' }}>{children}</Space></div>;
 }
 function PortedFilter({ label, value, onChange, options, ...rest }) {
   return <Select aria-label={label} allowClear placeholder={label} value={value} onChange={onChange} options={options.map(o => typeof o === 'string' ? { value: o, label: o } : o)} popupMatchSelectWidth={false} {...rest} />;
@@ -4093,8 +4143,12 @@ function PortedNotificationsPage() {
     { title:'Module', dataIndex:'module', width:180 },
   ];
   return <div className="page-stack ported-page"><PortedHeader title="Notifications" />
-    <div className="ac-stats ported-three">{[['important','Important',<I.BellOutlined />],['regular','Regular',<I.BellOutlined />],['unread','All unread',<I.EyeInvisibleOutlined />]].map(([key,label,icon]) => <button key={key} className={'ac-stat ' + (quick === key ? 'active' : '')} aria-pressed={quick === key} onClick={() => setQuick(quick === key ? undefined : key)}><span className="ac-stat-label">{label}</span><span className="ac-stat-value">{icon}{items.filter(n => key === 'unread' ? n.unread : key === 'important' ? n.important : !n.important).length}</span></button>)}</div>
-    <div className="ported-filters"><label className="ported-switch"><Switch size="small" checked={onlyUnread} onChange={setOnlyUnread} aria-label="Show Only Unread" />Show Only Unread</label>
+    <MetricTiles active={quick} onPick={setQuick} items={[
+      { key: 'important', label: 'Important', icon: <I.BellOutlined />, value: items.filter(n => n.important).length },
+      { key: 'regular', label: 'Regular', icon: <I.BellOutlined />, value: items.filter(n => !n.important).length },
+      { key: 'unread', label: 'All unread', icon: <I.EyeInvisibleOutlined />, value: items.filter(n => n.unread).length },
+    ]} />
+    <div className="ported-filters notification-filters"><label className="ported-switch"><Switch size="small" checked={onlyUnread} onChange={setOnlyUnread} aria-label="Show Only Unread" />Show Only Unread</label>
       <PortedFilter label="Priority" value={f.priority} onChange={v => setF({...f,priority:v})} options={['Important','Regular']} />
       <PortedFilter label="Received Date" value={f.date} onChange={v => setF({...f,date:v})} options={[{value:'today',label:'Today'},{value:'week',label:'Last 7 days'}]} />
       <PortedFilter label="Module" value={f.module} onChange={v => setF({...f,module:v})} options={['Plan & Track','Booking','Documentation']} />
@@ -4110,14 +4164,14 @@ const PORTED_QUOTES = [
   ['Vancouver, CA','Mundra, IN','30 Oct',5], ['Chicago, US','Hamburg, DE','2 Nov',10], ['Shanghai, CN','Los Angeles, US','2 Nov',15], ['Shanghai, CN','Los Angeles, US','2 Nov',15], ['Chicago, IL, US','Gdynia, PL','29 Oct',16], ['Shanghai, CN','Los Angeles, US','2 Nov',20], ['New York, US','Shanghai, CN','28 Oct',12], ['New York, US','Shanghai, CN','28 Oct',12], ['New York, US','Shanghai, CN','28 Oct',12], ['Vancouver, CA','El Dekheila, EG','27 Oct',0],
 ].map(([origin,dest,etd,offers],i) => ({key:'pq'+i,origin,dest,etd,equipment:i===1?'40′ ST × 1':i===4?'20′ ST × 2':'20′ ST × 1',cargo:'Freight All Kinds',by:'Kate Miller',created:i===0?'30 Oct 2026, 10:42':'29 Oct 2026, '+['23:58','17:02','17:01','10:13','01:20'][i%5],offers,saved:false}));
 function PortedQuoteRequestsPage() {
-  const [items,setItems] = usePortedState('quotes',PORTED_QUOTES); const [favorites,setFavorites] = useState(false); const [f,setF] = useState({});
+  const [items,setItems] = usePortedState('quotes',PORTED_QUOTES); const [favorites,setFavorites] = useState(() => new URLSearchParams(location.hash.split('?')[1] || '').get('onlyFavorites') === 'true'); const [f,setF] = useState({});
   const [detail,setDetail] = useState(null);
   const rows = items.filter(r => (!favorites || r.saved) && (!f.origin || r.origin===f.origin) && (!f.dest || r.dest===f.dest) && (!f.originCountry || r.origin.endsWith(f.originCountry)) && (!f.destCountry || r.dest.endsWith(f.destCountry)) && (!f.by || r.by===f.by) && (!f.date || r.created.startsWith(f.date)));
   const opts = k => [...new Set(items.map(r=>r[k]))];
   const filters = [['origin','Origin City',opts('origin')],['originCountry','Origin Country',['CA','US','CN']],['dest','Destination City',opts('dest')],['destCountry','Destination Country',['IN','DE','US','PL','CN','EG']],['date','Created Date',['30 Oct','29 Oct']],['by','Created By',opts('by')]];
   const place = (name,sub) => <div className="ported-route-cell"><span className="sq-ico"><Ic n="port" size={16}/></span><div>{name}<div className="lbl">{sub}</div></div></div>;
-  return <div className="page-stack ported-page"><PortedHeader title="Quote requests"><Button type="primary" icon={<I.PlusOutlined/>} onClick={()=>go('/quote-shipments')}>New request</Button></PortedHeader>
-    <div className="ported-filters"><label className="ported-switch"><Switch size="small" checked={favorites} onChange={setFavorites} aria-label="Show only favorites"/>Show only favorites</label>{filters.map(([key,label,options])=><PortedFilter key={key} label={label} options={options} value={f[key]} onChange={v=>setF({...f,[key]:v})}/>)}</div>
+  return <div className="page-stack ported-page">
+    <div className="ported-filters quote-request-filters"><label className="ported-switch"><Switch size="small" checked={favorites} onChange={setFavorites} aria-label="Show only favorites"/>Show only favorites</label>{filters.map(([key,label,options])=><PortedFilter key={key} label={label} options={options} value={f[key]} onChange={v=>setF({...f,[key]:v})}/>) }<Button className="quote-new-request" type="primary" icon={<I.PlusOutlined/>} onClick={()=>go('/quote-shipments')}>New request</Button></div>
     <div className="ported-list-scroll"><div className="ported-quote-list"><div className="ported-quote-grid ported-list-labels"><span/><span>Origin</span><span>Destination</span><span>Containers</span><span>Commodity</span><span>Created by</span><span>Quotes</span></div>
     {rows.map(r=><article key={r.key} className="ported-quote-grid ported-quote-row" role="link" tabIndex={0} aria-label={'View quote request '+r.origin+' to '+r.dest} onClick={()=>setDetail(r)} onKeyDown={e=>e.key==='Enter'&&setDetail(r)}>
       <button className={'ported-bookmark '+(r.saved?'on':'')} aria-label={'Bookmark '+r.key} aria-pressed={r.saved} onClick={e=>{e.stopPropagation();setItems(items.map(x=>x.key===r.key?{...x,saved:!x.saved}:x));}}><BookmarkIcon filled={r.saved}/></button>
@@ -4138,7 +4192,7 @@ function PortedGuestBookingsPage() {
     {title:'Created',dataIndex:'created',width:130,render:d=>dayjs(d).format('D MMM YYYY')},
     {title:'Status',dataIndex:'status',width:160,render:(v,r)=><Select aria-label={'Status '+r.id} value={v} disabled={v==='Completed'} style={{width:140}} options={['Pending','In progress','Completed'].map(v=>({value:v,label:v}))} onChange={status=>setItems(items.map(x=>x.key===r.key?{...x,status}:x))}/>},
   ];
-  return <div className="page-stack ported-page"><PortedHeader title="Guest bookings"/><section className="card-flat table-card ported-table"><DataTable columns={cols} dataSource={items} pagination={false} minWidth={1400}/></section>
+  return <div className="page-stack ported-page"><section className="card-flat table-card ported-table"><DataTable columns={cols} dataSource={items} pagination={false} minWidth={1400}/></section>
     {detail&&<Drw title={'Guest booking '+detail.id} width={560} onClose={()=>setDetail(null)} footer={<Button onClick={()=>setDetail(null)}>Close</Button>}><Descriptions column={1} bordered items={['name','org','country','email','phone','status'].map(k=>({key:k,label:{name:'Customer name',org:'Organization',country:'Country',email:'Email',phone:'Phone',status:'Status'}[k],children:detail[k]}))}/><div className="ported-note"><b>Additional information</b><p>Ocean freight booking request. Please contact the customer to confirm shipment details.</p></div></Drw>}
   </div>;
 }
@@ -4179,13 +4233,23 @@ function PortedContactsPage() {
   </div>;
 }
 function PortedRatesPage() {
-  return <div className="page-stack ported-page"><PortedHeader title="All rates"/><div className="ported-rate-groups">{RATE_GROUPS.slice(0,2).map(([g,items])=><section key={g}><h2>{g}</h2><div className="ported-rate-grid">{items.map(([slug,t,ic])=><a className="ported-rate-card" href={href('/rates/'+slug)} key={slug}><Img src={'assets/rate-'+ic+'.svg'} size={56}/><strong>{t==='Ocean Rates'?'Ocean rates':t}</strong></a>)}</div></section>)}</div></div>;
+  return <div className="page-stack figma-rates">{RATE_GROUPS.map(([group, items]) =>
+    <section className="figma-rate-section" key={group}>
+      <h2>{group}</h2>
+      <div className="figma-rate-grid">{items.map(([slug, title, icon]) =>
+        <a className="figma-rate-card" href={href('/rates/' + slug)} key={slug}>
+          <Img src={'assets/rate-' + icon + '.svg'} size={40} />
+          <div><div className="figma-rate-title">{title}</div><div className="figma-rate-count">10k Valid rates</div></div>
+        </a>
+      )}</div>
+    </section>
+  )}</div>;
 }
 const PORTED_CONTRACTS = [['510621','MSC'],['510617','MSC'],['61566100','Evergreen'],['MT266822','OOCL'],['TurkonQuote','Turkon Line'],['61565724','Evergreen'],['Tanya SEP29','Evergreen'],['Tanya Sep28','Evergreen'],['PL-506235','MSC'],['506237','MSC'],['MATU123456','Matson'],['61565732','Evergreen'],['SeaGold','Evergreen'],['SeaGold','HMM'],['12433-1','MSC'],['00132607','OOCL']].map(([number,carrier],i)=>({key:'pc'+i,number,carrier,category:i===15?'B':'A'}));
 function PortedContractsPage() {
   const [q,setQ]=useState('');const [category,setCategory]=useState();const [carrier,setCarrier]=useState();const [detail,setDetail]=useState(null);
   const rows=PORTED_CONTRACTS.filter(r=>includesQ(q,r.number)&&(!category||r.category===category)&&(!carrier||r.carrier===carrier));
-  return <div className="page-stack ported-page"><PortedHeader title="Contracts"><Button type="primary" icon={<I.PlusOutlined/>} disabled>Add Contract</Button></PortedHeader><div className="ported-filters"><span className="muted">Filters</span><PortedFilter label="Category" value={category} onChange={setCategory} options={['A','B','C']}/><PortedFilter label="Carriers" value={carrier} onChange={setCarrier} options={[...new Set(PORTED_CONTRACTS.map(r=>r.carrier))]}/><Input prefix={<I.SearchOutlined/>} placeholder="Search by contract name or number" value={q} onChange={e=>setQ(e.target.value)} style={{maxWidth:320,marginLeft:'auto'}}/></div><section className="card-flat table-card ported-table"><DataTable columns={[{title:'Contract Number',dataIndex:'number'},{title:'Category',dataIndex:'category',width:160},{title:'Carrier',dataIndex:'carrier'},{title:'Actions',width:100,render:(_,r)=><Button type="text" icon={<I.EyeOutlined/>} aria-label={'View contract '+r.key} onClick={()=>setDetail(r)}/>}]} dataSource={rows} pagination={false}/></section>{detail&&<Drw title={'Contract '+detail.number} width={480} onClose={()=>setDetail(null)} footer={<Button onClick={()=>setDetail(null)}>Close</Button>}><Descriptions column={1} bordered items={['number','category','carrier'].map(k=>({key:k,label:k==='number'?'Contract Number':k==='category'?'Category':'Carrier',children:detail[k]}))}/></Drw>}</div>;
+  return <div className="page-stack ported-page"><div className="ported-filters contracts-toolbar"><span className="muted">Filters</span><PortedFilter label="Category" value={category} onChange={setCategory} options={['A','B','C']}/><PortedFilter label="Carriers" value={carrier} onChange={setCarrier} options={[...new Set(PORTED_CONTRACTS.map(r=>r.carrier))]}/><Input prefix={<I.SearchOutlined/>} placeholder="Search by contract name or number" value={q} onChange={e=>setQ(e.target.value)} style={{maxWidth:320,marginLeft:'auto'}}/><Button type="primary" icon={<I.PlusOutlined/>}>Add Contract</Button></div><section className="card-flat table-card ported-table"><DataTable columns={[{title:'Contract Number',dataIndex:'number'},{title:'Category',dataIndex:'category',width:160},{title:'Carrier',dataIndex:'carrier'},{title:'Actions',width:100,render:(_,r)=><Button type="text" icon={<I.EyeOutlined/>} aria-label={'View contract '+r.key} onClick={()=>setDetail(r)}/>}]} dataSource={rows} pagination={false}/></section>{detail&&<Drw title={'Contract '+detail.number} width={480} onClose={()=>setDetail(null)} footer={<Button onClick={()=>setDetail(null)}>Close</Button>}><Descriptions column={1} bordered items={['number','category','carrier'].map(k=>({key:k,label:k==='number'?'Contract Number':k==='category'?'Category':'Carrier',children:detail[k]}))}/></Drw>}</div>;
 }
 function PortedRateRequestsPage() {
   const [tab,setTab]=useState('Pending');const [detail,setDetail]=useState(null);
@@ -4210,8 +4274,8 @@ function PortedRateTablePage({slug}) {
   const cols=labels.map(label=>({title:label,dataIndex:label,key:label,width:label==='Id'?100:['Origin','Destination','Port/Ramp','From/to','Contract/Reference','Name'].includes(label)?200:150,render:v=>v==null?'—':label.includes('Price')||label==='Min price'?money(Number(v)):String(v)}));
   const filterFields=drayage?['Port/Ramp','From/to','Phase','Ocean carrier','Measure by','Container','Valid from','Valid to','Created by']:['Origin','Destination','Carrier','Contract/Reference','Type','Container','Valid from','Valid to','Created by','Source'];
   const selectOptions={Carrier:['Maersk','MSC','CMA CGM','OOCL','Evergreen'],'Ocean carrier':['Maersk','MSC','CMA CGM','OOCL'],Type:['Spot','Contract'],Phase:['Origin','Destination'],Container:['20′ ST','40′ ST','40′ HC'],'Measure by':['Container','Shipment','Weight','Distance'],Source:['API','Carrier','Descartes']};
-  return <div className="page-stack ported-page"><PortedHeader title={title} back="/rates"><Button type="primary" icon={<I.PlusOutlined/>} onClick={()=>setPanel('add')}>{surcharge?'Add surcharge':'Add rate'}</Button></PortedHeader>
-    <div className="ported-filters"><Button icon={<I.FilterOutlined/>} onClick={()=>{filterForm.setFieldsValue(filters);setPanel('filters');}}>Filters{Object.values(filters).some(Boolean)?' · '+Object.values(filters).filter(Boolean).length:''}</Button>{(surcharge||drayage)&&<Button disabled={!selected.length} onClick={()=>setPanel('edit')}>Edit selected</Button>}<Button disabled={!selected.length} onClick={()=>{setItems(items.filter(r=>!selected.includes(r.key)));setSelected([]);}}>Delete selected</Button></div>
+  return <div className="page-stack ported-page">
+    <div className="ported-filters rate-table-toolbar"><Button type="text" aria-label="Back to all rates" icon={<ChevronIcon dir="left" />} onClick={()=>go('/rates')} /><Button icon={<I.FilterOutlined/>} onClick={()=>{filterForm.setFieldsValue(filters);setPanel('filters');}}>Filters{Object.values(filters).some(Boolean)?' · '+Object.values(filters).filter(Boolean).length:''}</Button>{(surcharge||drayage)&&<Button disabled={!selected.length} onClick={()=>setPanel('edit')}>Edit selected</Button>}<Button disabled={!selected.length} onClick={()=>{setItems(items.filter(r=>!selected.includes(r.key)));setSelected([]);}}>Delete selected</Button><Button className="rate-toolbar-add" type="primary" icon={<I.PlusOutlined/>} onClick={()=>setPanel('add')}>{surcharge?'Add surcharge':'Add rate'}</Button></div>
     <section className="card-flat table-card ported-table ported-wide-table"><DataTable columns={cols} dataSource={rows} pagination={rows.length?PORTED_PAGER:false} minWidth={labels.length*160} rowSelection={{selectedRowKeys:selected,onChange:setSelected}} locale={{emptyText:<div className="ported-search-empty">{searched?<><Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No matching results"/><Button onClick={()=>{setFilters({});filterForm.resetFields();setSearched(false);}}>Clear filters</Button></>:<Button icon={<I.SearchOutlined/>} onClick={()=>setPanel('filters')}>{surcharge?'Search surcharges':'Search rates'}</Button>}</div>}}/></section>
     {panel==='filters'&&<Drw title="Filters" width={480} onClose={()=>setPanel(null)} footer={<><Button onClick={()=>{filterForm.resetFields();setFilters({});}}>Clear filters</Button><Button type="primary" onClick={apply}>Apply filters</Button></>}><Form form={filterForm} layout="vertical">{filterFields.map(label=><Form.Item key={label} name={label} label={label}>{selectOptions[label]?<Select allowClear options={selectOptions[label].map(v=>({value:v,label:v}))}/>:<Input placeholder={['Origin','Destination','Port/Ramp','From/to'].includes(label)?'Search location':label}/>}</Form.Item>)}</Form></Drw>}
     {panel&&panel!=='filters'&&<Drw title={(panel==='edit'?'Edit selected':surcharge?'Add surcharge':'Add rate')} width={600} onClose={close} footer={<><Button onClick={close}>Cancel</Button><Button type="primary" onClick={save}>Save</Button></>}><Form form={form} layout="vertical" initialValues={{Type:'Spot',Container:'20′ ST',Phase:'Origin','Measure by':'Container'}}><div className="grid-2 form-2">{labels.filter(v=>!['Id','Created on','Created by','Source'].includes(v)).map(label=><Form.Item key={label} name={label} label={label} rules={['Origin','Destination','Port/Ramp','From/to','Price',...(surcharge?['Name','Charge code']:[])].includes(label)?[{required:panel!=='edit',message:'Enter '+label.toLowerCase()}]:[]}>
@@ -4985,20 +5049,97 @@ function AltList({ alts, q, incl, onSelect, avg }) {
   );
 }
 
+const REQUEST_LOCATIONS = [...PLACES, ['Vancouver, CA','CAVAN','Port'], ['Mundra, IN','INMUN','Port'], ['Chicago, US','USCHI','City'], ['Los Angeles, US','USLAX','Port'], ['New York, US','USNYC','Port'], ['Busan, KR','KRPUS','Port']];
+const REQUEST_RECENT = [
+  { ...DEFAULT_Q, from:'Vancouver, CA', to:'Mundra, IN', boxes:[{type:'20` ST',qty:1}], commodity:'FAK' },
+  { ...DEFAULT_Q, from:'Chicago, US', to:'Hamburg, DE', boxes:[{type:'40` ST',qty:1}], commodity:'FAK' },
+  { ...DEFAULT_Q, from:'Shanghai, CN', to:'Los Angeles, US', boxes:[{type:'20` ST',qty:1}], commodity:'FAK' },
+];
+const REQUEST_FAVORITES = [
+  { ...DEFAULT_Q, from:'New York, US', to:'Shanghai, CN', boxes:[{type:'20` ST',qty:1}], commodity:'Meat & edible offal' },
+  { ...DEFAULT_Q, from:'Chicago, US', to:'Busan, KR', boxes:[{type:'20` ST',qty:1}], commodity:'FAK' },
+  { ...DEFAULT_Q, from:'Chicago, US', to:'Busan, KR', boxes:[{type:'40` ST',qty:1}], commodity:'FAK' },
+];
+function RequestLocationPanel({ side, q, set, onDone }) {
+  const origin = side === 'from'; const kindKey = side + 'Kind'; const countryKey = side + 'Country';
+  const kind = q[kindKey] || 'Port';
+  const options=REQUEST_LOCATIONS.map(([value,code])=>({value,label:<span>{value}<span className="lbl muted" style={{marginLeft:8}}>{code}</span></span>}));
+  const label=origin?'Origin':'Destination';
+  const countries=[['US','United States'],['CA','Canada'],['IN','India'],['CN','China'],['DE','Germany'],['PL','Poland'],['KR','South Korea'],['GB','United Kingdom'],['VN','Vietnam'],['NL','Netherlands']];
+  return <div className="request-panel">
+    <div className="request-panel-head"><strong>{label}</strong><Radio.Group optionType="button" size="small" value={kind} options={['Door','Port']} onChange={e=>set({[kindKey]:e.target.value,[side]:''})}/></div>
+    {kind==='Door'&&<><label className="request-input-label">Country<Select aria-label={label+' country'} showSearch optionFilterProp="label" placeholder={'Select a country to ship '+(origin?'from':'to')} value={q[countryKey]} onChange={v=>set({[countryKey]:v})} options={countries.map(([value,label])=>({value,label}))}/></label><label className="request-input-label">Warehouse/factory address or postcode<Input aria-label={label+' address'} placeholder="Start typing a street address or postcode" disabled={!q[countryKey]} value={q[side]} onChange={e=>set({[side]:e.target.value})}/></label></>}
+    <label className="request-input-label">{kind==='Port'?'Port/Ramp':'Nearby ramps/ports'}<Select aria-label={label+' port or ramp'} showSearch allowClear optionFilterProp="value" placeholder="Start typing a city or UN/LOCODE" value={kind==='Port'?q[side]||undefined:q[side+'Nearby']} onChange={v=>set({[kind==='Port'?side:side+'Nearby']:v||''})} options={options} filterOption={(input,option)=>{const row=REQUEST_LOCATIONS.find(r=>r[0]===option.value);return includesQ(input,...row);}}/></label>
+    {origin&&<label className="request-input-label">Cargo ready date<DatePicker aria-label="Cargo ready date" value={q.ready?dayjs(q.ready):null} format="D MMM YYYY" onChange={v=>set({ready:v?v.format('YYYY-MM-DD'):null})}/></label>}
+    <Button type="primary" onClick={onDone} disabled={!q[side]}>Done</Button>
+  </div>;
+}
+function RequestCargoPanel({q,set,onDone}) {
+  const boxes=q.boxes;
+  return <div className="request-panel request-cargo-panel"><div className="request-panel-head"><strong>Commodity</strong><label className="ported-switch">Temperature Control<Switch size="small" aria-label="Temperature Control" checked={q.temperature||false} onChange={v=>set({temperature:v})}/></label></div>
+    <div className="request-cargo-line"><label className="request-input-label">Type<Select aria-label="Commodity type" showSearch optionFilterProp="label" placeholder="Search a commodity by name or HS code" value={q.commodity||undefined} onChange={v=>set({commodity:v})} options={[...COMMODITIES.map(([value,label])=>({value,label})),{value:'Meat & edible offal',label:'02 · Meat & edible offal'},{value:'Furniture',label:'94 · Furniture'}]}/></label><label className="request-input-label">Goods Value · USD (optional)<InputNumber aria-label="Goods value" min={0} prefix="$" value={q.goodsValue} onChange={v=>set({goodsValue:v})}/></label></div>
+    {q.temperature&&<div className="grid-2"><label className="request-input-label">Temperature °C<InputNumber aria-label="Temperature Celsius" min={-40} max={30} value={q.degrees} onChange={v=>set({degrees:v})}/></label><label className="request-input-label">Genset<Switch aria-label="Genset" checked={q.genset||false} onChange={v=>set({genset:v})}/></label></div>}
+    <strong>Containers</strong>
+    {boxes.map((box,i)=><div className="request-container-line" key={i}>
+      <label className="request-input-label">Type<Select aria-label={'Container type '+(i+1)} placeholder="Choose a container type" value={box.type||undefined} options={CONTAINER_TYPES.map(value=>({value,label:value}))} onChange={v=>set({boxes:boxes.map((b,j)=>i===j?{...b,type:v}:b)})}/></label>
+      <label className="request-input-label">Quantity<InputNumber aria-label={'Container quantity '+(i+1)} min={1} max={99} value={box.qty} onChange={v=>set({boxes:boxes.map((b,j)=>i===j?{...b,qty:v||1}:b)})}/></label>
+      <label className="request-input-label">Cargo weight per container kg<InputNumber aria-label={'Container weight '+(i+1)} min={1} max={40000} value={box.weight} onChange={v=>set({boxes:boxes.map((b,j)=>i===j?{...b,weight:v}:b)})}/></label>
+      <Button type="text" aria-label={'Remove container '+(i+1)} icon={<I.DeleteOutlined/>} disabled={boxes.length===1} onClick={()=>set({boxes:boxes.filter((_,j)=>i!==j)})}/>
+    </div>)}
+    <Button icon={<I.PlusOutlined/>} onClick={()=>set({boxes:[...boxes,{type:'',qty:1}]})}>Add container</Button>
+    <strong>Services: Customs &amp; Documentation</strong>
+    <label className="request-input-label">Service name<Select aria-label="Additional services" mode="multiple" placeholder="Choose any applicable services (optional)" value={q.services} onChange={v=>set({services:v})} options={SERVICES.map(([value,label])=>({value,label}))}/></label>
+    <Button type="primary" onClick={onDone} disabled={!q.commodity||boxes.some(b=>!b.type)}>Done</Button>
+  </div>;
+}
+function RequestPaymentPanel({q,set,onDone}) {
+  return <div className="request-panel request-payment-panel">
+    <label className="request-input-label"><strong>Customer organization</strong><Select aria-label="Customer organization" allowClear showSearch placeholder="Select…" value={q.customer||undefined} onChange={v=>set({customer:v||''})} options={CUSTOMERS.map(value=>({value,label:value}))}/></label>
+    <strong>Is the customer exporting or importing goods</strong>
+    <Radio.Group className="request-choice-list" value={q.direction} onChange={e=>set({direction:e.target.value})}><Radio value="Export"><strong>Exporting</strong><div className="lbl muted">Sending goods out of their country</div></Radio><Radio value="Import"><strong>Importing</strong><div className="lbl muted">Bringing goods into their country</div></Radio></Radio.Group>
+    <strong>Who pays Destination charges?</strong><Radio.Group className="request-choice-list" value={q.destinationPayer||'Consignee'} onChange={e=>set({destinationPayer:e.target.value})}><Radio value="Customer"><strong>Customer</strong><div className="lbl muted">Applied Incoterms: DAP/DPU</div></Radio><Radio value="Consignee"><strong>Consignee</strong><div className="lbl muted">Applied Incoterms: CIF/CFR</div></Radio></Radio.Group>
+    <label className="request-input-label"><strong>Payment terms &amp; Financing</strong><Select aria-label="Payment terms and financing" placeholder="Select payment terms" disabled={!q.customer} value={q.terms||undefined} onChange={v=>set({terms:v})} options={TERMS.map(value=>({value,label:value}))}/></label>
+    <strong>Which rate types should be used to calculate quotes?</strong><Checkbox.Group value={q.rateTypes||['Contract','Public','Spot']} onChange={v=>set({rateTypes:v})} options={['Contract','Public','Spot']}/>
+    <Button type="primary" onClick={onDone}>Done</Button>
+  </div>;
+}
+function QuoteRequestStart({onSearch}) {
+  const {q,set,errors,validate}=useQuoteForm({...DEFAULT_Q,boxes:[{type:'',qty:1}],commodity:'',customer:'',terms:'',ready:NOW.format('YYYY-MM-DD')});
+  const [open,setOpen]=useState(null);const [cargoError,setCargoError]=useState('');
+  const [recent,setRecent]=usePortedState('quote-search-recent',REQUEST_RECENT);
+  const [favorites]=usePortedState('quote-search-favorites',REQUEST_FAVORITES);
+  const close=()=>setOpen(null);
+  const search=()=>{
+    const locationsValid=validate();
+    if(!q.commodity||q.boxes.some(b=>!b.type||!b.qty)){setCargoError('Select a commodity and container type');if(locationsValid)setOpen('cargo');return;}
+    setCargoError('');if(!locationsValid)return;
+    const next={...q,terms:q.terms||'Prepaid'};setRecent([next,...recent.filter(r=>r.from!==next.from||r.to!==next.to)].slice(0,3));onSearch(next);
+  };
+  const cargoReady=q.commodity&&q.boxes.every(b=>b.type);
+  const cargoSummary=cargoReady?q.boxes.map(b=>b.type+' × '+b.qty).join(', ')+' · '+(q.commodity==='FAK'?'Freight All Kinds':q.commodity):'What are you shipping?';
+  const field=(key,label,text,icon,panel,error)=> <div className={'request-field request-field-'+key} key={key}><label>{label}</label><Popover trigger="click" placement="bottomLeft" open={open===key} onOpenChange={v=>setOpen(v?key:null)} content={panel} arrow={false}><button type="button" className={'request-trigger '+(error?'request-error':'')} aria-label={label} aria-expanded={open===key}><span>{icon}</span><span className="request-trigger-text">{text}</span></button></Popover>{error&&<span className="request-error-text">{error}</span>}</div>;
+  const load=r=>{set({...r,ready:r.ready||NOW.format('YYYY-MM-DD'),fromKind:r.fromKind||'Port',toKind:r.toKind||'Port'});setCargoError('');close();};
+  const history=(title,rows,icon)=><section className="request-history-section"><div className="request-history-heading"><span>{icon}{title}</span>{title==='Favorites'&&<a href={href('/quote-requests?onlyFavorites=true')}>View all <ChevronIcon/></a>}</div>{rows.slice(0,3).map((r,i)=><button type="button" className="request-history-item" key={i} onClick={()=>load(r)}><span className="request-history-icon">{title==='Recent'?<I.ClockCircleOutlined/>:<BookmarkIcon/>}</span><div><div className="request-history-route">{r.from}<ChevronIcon/>{r.to}</div><div className="lbl muted">{r.boxes.map(b=>b.type+' × '+b.qty).join(', ')} · {r.commodity==='FAK'?'Freight All Kinds':r.commodity}</div></div></button>)}</section>;
+  return <div className="page-stack request-start"><section className="request-search-card">
+    <div className="request-field request-field-type"><label>Type</label><ModeMenu q={q} set={set}><button type="button" className="request-trigger" aria-label="Shipment type"><Ic n="nav-ship" size={16}/>{q.mode}<ChevronIcon dir="down"/></button></ModeMenu></div>
+    {field('from','Origin',q.from||'Where are you shipping from?',<I.LogoutOutlined/>,<RequestLocationPanel side="from" q={q} set={set} onDone={close}/>,errors.from)}
+    {field('to','Destination',q.to||'Where are you shipping to?',<I.LoginOutlined/>,<RequestLocationPanel side="to" q={q} set={set} onDone={close}/>,errors.to)}
+    {field('cargo','Cargo | Containers | Services',cargoSummary,<Ic n="container" size={16}/>,<RequestCargoPanel q={q} set={set} onDone={()=>{setCargoError('');close();}}/>,cargoError)}
+    {field('payment','Payment Details',q.direction+(q.terms?' · '+q.terms:''),<I.AppstoreOutlined/>,<RequestPaymentPanel q={q} set={set} onDone={close}/>)}
+    <Button className="request-search-button" type="primary" aria-label="Search quotes" icon={<I.SearchOutlined/>} onClick={search}/>
+  </section><div className="request-history">{history('Recent',recent,<I.ClockCircleOutlined/>)}{history('Favorites',favorites,<BookmarkIcon/>)}</div></div>;
+}
+
 function QuoteShipmentsPage({ query }) {
   const q = decodeQuery(query);
   const run = (nq) => go(`/quote-shipments?${encodeQuery(nq)}`);
   if (!q) {
     return (
-      <div className="page-stack">
-        <section className="qs-hero"><QuoteSearch onSearch={run} /></section>
-        <div className="qs-empty lbl muted">Search ocean, air and truck rates from {QUOTE_CARRIERS.length}+ carriers. Pick a route above to see offers.</div>
-      </div>
+      <QuoteRequestStart onSearch={run} />
     );
   }
   return (
-    <div className="page-stack">
-      <div className="card-flat page-title">New request</div>
+    <div className="page-stack quote-results-page">
       <SearchFormV2 key={encodeQuery(q)} initial={q} onSearch={run} withCustomer />
       <InternalResults key={encodeQuery(q)} q={q} />
     </div>
@@ -10224,12 +10365,13 @@ function resolvePage(path, query) {
       el: <PortedFinancePage key={path} payable={payable} transactions={kind === 'transactions'} /> };
   }
   const rate = path.match(/^\/rates\/([\w-]+)$/);
-  if (rate && RATE_TITLES[rate[1]]) return { navKey: path, crumbs: [HOME, crumb('Rates', '/rates'), crumb(RATE_TITLES[rate[1]])], el: rate[1] === 'contracts' ? <PortedContractsPage /> : <PortedRateTablePage key={rate[1]} slug={rate[1]} /> };
+  if (rate && RATE_TITLES[rate[1]]) return { navKey: path, crumbs: [HOME, crumb('Rates', '/rates'), crumb(RATE_TITLES[rate[1]])], el: rate[1].endsWith('contracts') ? <PortedContractsPage /> : <PortedRateTablePage key={rate[1]} slug={rate[1]} /> };
   const auth = path.match(/^\/auth\/([\w-]+)$/);
   if (auth && AUTH_STEPS.includes(auth[1])) return { bare: true, crumbs: [crumb({ 'sign-in': 'Sign In', forgot: 'Forgot password', reset: 'Change password', 'sign-up': 'Sign Up', verify: 'Verify your email' }[auth[1]])], el: <AuthPage step={auth[1]} /> };
   if (path === DOC_PATH) return { bare: true, crumbs: [crumb('Dispatch Order')], el: <DispatchOrderDocPage variant={query.v} /> };
   if (path === '/site') return { bare: true, crumbs: [crumb('Freight quotes')], el: <LandingPage /> };
   if (path === '/site/quotes') return { bare: true, crumbs: [crumb('Compare offers')], el: <PublicQuotesPage key={JSON.stringify(query)} query={query} /> };
+  if (path === '/quote-requests/new') return resolvePage('/quote-shipments', query);
   if (path === '/quote-shipments') {
     const searched = !!decodeQuery(query);
     return { navKey: path, crumbs: [HOME, crumb('Quote shipments', searched ? '/quote-shipments' : undefined), ...(searched ? [crumb('New request')] : [])],
