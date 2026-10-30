@@ -655,7 +655,7 @@
   .rail-item a:hover { background: #eaeef8; }
   .rail-item.active a { background: #fff; color: var(--primary); }
   .rail-logo { text-decoration: none; }
-  .sidebar { width: 256px; flex: none; position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 8px 0 24px; }
+  .sidebar { width: 208px; flex: none; position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 8px 0 24px; }
   .brand { display: flex; align-items: center; height: 48px; padding-left: 28px; }
   .global-menu.ant-menu, .global-menu .ant-menu-sub.ant-menu-inline { background: transparent !important; border-inline-end: none !important; }
   .global-menu .ant-menu-item-selected { background: #fff !important; color: var(--primary) !important; }
@@ -2128,18 +2128,27 @@ const RAIL = [
   ['Quote shipments', <I.FileSearchOutlined />, '/quote-shipments'], ['Overview', <I.HomeOutlined />, '/overview'],
   ['Action Center', <I.CompassOutlined />, '/action-center/tasks'], ['Quote requests', <I.FileAddOutlined />, '/quote-requests'],
   ['Guest bookings', <I.MessageOutlined />, '/guest-bookings'], ['Dispatches', <Ic n="container" size={14} />, '/dispatches'],
-  ['Shipments', <Ic n="nav-ship" size={14} />, '/shipments'], ['Containers', <I.ContainerOutlined />, '/containers'], ['Finances', <I.BankOutlined />, '/finances/receivables/billing'],
+  ['Shipments', <Ic n="nav-ship" size={14} />, '/shipments'], ['Finances', <I.BankOutlined />, '/finances/receivables/billing'],
   ['Contacts', <I.ContactsOutlined />, '/contacts'], ['Rates', <I.StockOutlined />, '/rates'], ['Analytics', <I.FundOutlined />, '/analytics'],
 ];
-function Rail({ navKey }) {
+function Rail({ navKey, onToggle }) {
+  const { token } = antd.theme.useToken();
+  const [quote, ...rest] = RAIL;
   return (
     <nav className="rail">
       <a className="rail-logo" href={SKYPACE_SITE} aria-label="Skypace website"><Ic n="logo" size={32} /></a>
-      {RAIL.map(([t, icon, to]) => (
+      <Flex vertical align="center" gap={token.marginXXS} style={{ padding: `${token.paddingXXS}px 0 ${token.paddingXS}px` }}>
+        <Tooltip title={quote[0]} placement="right"><Button color="primary" variant="outlined" icon={quote[1]} aria-label={quote[0]} onClick={() => go(quote[2])} style={{ background: 'transparent', borderColor: token.colorBorder }} /></Tooltip>
+      </Flex>
+      {rest.map(([t, icon, to]) => (
         <Tooltip key={t} title={t} placement="right">
           <div className={'rail-item' + (to === navKey ? ' active' : '')}><a href={'#' + to} aria-label={t}>{icon}</a></div>
         </Tooltip>
       ))}
+      {/* bottom of the rail, kept above the screens switcher in the corner */}
+      <Flex justify="center" style={{ marginTop: 'auto', paddingBottom: token.controlHeightLG * 2 }}>
+        <Tooltip title="Expand menu" placement="right"><Button type="text" icon={<I.MenuUnfoldOutlined />} aria-label="Expand menu" onClick={onToggle} /></Tooltip>
+      </Flex>
     </nav>
   );
 }
@@ -2153,7 +2162,7 @@ function TopBar({ crumbs, navKey, shipmentMenu }) {
     <header className="topbar">
       <Button className="nav-toggle" type="text" icon={<I.MenuOutlined />} aria-label="Open navigation" onClick={() => setNav(true)} />
       <Breadcrumb items={items} style={{ flex: 1, minWidth: 0 }} />
-      <Drawer open={nav} onClose={() => setNav(false)} placement="left" size={300} title={<a href={SKYPACE_SITE} aria-label="Skypace website"><img src="assets/skypace-logo.svg" width="100" height="25" alt="Skypace" style={{ display: 'block' }} /></a>}
+      <Drawer open={nav} onClose={() => setNav(false)} placement="left" size={300} title={<a href={SKYPACE_SITE} aria-label="Skypace website"><img src="assets/skypace-logo-dark.svg" width="100" height="25" alt="Skypace" style={{ display: 'block' }} /></a>}
         className="nav-drawer" styles={{ body: { padding: '8px 0' } }}>
         <GlobalMenu navKey={navKey} onNavigate={() => setNav(false)} />
         {shipmentMenu && (
@@ -2227,10 +2236,10 @@ const SIDE_ITEMS = [
   { key: 'people', icon: <I.StockOutlined />, label: 'People' },
 ];
 // Items that have a page in this prototype; the rest only expand/collapse
-const SIDE_ROUTES = { planning: () => SHIPMENT_PATH, containers: () => CONTAINERS_PATH, 'ip-overview': () => IP_PATH, 'ip-dispatches': () => DISPATCH_PATH };
+const SIDE_ROUTES = { overview: () => SO_PATH, planning: () => SHIPMENT_PATH, containers: () => CONTAINERS_PATH, 'ip-overview': () => IP_PATH, 'ip-dispatches': () => DISPATCH_PATH };
 const SIDE_PARENT = { containers: 'details', 'ip-overview': 'inland', 'ip-dispatches': 'inland' };
 function SideMenu({ selected = 'planning' }) {
-  const [openKeys, setOpenKeys] = useState(() => [SIDE_PARENT[selected] || 'ocean']);
+  const [openKeys, setOpenKeys] = useState(() => (selected === 'overview' ? [] : [SIDE_PARENT[selected] || 'ocean']));
   return (
     <aside className="side">
       <Menu mode="inline" expandIcon={({ isOpen }) => <ExpandArrow open={isOpen} />} items={SIDE_ITEMS} openKeys={openKeys} onOpenChange={setOpenKeys} selectedKeys={[selected]} inlineIndent={24}
@@ -3218,17 +3227,21 @@ function DataTable(props) {
 }
 
 /* ---------- navigation ---------- */
+// rate tables, shared by the Rates page and the Rates submenu
+const RATE_GROUPS = [
+  ['Ocean', [['ocean-rates', 'Ocean Rates', 0], ['port-surcharges', 'Port/Countries surcharges', 1], ['contracts', 'Contracts', 2]]],
+  ['Drayage', [['drayage-rates', 'Drayage rates', 3], ['drayage-surcharges', 'Drayage surcharges', 4]]],
+  ['Skypace rates', [['skypace-ocean', 'Ocean Rates', 5], ['skypace-surcharges', 'Port/Countries surcharges', 6], ['skypace-contracts', 'Contracts', 7]]],
+];
 const NAV = [
-  { key: '/quote-shipments', icon: <I.FileSearchOutlined />, label: 'Quote shipments' },
   { key: '/overview', icon: <I.HomeOutlined />, label: 'Overview' },
-  { key: 'action', icon: <I.CompassOutlined />, label: 'Action Center', children: [
+  { key: 'action', icon: <I.CompassOutlined />, label: 'Action center', children: [
     { key: '/action-center/tasks', label: 'Tasks' }, { key: '/action-center/notifications', label: 'Notifications' },
   ] },
   { key: '/quote-requests', icon: <I.FileAddOutlined />, label: 'Quote requests' },
   { key: '/guest-bookings', icon: <I.MessageOutlined />, label: 'Guest bookings' },
   { key: '/dispatches', icon: <Ic n="container" size={14} />, label: 'Dispatches' },
   { key: '/shipments', icon: <Ic n="nav-ship" size={14} />, label: 'Shipments' },
-  { key: '/containers', icon: <I.ContainerOutlined />, label: 'Containers' },
   { key: 'finances', icon: <I.BankOutlined />, label: 'Finances', children: [
     { type: 'group', label: 'Receivables', children: [
       { key: '/finances/receivables/billing', label: 'Billing' }, { key: '/finances/receivables/transactions', label: 'Transactions' },
@@ -3238,27 +3251,47 @@ const NAV = [
     ] },
   ] },
   { key: '/contacts', icon: <I.ContactsOutlined />, label: 'Contacts' },
-  { key: '/rates', icon: <I.StockOutlined />, label: 'Rates' },
+  { key: 'rates', icon: <I.StockOutlined />, label: 'Rates', children: [
+    { key: '/rates', label: 'All rates' },
+    ...RATE_GROUPS.map(([g, items]) => ({ type: 'group', label: g, children: items.map(([slug, t]) => ({ key: `/rates/${slug}`, label: t })) })),
+  ] },
   { key: '/analytics', icon: <I.FundOutlined />, label: 'Analytics' },
 ];
 const NAV_PARENT = { '/action-center/tasks': 'action', '/action-center/notifications': 'action' };
 ['receivables', 'payables'].forEach((p) => ['billing', 'transactions'].forEach((t) => { NAV_PARENT[`/finances/${p}/${t}`] = 'finances'; }));
+NAV_PARENT['/rates'] = 'rates'; RATE_GROUPS.forEach(([, items]) => items.forEach(([slug]) => { NAV_PARENT[`/rates/${slug}`] = 'rates'; }));
 
 function GlobalMenu({ navKey, onNavigate }) {
+  const { token } = antd.theme.useToken();
   const [openKeys, setOpenKeys] = useState(NAV_PARENT[navKey] ? [NAV_PARENT[navKey]] : []);
   // Accordion: when the page changes, open only the section that contains it
   useEffect(() => { setOpenKeys(NAV_PARENT[navKey] ? [NAV_PARENT[navKey]] : []); }, [navKey]);
   return (
-    <Menu mode="inline" expandIcon={({ isOpen }) => <ExpandArrow open={isOpen} />} className="global-menu" items={NAV} selectedKeys={[navKey]} openKeys={openKeys} onOpenChange={setOpenKeys}
-      inlineIndent={24} onClick={({ key }) => { go(key); onNavigate && onNavigate(); }} />
+    <>
+      {/* main action of the app, an outlined primary button above the menu (Figma Menu - Light, Collapsed=False) */}
+      {/* same box as a menu item (4px margin) and the same icon/label positions (24px indent, Menu icon gap) */}
+      <div style={{ padding: token.paddingXXS }}>
+        <Button color="primary" variant="outlined" block icon={<I.FileSearchOutlined />} onClick={() => { go('/quote-shipments'); onNavigate && onNavigate(); }}
+          style={{ justifyContent: 'flex-start', paddingInlineStart: token.paddingLG - token.lineWidth, gap: theme.components.Menu.iconMarginInlineEnd, background: 'transparent', borderColor: token.colorBorder }}>Quote shipments</Button>
+      </div>
+      <Menu mode="inline" expandIcon={({ isOpen }) => <ExpandArrow open={isOpen} />} className="global-menu" items={NAV} selectedKeys={[navKey]} openKeys={openKeys} onOpenChange={setOpenKeys}
+        inlineIndent={24} onClick={({ key }) => { go(key); onNavigate && onNavigate(); }} />
+    </>
   );
 }
 
-function Sidebar({ navKey }) {
+function Sidebar({ navKey, onToggle }) {
+  const { token } = antd.theme.useToken();
   return (
-    <aside className="sidebar">
-      <a className="brand" href={SKYPACE_SITE} aria-label="Skypace website"><img src="assets/skypace-logo.svg" width="100" height="25" alt="Skypace" /></a>
-      <GlobalMenu navKey={navKey} />
+    <aside className="sidebar" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <a className="brand" href={SKYPACE_SITE} aria-label="Skypace website"><img src="assets/skypace-logo-dark.svg" width="100" height="25" alt="Skypace" /></a>
+      {/* only the menu scrolls; the collapse button stays put at the bottom, above the screens switcher */}
+      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}><GlobalMenu navKey={navKey} /></div>
+      {onToggle && (
+        <Flex justify="end" style={{ flex: 'none', padding: `${token.paddingXS}px ${token.paddingXS}px ${token.controlHeightLG * 2 - token.paddingLG}px` }}>
+          <Tooltip title="Collapse menu" placement="right"><Button type="text" icon={<I.MenuFoldOutlined />} aria-label="Collapse menu" onClick={onToggle} /></Tooltip>
+        </Flex>
+      )}
     </aside>
   );
 }
@@ -3843,11 +3876,6 @@ function ContactsPage() {
 }
 
 /* ---------- 11–12. Rates ---------- */
-const RATE_GROUPS = [
-  ['Ocean', [['ocean-rates', 'Ocean Rates', 0], ['port-surcharges', 'Port/Countries surcharges', 1], ['contracts', 'Contracts', 2]]],
-  ['Drayage', [['drayage-rates', 'Drayage rates', 3], ['drayage-surcharges', 'Drayage surcharges', 4]]],
-  ['Skypace rates', [['skypace-ocean', 'Ocean Rates', 5], ['skypace-surcharges', 'Port/Countries surcharges', 6], ['skypace-contracts', 'Contracts', 7]]],
-];
 const RATE_TITLES = Object.fromEntries(RATE_GROUPS.flatMap(([g, items]) => items.map(([slug, t]) => [slug, g === 'Skypace rates' ? `Skypace ${t}` : t])));
 function RatesPage() {
   return (
@@ -9661,6 +9689,268 @@ function InlandPickupPage() {
   );
 }
 
+/* =====================================================================
+   Shipment · Overview — first item of the shipment menu. Same structure as Inland Pickup · Overview
+   (journey steps and route on the left; to do, dates, updates on the right), but for the whole shipment:
+   origin drayage → ocean → destination. Built from antd components and theme tokens; drayage numbers come
+   from the dispatch-order store, so they follow the orders.
+   ===================================================================== */
+const SO_PATH = SHIPMENT_PATH + '/overview';
+const SO_TOTAL = 6;
+const SO_DATES = {
+  doc: dayjs('2026-06-01T12:00'), etd: dayjs('2026-06-03T22:00'), ts: dayjs('2026-06-14T08:00'),
+  eta: dayjs('2026-06-24T11:30'), final: dayjs('2026-07-02T10:00'),
+};
+const soDay = (v, time = true) => (v.format('YYYY-MM-DD') === IP_TODAY ? 'Today' : v.format('ddd D MMM')) + (time ? ` · ${v.format('HH:mm')}` : '');
+
+// white card with the page's heading style: bold title, optional link on the right
+function SoCard({ title, extra, children, id }) {
+  const { token } = antd.theme.useToken(); const { Text } = Typography;
+  return (
+    <Card variant="borderless" id={id} style={{ boxShadow: 'none' }} styles={{ body: { padding: token.padding } }}>
+      <Flex vertical gap={token.margin}>
+        <Flex align="center" justify="space-between" gap={token.marginSM}>
+          <Text strong style={{ fontSize: token.fontSizeLG }}>{title}</Text>
+          {extra}
+        </Flex>
+        {children}
+      </Flex>
+    </Card>
+  );
+}
+const SoLink = ({ to, onClick, children }) => <Button type="link" size="small" style={{ paddingInline: 0 }} onClick={onClick || (() => go(to))}>{children}</Button>;
+// gray inset block, same surface as the DO field boxes
+function SoInset({ children, gap }) {
+  const { token } = antd.theme.useToken();
+  return <Flex vertical gap={gap ?? token.marginSM} style={{ background: token.colorFillQuaternary, borderRadius: token.borderRadiusLG, padding: `${token.paddingSM}px ${token.padding}px` }}>{children}</Flex>;
+}
+
+/* ---------- journey: one row per part of the shipment ---------- */
+function soJourney(list) {
+  const gated = list.filter((d) => d.legsDone >= 3).length; const vgm = list.filter((d) => d.vgm).length;
+  const picked = list.filter((d) => d.legsDone >= 1).length;
+  return [
+    { key: 'booking', title: 'Booking confirmed', done: SO_TOTAL, note: `Maersk · booking ${IP_BOOKING}`, state: 'done' },
+    { key: 'pickup', title: 'Inland pickup', done: gated, note: `${picked} picked up · ${gated} gated in at ${DO_PLACE_RET.name}`, state: 'progress', to: IP_PATH },
+    { key: 'docs', title: 'VGM and documents', done: vgm, note: `VGM cutoff ${soDay(IP_CUTOFFS.vgm)} · SI cutoff ${soDay(SO_DATES.doc)}`, state: 'progress' },
+    { key: 'ocean', title: 'Ocean · Port Newark → Cat Lai', done: 0, note: `ETD ${soDay(SO_DATES.etd, false)} · ETA ${soDay(SO_DATES.eta, false)}`, state: 'next', to: SHIPMENT_PATH },
+    { key: 'dest', title: 'Destination delivery', done: 0, note: `Final delivery ETA ${soDay(SO_DATES.final, false)} · Nha Trang Rail Yard`, state: 'next' },
+  ];
+}
+function SoJourney({ list }) {
+  const { token } = antd.theme.useToken(); const { Text } = Typography; const { Row, Col } = antd;
+  const rows = soJourney(list);
+  const dot = (s) => (s === 'done'
+    ? <I.CheckCircleFilled style={{ color: token.colorSuccess, fontSize: token.fontSizeLG }} />
+    : <span style={{ width: token.fontSizeLG, height: token.fontSizeLG, borderRadius: '50%', flex: 'none', border: `${s === 'progress' ? token.lineWidthBold * 2 : token.lineWidthBold}px solid ${s === 'progress' ? token.colorPrimary : token.colorBorder}` }} />);
+  return (
+    <SoCard title="Journey">
+      <Flex vertical>
+        {rows.map((r, i) => (
+          <Flex key={r.key} align="center" gap={token.marginSM} role={r.to ? 'button' : undefined} tabIndex={r.to ? 0 : undefined}
+            onClick={() => r.to && go(r.to)} onKeyDown={(e) => r.to && e.key === 'Enter' && go(r.to)}
+            style={{ padding: `${token.paddingSM}px ${token.paddingXS}px`, cursor: r.to ? 'pointer' : 'default', borderTop: i ? `${token.lineWidth}px solid ${token.colorSplit}` : 'none' }}>
+            {dot(r.state)}
+            <Row style={{ flex: 1, minWidth: 0 }} gutter={[token.marginSM, token.marginXXS]} align="middle">
+              <Col xs={24} md={8}><Text strong ellipsis>{r.title}</Text></Col>
+              <Col xs={6} md={3}><Text type="secondary">{r.done} of {SO_TOTAL}</Text></Col>
+              <Col xs={18} md={4}><Progress percent={(r.done / SO_TOTAL) * 100} showInfo={false} size="small" strokeColor={r.state === 'done' ? token.colorSuccess : undefined} /></Col>
+              <Col xs={24} md={9}><Text type="secondary" ellipsis style={{ fontSize: token.fontSizeSM }}>{r.note}</Text></Col>
+            </Row>
+            {r.to ? <Text type="secondary"><I.RightOutlined style={{ fontSize: token.fontSizeSM }} /></Text> : <span style={{ width: token.fontSizeSM }} />}
+          </Flex>
+        ))}
+      </Flex>
+    </SoCard>
+  );
+}
+
+/* ---------- route: key places on top, key facts of the shipment under them ---------- */
+const SO_ROUTE = [
+  { title: 'Chicago, IL', kind: 'Origin', icon: 'warehouse', when: `Loading ${soDay(dayjs('2026-05-27T08:30'), false)}` },
+  { title: 'Port Newark, NJ', kind: 'POL', icon: 'port', when: `ETD ${soDay(SO_DATES.etd, false)}` },
+  { title: 'Tanjung Pelepas, MY', kind: 'Transshipment', icon: 'ship', when: `ETA ${soDay(SO_DATES.ts, false)}` },
+  { title: 'Cat Lai, VN', kind: 'POD', icon: 'port', when: `ETA ${soDay(SO_DATES.eta, false)}` },
+  { title: 'Nha Trang, VN', kind: 'Destination', icon: 'warehouse', when: `ETA ${soDay(SO_DATES.final, false)}` },
+];
+// pickup, departure, arrival and delivery dates under the route
+const SO_KEY_DATES = [
+  ['Chicago, IL', 'Pickup from', soDay(dayjs('2026-05-27T08:30'), false)],
+  ['(USEWR) Port Newark', 'ETD', soDay(SO_DATES.etd, false)],
+  ['(VNCLI) Cat Lai', 'ETA', soDay(SO_DATES.eta, false)],
+  ['Nha Trang, VN', 'Delivery from', soDay(SO_DATES.final, false)],
+];
+// key facts of the shipment under the route, four per row
+const SO_FACTS = [
+  ['Service', 'FCL door to door · export'], ['Containers', `${SO_TOTAL} × 20' Standard`], ['Cargo', 'Chemical products · ~18,500 kg each (est.)'], ['Incoterms', 'DAP · Nha Trang'],
+  ['Ocean carrier', `Maersk · ${DO_VESSEL}`], ['Booking', IP_BOOKING], ['Port cutoff', IP_CUTOFFS.port.format('ddd D MMM, HH:mm')], ['Origin free time', `${IP_FREE_DAYS} days export detention · Maersk`],
+  ['Customer', 'Maxton Inc · ref PO 4F0268'], ['Ops owner', 'Bridget Moore'], ['Quote', 'Q-2026-0418'], ['Destination last free day', `~${soDay(SO_DATES.eta.add(7, 'day'), false)}`],
+];
+function SoRoute() {
+  const { token } = antd.theme.useToken(); const { Text } = Typography; const { Row, Col } = antd;
+  return (
+    <SoCard title="Route" extra={<SoLink to={SHIPMENT_PATH}>Planning &amp; Tracking</SoLink>}>
+      {/* icons only: the key dates row below names the places, each stop shows its details on hover */}
+      <Steps titlePlacement="vertical" current={0} items={SO_ROUTE.map((r, i) => {
+        const now = i === 0; const labelled = false; // places and dates are in the key dates row below; every stop shows its details on hover
+        const details = (
+          <Flex vertical align="center" gap={token.marginXXS}>
+            <Text type={now ? undefined : 'secondary'} style={{ fontSize: token.fontSizeSM, color: now ? token.colorPrimary : undefined }}>{r.kind}</Text>
+            <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>{r.when}</Text>
+          </Flex>
+        );
+        const icon = (
+          <Flex align="center" justify="center" style={{ width: token.controlHeight, height: token.controlHeight, flex: 'none', borderRadius: '50%',
+            background: now ? token.colorPrimary : token.colorFillTertiary, color: now ? token.colorTextLightSolid : token.colorTextSecondary, cursor: labelled ? 'default' : 'help' }}>
+            <Ic n={r.icon} size={token.fontSizeLG} />
+          </Flex>
+        );
+        return labelled
+          ? { icon, title: <Text strong>{r.title}</Text>, content: details }
+          : { icon: <Tooltip title={<Flex vertical><Text strong style={{ color: 'inherit' }}>{r.title}</Text><span>{r.kind} · {r.when}</span></Flex>}>{icon}</Tooltip> };
+      })} />
+      {/* key dates of the route: pickup and port of loading on the left, port of discharge and delivery on the right */}
+      <Flex justify="space-between" wrap gap={token.marginSM}>
+        {[SO_KEY_DATES.slice(0, 2), SO_KEY_DATES.slice(2)].map((group, g) => (
+          <Flex key={g} gap={token.marginLG} wrap>
+            {group.map(([place, label, date]) => (
+              <Flex key={place} vertical align={g ? 'end' : 'start'}>
+                <Text>{place}</Text>
+                <Text type="secondary">{label}: <Text strong>{date}</Text></Text>
+              </Flex>
+            ))}
+          </Flex>
+        ))}
+      </Flex>
+      <SoInset>
+        <Row gutter={[token.margin, token.marginSM]}>
+          {SO_FACTS.map(([label, value]) => (
+            <Col key={label} xs={12} lg={6}>
+              <Flex vertical>
+                <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>{label}</Text>
+                <Text>{value}</Text>
+              </Flex>
+            </Col>
+          ))}
+        </Row>
+      </SoInset>
+    </SoCard>
+  );
+}
+
+/* ---------- right column ---------- */
+function soTodos(list) {
+  const pickup = ipTodos(list).map((t) => ({ ...t, area: 'Inland pickup' }));
+  const vgmLeft = SO_TOTAL - list.filter((d) => d.vgm).length;
+  return [
+    { id: 'si', area: 'Ocean', warn: true, title: 'Send shipping instructions', sub: `SI cutoff ${soDay(SO_DATES.doc)} · draft not sent to Maersk`, cta: 'Open', onClick: () => go(SHIPMENT_PATH) },
+    vgmLeft && { id: 'vgm', area: 'Ocean', warn: false, title: `Submit VGM · ${vgmLeft} containers`, sub: `VGM cutoff ${soDay(IP_CUTOFFS.vgm)} · after each gate-in`, cta: 'Open', onClick: () => go(CONTAINERS_PATH) },
+    ...pickup,
+  ].filter(Boolean);
+}
+function SoTodo({ list }) {
+  const { token } = antd.theme.useToken(); const { Text } = Typography;
+  const todos = soTodos(list);
+  return (
+    <SoCard title="To do" extra={<Tag bordered={false}>{todos.length}</Tag>}>
+      <SoInset gap={0}>
+        {todos.map((t, i) => (
+          <Flex key={t.id} align="center" gap={token.marginSM} style={{ padding: `${token.paddingSM}px 0`, borderTop: i ? `${token.lineWidth}px solid ${token.colorSplit}` : 'none' }}>
+            {t.warn ? <I.ExclamationCircleFilled style={{ color: token.colorWarning, fontSize: token.fontSize }} /> : <I.ClockCircleOutlined style={{ color: token.colorTextSecondary, fontSize: token.fontSize }} />}
+            <Flex vertical style={{ flex: 1, minWidth: 0 }}>
+              <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>{t.area}</Text>
+              <Text strong>{t.title}</Text>
+              <Text type={t.warn ? 'warning' : 'secondary'} style={{ fontSize: token.fontSizeSM }}>{t.sub}</Text>
+            </Flex>
+            <Button size="small" onClick={t.onClick}>{t.cta}</Button>
+          </Flex>
+        ))}
+      </SoInset>
+    </SoCard>
+  );
+}
+
+function soDates(list) {
+  const pickup = ipDates(list).filter((x) => x.id).slice(0, 2);
+  return [
+    ...pickup,
+    { at: SO_DATES.doc, title: 'SI cutoff · Maersk', sub: 'Shipping instructions', note: 'Not sent', tone: 'warn' },
+    { at: IP_CUTOFFS.vgm, title: `Cutoffs · ${DO_CTO_SHORT}`, sub: `VGM ${IP_CUTOFFS.vgm.format('HH:mm')} · port cutoff ${IP_CUTOFFS.port.format('HH:mm')}`, note: `${list.filter((d) => d.legsDone >= 3).length} of ${SO_TOTAL} gated in` },
+    { at: SO_DATES.etd, title: 'Vessel departure · Port Newark', sub: DO_VESSEL, note: 'Scheduled' },
+    { at: SO_DATES.eta, title: 'Arrival · Cat Lai', sub: 'Cat Lai Terminal, VN', note: 'Scheduled' },
+  ].sort((a, b) => a.at.valueOf() - b.at.valueOf());
+}
+function SoDates({ list, msg }) {
+  const { token } = antd.theme.useToken(); const { Text } = Typography;
+  return (
+    <SoCard title="Dates to watch" extra={<SoLink onClick={() => msg.info('Calendar view is coming next')}>Calendar</SoLink>}>
+      <Timeline items={soDates(list).map((x) => ({
+        color: { ok: 'green', warn: 'gold' }[x.tone] || 'gray',
+        content: (
+          <Flex vertical gap={token.marginXXS} align="start" role={x.id ? 'button' : undefined} onClick={() => x.id && ipOpen(x.id)} style={{ cursor: x.id ? 'pointer' : 'default' }}>
+            <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>{soDay(x.at)}</Text>
+            <Text strong>{x.title}</Text>
+            <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>{x.sub}</Text>
+            {x.note && <Tag bordered={false} color={{ ok: 'success', warn: 'warning' }[x.tone]}>{x.note}</Tag>}
+          </Flex>
+        ),
+      }))} />
+    </SoCard>
+  );
+}
+
+const SO_UPDATES = [
+  ['Today 08:35', 'Loading started at Northwind Polymers', 'Inland pickup · ID-9981 · Swift Transport', `${DISPATCH_PATH}/ID-9981`],
+  ['Today 06:35', 'Empty picked up at Integrated Industries', 'Inland pickup · ID-9985 · Swift Transport', `${DISPATCH_PATH}/ID-9985`],
+  ['Tue 26 · 14:10', 'Gated in at Chicago CSX 59th Street Ramp', 'Inland pickup · ID-9980 · scale ticket 20,700 kg', `${DISPATCH_PATH}/ID-9980`],
+  ['Mon 25 · 16:20', 'Vessel schedule confirmed', `Ocean · ${DO_VESSEL} · ETD ${soDay(SO_DATES.etd, false)}`, SHIPMENT_PATH],
+  ['Fri 22 · 11:05', 'Booking confirmed by Maersk', `Ocean · booking ${IP_BOOKING} · 6 × 20' Standard`, SHIPMENT_PATH],
+];
+function SoUpdates() {
+  const { token } = antd.theme.useToken(); const { Text } = Typography;
+  return (
+    <SoCard title="Latest updates" extra={<SoLink to={DISPATCH_PATH}>All activity</SoLink>}>
+      <Timeline items={SO_UPDATES.map(([when, title, by, to], i) => ({
+        color: i === 0 ? 'blue' : 'gray',
+        content: (
+          <Flex vertical gap={token.marginXXS} align="start" role="button" onClick={() => go(to)} style={{ cursor: 'pointer' }}>
+            <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>{when}</Text>
+            <Text>{title}</Text>
+            <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>{by}</Text>
+          </Flex>
+        ),
+      }))} />
+    </SoCard>
+  );
+}
+
+/* ---------- page ---------- */
+function ShipmentOverviewPage() {
+  const list = useDispatchOrders();
+  const { token } = antd.theme.useToken(); const { Row, Col } = antd;
+  const [msgApi, msgCtx] = message.useMessage();
+  return (
+    <ShipmentShell selected="overview">
+      {msgCtx}
+      <Row gutter={[token.marginXS, token.marginXS]} align="top">
+        <Col xs={24} xl={16}>
+          <Flex vertical gap={token.marginXS}>
+            <SoJourney list={list} />
+            <SoRoute />
+          </Flex>
+        </Col>
+        <Col xs={24} xl={8}>
+          <Flex vertical gap={token.marginXS}>
+            <SoTodo list={list} />
+            <SoDates list={list} msg={msgApi} />
+            <SoUpdates />
+          </Flex>
+        </Col>
+      </Row>
+    </ShipmentShell>
+  );
+}
+
 
 function PlaceholderPage({ title }) {
   return <div className="card"><Empty description={<span><b>{title}</b><br />This page isn’t designed yet.</span>}><Button type="primary" onClick={() => go('/overview')}>Back to Overview</Button></Empty></div>;
@@ -9677,7 +9967,7 @@ function resolvePage(path, query) {
       el: kind === 'billing' ? <BillingPage key={path} payable={payable} /> : <TransactionsPage key={path} payable={payable} /> };
   }
   const rate = path.match(/^\/rates\/([\w-]+)$/);
-  if (rate && RATE_TITLES[rate[1]]) return { navKey: '/rates', crumbs: [HOME, crumb('Rates', '/rates'), crumb(RATE_TITLES[rate[1]])], el: <RateTablePage key={rate[1]} slug={rate[1]} /> };
+  if (rate && RATE_TITLES[rate[1]]) return { navKey: path, crumbs: [HOME, crumb('Rates', '/rates'), crumb(RATE_TITLES[rate[1]])], el: <RateTablePage key={rate[1]} slug={rate[1]} /> };
   const auth = path.match(/^\/auth\/([\w-]+)$/);
   if (auth && AUTH_STEPS.includes(auth[1])) return { bare: true, crumbs: [crumb({ 'sign-in': 'Sign In', forgot: 'Forgot password', reset: 'Change password', 'sign-up': 'Sign Up', verify: 'Verify your email' }[auth[1]])], el: <AuthPage step={auth[1]} /> };
   if (path === DOC_PATH) return { bare: true, crumbs: [crumb('Dispatch Order')], el: <DispatchOrderDocPage variant={query.v} /> };
@@ -9691,6 +9981,9 @@ function resolvePage(path, query) {
   if (path === '/profile') return { navKey: '', crumbs: [HOME, crumb('Profile')], el: <ProfilePage key={query.tab || 'documents'} initialTab={query.tab} /> };
   if (path === DISPATCH_PATH) {
     return { navKey: '/shipments', collapsed: true, crumbs: [crumb('Shipments', '/shipments'), crumb(SHIPMENT_ID, SHIPMENT_PATH), crumb('Inland Pickup · Dispatches')], el: <DispatchOrdersPage key={query.f || 'list'} f={query.f} /> };
+  }
+  if (path === SO_PATH) {
+    return { navKey: '/shipments', collapsed: true, crumbs: [crumb('Shipments', '/shipments'), crumb(SHIPMENT_ID, SHIPMENT_PATH), crumb('Overview')], el: <ShipmentOverviewPage /> };
   }
   if (path === IP_PATH) {
     return { navKey: '/shipments', collapsed: true, crumbs: [crumb('Shipments', '/shipments'), crumb(SHIPMENT_ID, SHIPMENT_PATH), crumb('Inland Pickup · Overview')], el: <InlandPickupPage /> };
@@ -9755,6 +10048,7 @@ const PAGE_SCREENS = [
   ['1535:51136', 'Auth · Change password', '/auth/reset'], ['1535:50871', 'Auth · Sign Up', '/auth/sign-up'], ['1535:50810', 'Auth · Verify email', '/auth/verify'],
   ['—', 'Shipment · Containers', CONTAINERS_PATH], ['—', 'Shipment · Container (not assigned)', CONTAINERS_PATH + '/10682'],
   ['—', 'Shipment · Container (with load plan)', CONTAINERS_PATH + '/10683'],
+  ['—', 'Shipment · Overview', SO_PATH],
   ['—', 'Inland Pickup · Overview', IP_PATH],
   ['7249:122947', 'Dispatch orders · 0 list', DISPATCH_PATH + '?f=0'],
   ['7522:224042', 'Dispatch · 1 unassigned · editor · drop & pick, appointment', DISPATCH_PATH + '/ID-9984?f=1'],
@@ -9897,11 +10191,16 @@ function App() {
   }, []);
   const page = resolvePage(route.path, route.query);
   useEffect(() => { document.title = `${page.crumbs[page.crumbs.length - 1].title} · Skypace`; }, [route.path]);
+  // menu open/closed is remembered separately for shipment pages (rail by default) and the rest (full menu)
+  const [navPref, setNavPref] = useState(() => store.get('skypace.nav', {}));
+  const navKind = page.collapsed ? 'shipment' : 'global';
+  const railMode = navPref[navKind] ?? !!page.collapsed;
+  const toggleNav = () => { const next = { ...navPref, [navKind]: !railMode }; setNavPref(next); store.set('skypace.nav', next); };
   return (
     <ConfigProvider theme={theme} select={{ suffixIcon: <ChevronIcon dir="down" /> }}>
       {page.bare ? <div className="page" key={route.path.startsWith('/auth/') ? '/auth' : route.path}>{page.el}</div> : (
-        <div className={'app' + (page.collapsed ? ' collapsed' : ' full')}>
-          {page.collapsed ? <Rail navKey={page.navKey} /> : <Sidebar navKey={page.navKey} />}
+        <div className={'app' + (railMode ? ' collapsed' : ' full')}>
+          {railMode ? <Rail navKey={page.navKey} onToggle={toggleNav} /> : <Sidebar navKey={page.navKey} onToggle={toggleNav} />}
           <div className="main">
             <TopBar crumbs={page.crumbs} navKey={page.navKey} shipmentMenu={page.collapsed} />
             <main className="page" key={route.path}>{page.el}</main>
