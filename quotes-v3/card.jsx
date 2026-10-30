@@ -48,7 +48,7 @@ function ScheduleRow({ o, q, k, open, onToggle, earliest }) {
         </div>
         <div className="sch-act">
           {next && <Tooltip title={`${next[0]} cut-off · ${ddt(next[1])}`}><span className="cut-chip"><I.ClockCircleOutlined />{next[0]} {inDays(next[1])}</span></Tooltip>}
-          <span className="sch-chev">{open ? <I.UpOutlined /> : <I.DownOutlined />}</span>
+          <span className="sch-chev">{open ? <ChevronIcon dir="up" /> : <ChevronIcon dir="down" />}</span>
         </div>
       </div>
       {open && <>
@@ -139,7 +139,7 @@ function BreakdownTab({ o, q, incl }) {
         rowClassName={(r) => (r.level === 0 ? 'bd-sec' + (r.off ? ' off' : '') : r.level === 1 && r.children ? 'bd-grp' : '')}
         expandable={{ expandedRowKeys: open, onExpandedRowsChange: (keys) => setOpen(keys), expandRowByClick: true, indentSize: 20,
           expandIcon: ({ expanded, onExpand, record, expandable }) => (expandable
-            ? <span className="bd-arrow" onClick={(e) => { e.stopPropagation(); onExpand(record, e); }}>{expanded ? <I.DownOutlined /> : <I.RightOutlined />}</span>
+            ? <span className="bd-arrow" onClick={(e) => { e.stopPropagation(); onExpand(record, e); }}>{expanded ? <ChevronIcon dir="down" /> : <ChevronIcon dir="right" />}</span>
             : <span className="bd-arrow empty" />) }}
         columns={[
           { title: 'Charge', dataIndex: 'charge', render: (v, r) => (r.level === 0 ? <b>{v}</b> : <span>{v}{r.hint && <span className="muted"> · {r.hint}</span>}</span>) },
@@ -166,7 +166,7 @@ function TreeNode({ label, extra, amount, unit, children, defaultOpen, level = 0
   return (
     <>
       <div className={'tn' + (open ? ' open' : '') + (leaf ? ' leaf' : '')} style={{ paddingLeft: level * 24 }}>
-        {leaf ? <span className="tl">└</span> : <span className="caret" onClick={() => setOpen(!open)}>{open ? <I.DownOutlined /> : <I.RightOutlined />}</span>}
+        {leaf ? <span className="tl">└</span> : <span className="caret" onClick={() => setOpen(!open)}>{open ? <ChevronIcon dir="down" /> : <ChevronIcon dir="right" />}</span>}
         <span className="lbl" style={{ cursor: leaf ? 'default' : 'pointer', fontWeight: level === 0 ? 600 : 400 }} onClick={() => !leaf && setOpen(!open)}>{label}</span>
         {extra}
         {unit && <span className="unit">{unit}</span>}
@@ -212,7 +212,7 @@ function AccessorialsTab({ q }) {
         rowClassName={(r) => (r.level === 0 ? 'bd-sec' : r.level != null ? 'bd-grp' : '')}
         expandable={{ expandedRowKeys: keys, onExpandedRowsChange: (k) => !find && setOpen(k), expandRowByClick: true, indentSize: 20,
           expandIcon: ({ expanded, onExpand, record, expandable }) => (expandable
-            ? <span className="bd-arrow" onClick={(e) => { e.stopPropagation(); onExpand(record, e); }}>{expanded ? <I.DownOutlined /> : <I.RightOutlined />}</span>
+            ? <span className="bd-arrow" onClick={(e) => { e.stopPropagation(); onExpand(record, e); }}>{expanded ? <ChevronIcon dir="down" /> : <ChevronIcon dir="right" />}</span>
             : <span className="bd-arrow empty" />) }}
         columns={[
           { title: 'Charge', dataIndex: 'name', render: (v, r) => (r.level != null
@@ -288,7 +288,7 @@ function ExcludedTab() {
         rowClassName={(r) => (r.level === 0 ? 'bd-sec' : '')}
         expandable={{ expandedRowKeys: find ? data.map((r) => r.key) : open, onExpandedRowsChange: (k) => !find && setOpen(k), expandRowByClick: true, indentSize: 20,
           expandIcon: ({ expanded, onExpand, record, expandable }) => (expandable
-            ? <span className="bd-arrow" onClick={(e) => { e.stopPropagation(); onExpand(record, e); }}>{expanded ? <I.DownOutlined /> : <I.RightOutlined />}</span>
+            ? <span className="bd-arrow" onClick={(e) => { e.stopPropagation(); onExpand(record, e); }}>{expanded ? <ChevronIcon dir="down" /> : <ChevronIcon dir="right" />}</span>
             : <span className="bd-arrow empty" />) }}
         columns={[
           { dataIndex: 'name', render: (v, r) => (r.level === 0 ? <b>{v}</b> : v) },
@@ -372,7 +372,7 @@ function QuoteCard({ o, q, incl, onSelect, roll, initialTab }) {
           ]} />
         </div>
       )}
-      {!roll && <button className="details-bar" onClick={toggle}>Details {tab ? <I.UpOutlined style={{ fontSize: 12 }} /> : <I.DownOutlined style={{ fontSize: 12 }} />}</button>}
+      {!roll && <button className="details-bar" onClick={toggle}>Details {tab ? <ChevronIcon dir="up" style={{ fontSize: 12 }} /> : <ChevronIcon dir="down" style={{ fontSize: 12 }} />}</button>}
     </div>
   );
 }

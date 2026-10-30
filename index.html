@@ -1909,6 +1909,99 @@
     .ip-step-body { padding-left: 8px; }
   }
   @media (max-width: 600px) { .ip-tiles { grid-template-columns: minmax(0, 1fr); } }
+
+  /* Action Center: source hierarchy, Skypace tokens and controls. */
+  .ac-page { gap: 8px; }
+  .ac-page-title { font-size: 20px; line-height: 28px; margin: 0 0 0 4px; font-weight: 600; }
+  .ac-scope-switch { align-self: flex-start; }
+  .ac-scope-switch .ant-segmented { padding: 4px; background: #fff; }
+  .ac-scope-switch .ant-segmented-item-label { min-height: 36px; line-height: 36px; padding-inline: 16px; }
+  .ac-tabs { padding: 0; }
+  .ac-tabs .ant-tabs-nav { margin-bottom: 0; }
+  .ac-tabs .ant-tabs-nav::before { display: none; }
+  .ac-tabs .ant-tabs-content-holder { display: none; }
+  .ac-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .ac-stat { text-align: left; background: #fff; border: 1px solid transparent; border-radius: 8px; padding: 16px; cursor: pointer; color: var(--text); font: inherit; transition: background .15s, border-color .15s; }
+  .ac-stat:hover { background: var(--primary-bg); }
+  .ac-stat.active { border-color: var(--primary); background: var(--primary-bg); }
+  .ac-stat-label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 8px; }
+  .ac-stat-value { display: flex; align-items: center; gap: 10px; font-size: 24px; line-height: 28px; font-weight: 500; }
+  .ac-stat-value .anticon { font-size: 20px; color: var(--muted); }
+  .ac-stat-value .ac-red .anticon { color: #e56872; }
+  .ac-filters { display: flex; gap: 8px; padding: 12px; flex-wrap: wrap; background: #fff; border-radius: 8px; }
+  .ac-filters .ant-select { min-width: 150px; }
+  .ac-section { padding: 16px; }
+  .ac-section-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .ac-heading { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 0; font: inherit; font-weight: 600; color: var(--text); cursor: pointer; }
+  .ac-count { display: inline-block; font-size: 12px; line-height: 20px; padding: 0 8px; border-radius: 12px; background: var(--bg); color: var(--muted); font-weight: 400; }
+  .ac-count-danger { background: #fff1f0; color: #cf5866; }
+  .ac-scroll { overflow-x: auto; margin-top: 20px; }
+  .ac-table-content { min-width: 820px; }
+  .ac-grid { display: grid; grid-template-columns: minmax(240px, 2.5fr) minmax(150px, 1fr) minmax(130px, 1fr) minmax(150px, 1.15fr) 100px 70px; align-items: center; gap: 12px; }
+  .ac-columns { padding: 8px 16px; font-size: 12px; color: var(--muted); }
+  .ac-columns > :nth-last-child(-n+2) { text-align: center; }
+  .ac-subgroup { border: 1px solid var(--split); border-radius: 8px; padding: 0 16px; margin-bottom: 8px; }
+  .ac-subgroup:last-child { margin-bottom: 0; }
+  .ac-subhead { display: flex; gap: 10px; align-items: center; font-weight: 600; padding: 14px 0; }
+  .ac-task-row { min-height: 56px; border-top: 1px solid var(--split); padding: 8px 0; }
+  .ac-task-row:hover { background: #fafaff; }
+  .ac-task-row > :first-child { padding-left: 8px; }
+  .ac-due { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; border-radius: 4px; padding: 2px 7px; background: var(--bg); white-space: nowrap; }
+  .ac-due-overdue { color: #cf5866; background: #fff1f0; }
+  .ac-task-row a { color: var(--link); text-decoration: none; }
+  .ac-task-row a:hover { text-decoration: underline; }
+  .ac-assignee, .ac-action { text-align: center; }
+  .ac-action .ant-btn-primary { background: #323656; box-shadow: none; }
+  .ac-expand { padding: 12px 0; border-top: 1px solid var(--split); }
+  @media(max-width: 800px) { .ac-stats { grid-template-columns: repeat(2, 1fr); } }
+
+  .ported-page { gap: 16px; }
+  .ported-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:40px; padding:0 4px 4px; }
+  .ported-heading-title { display:flex;align-items:center;gap:8px; }
+  .ported-heading h1 { margin:0; font-size:20px; line-height:28px; font-weight:600; }
+  .ported-heading .ant-btn-primary { background:#323656; box-shadow:none; }
+  .ported-three { grid-template-columns:repeat(3,1fr); }
+  .ported-filters { display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:0 4px;min-height:36px; }
+  .ported-filters .ant-select { min-width:125px; }
+  .ported-switch { display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px;white-space:nowrap;margin-right:12px; }
+  .ported-table { overflow:hidden;padding:8px 16px; }
+  .ported-table .ant-table-thead > tr > th { font-size:12px;font-weight:400;color:var(--muted);background:#fff; }
+  .ported-table .ant-table-thead > tr > th::before { display:none; }
+  .ported-table .ant-table-tbody > tr > td { padding-block:16px; }
+  .ported-table a, .ported-page a { color:var(--link);text-decoration:none;cursor:pointer; }
+  .ported-table a:hover { text-decoration:underline; }
+  .ported-notification { display:flex;align-items:center;gap:14px; }
+  .ported-dot { width:7px;height:7px;border:0;border-radius:50%;background:var(--primary);flex:none;padding:0;cursor:pointer;box-shadow:0 0 0 6px transparent; }
+  .ported-dot.important { background:#d5a342; }
+  .ported-dot.read { background:#d1d7e2; }
+  .ported-empty { padding:64px 24px; }
+  .ported-empty p { margin-top:8px;color:var(--muted); }
+  .ported-list-scroll { overflow-x:auto; }
+  .ported-quote-list { min-width:920px; }
+  .ported-quote-grid { display:grid;grid-template-columns:24px minmax(125px,1fr) minmax(125px,1fr) minmax(110px,.85fr) minmax(140px,1fr) minmax(160px,1.1fr) 44px;gap:12px;align-items:center; }
+  .ported-list-labels { padding:0 20px 8px;font-size:12px;color:var(--muted); }
+  .ported-quote-row { padding:18px 20px;margin-bottom:8px;border-radius:8px;background:#fff;border:1px solid transparent;cursor:pointer;min-height:80px; }
+  .ported-quote-row:hover,.ported-request-row:hover { border-color:#c7cbef; }
+  .ported-bookmark { border:0;background:none;color:var(--muted);cursor:pointer;padding:4px;display:flex;align-items:center; }
+  .ported-bookmark.on { color:var(--primary); }
+  .ported-route-cell { display:flex;gap:10px;align-items:center;min-width:0; }
+  .ported-route-cell > .sq-ico { width:32px;height:32px;background:var(--gray-1);border-radius:6px;flex:none;display:flex;align-items:center;justify-content:center;color:var(--text-2); }
+  .ported-quote-row > .ac-count { justify-self:center; }
+  .ported-note { margin-top:24px;padding:16px;background:var(--bg);border-radius:8px; }
+  .ported-note p { margin-top:8px; }
+  .ported-rate-groups { width:100%;max-width:1100px;margin:8px auto;display:flex;flex-direction:column;gap:24px; }
+  .ported-rate-groups h2 { font-size:16px;font-weight:500;margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid var(--split); }
+  .ported-rate-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:12px; }
+  .ported-rate-card { border-radius:8px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;height:160px;color:var(--text)!important;border:1px solid transparent; }
+  .ported-rate-card:hover { border-color:#c7cbef;background:#fafaff; }
+  .ported-request-list { min-width:1200px; }
+  .ported-request-grid { display:grid;grid-template-columns:72px minmax(145px,1fr) minmax(145px,1fr) 150px 110px 150px 190px 100px;gap:16px;align-items:center; }
+  .ported-request-row { padding:18px 20px;background:#fff;border-radius:8px;border:1px solid transparent;margin-bottom:8px;min-height:80px;cursor:pointer; }
+  .ported-search-empty { min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px dashed var(--split);padding:16px;gap:8px; }
+  .ported-wide-table .ant-table-thead > tr > th { background:var(--gray-1);color:var(--text);font-size:14px;font-weight:500; }
+  @media(max-width:800px) { .ported-heading { align-items:flex-start; }.ported-rate-grid { grid-template-columns:repeat(2,1fr); }.ported-three { grid-template-columns:1fr; }.ported-filters .ant-select { flex:1 1 135px; } }
+  @media(max-width:480px) { .ported-rate-grid { grid-template-columns:1fr; } }
+
 </style>
 </head>
 <body>
@@ -1919,7 +2012,7 @@ const { useState, useEffect, useMemo, useRef } = React;
 const {
   ConfigProvider, Button, Tag, Menu, Breadcrumb, Avatar, Progress, Drawer, Form, Input, Select, DatePicker,
   InputNumber, Radio, Dropdown, Tabs, Divider, FloatButton, List, Tooltip, Table, Alert,
-  Popconfirm, Empty, Grid, message, Segmented, Upload, Modal, Checkbox, Space, Typography, Popover, AutoComplete, Skeleton, Slider, Collapse, Result, Flex, Steps, Descriptions, Badge, Card, Timeline,
+  Popconfirm, Empty, Grid, message, Segmented, Upload, Modal, Checkbox, Space, Typography, Popover, AutoComplete, Skeleton, Slider, Collapse, Result, Flex, Steps, Descriptions, Badge, Card, Timeline, Switch,
 } = antd;
 const I = icons;
 
@@ -1963,7 +2056,7 @@ const ChevronSvg = (p) => <svg viewBox="0 0 16 16" width="1em" height="1em" fill
 const CHEVRON_ROTATE = { right: 0, down: 90, left: 180, up: -90 };
 const ChevronIcon = ({ dir = 'right', style, ...rest }) => {
   const { token } = antd.theme.useToken();
-  return <icons.default component={ChevronSvg} rotate={CHEVRON_ROTATE[dir]} style={{ fontSize: token.fontSizeLG, color: token.colorIcon, ...style }} {...rest} />;
+  return <icons.default component={ChevronSvg} rotate={CHEVRON_ROTATE[dir]} style={{ fontSize: token.fontSizeLG, color: 'currentColor', ...style }} {...rest} />;
 };
 const ExpandArrow = ({ open }) => <ChevronIcon dir={open ? 'up' : 'down'} />;
 const Chevron = ({ open }) => <Button type="text" icon={<ExpandArrow open={open} />} aria-label={open ? 'Collapse' : 'Expand'} />;
@@ -3243,29 +3336,31 @@ const NAV = [
   { key: '/dispatches', icon: <Ic n="container" size={14} />, label: 'Dispatches' },
   { key: '/shipments', icon: <Ic n="nav-ship" size={14} />, label: 'Shipments' },
   { key: 'finances', icon: <I.BankOutlined />, label: 'Finances', children: [
-    { type: 'group', label: 'Receivables', children: [
+    { key: 'fin-receivables', label: 'Receivables', children: [
       { key: '/finances/receivables/billing', label: 'Billing' }, { key: '/finances/receivables/transactions', label: 'Transactions' },
     ] },
-    { type: 'group', label: 'Payables', children: [
+    { key: 'fin-payables', label: 'Payables', children: [
       { key: '/finances/payables/billing', label: 'Billing' }, { key: '/finances/payables/transactions', label: 'Transactions' },
     ] },
   ] },
   { key: '/contacts', icon: <I.ContactsOutlined />, label: 'Contacts' },
   { key: 'rates', icon: <I.StockOutlined />, label: 'Rates', children: [
     { key: '/rates', label: 'All rates' },
+    { key: '/rates-requests', label: 'Rates requests' },
     ...RATE_GROUPS.map(([g, items]) => ({ type: 'group', label: g, children: items.map(([slug, t]) => ({ key: `/rates/${slug}`, label: t })) })),
   ] },
   { key: '/analytics', icon: <I.FundOutlined />, label: 'Analytics' },
 ];
-const NAV_PARENT = { '/action-center/tasks': 'action', '/action-center/notifications': 'action' };
+const NAV_PARENT = { '/action-center/tasks': 'action', '/action-center/notifications': 'action', '/rates': 'rates', '/rates-requests': 'rates', '/rates/contracts': 'rates' };
 ['receivables', 'payables'].forEach((p) => ['billing', 'transactions'].forEach((t) => { NAV_PARENT[`/finances/${p}/${t}`] = 'finances'; }));
 NAV_PARENT['/rates'] = 'rates'; RATE_GROUPS.forEach(([, items]) => items.forEach(([slug]) => { NAV_PARENT[`/rates/${slug}`] = 'rates'; }));
 
 function GlobalMenu({ navKey, onNavigate }) {
   const { token } = antd.theme.useToken();
-  const [openKeys, setOpenKeys] = useState(NAV_PARENT[navKey] ? [NAV_PARENT[navKey]] : []);
+  const navOpenKeys = () => NAV_PARENT[navKey] === 'finances' ? ['finances', navKey.includes('/payables/') ? 'fin-payables' : 'fin-receivables'] : NAV_PARENT[navKey] ? [NAV_PARENT[navKey]] : [];
+  const [openKeys, setOpenKeys] = useState(navOpenKeys);
   // Accordion: when the page changes, open only the section that contains it
-  useEffect(() => { setOpenKeys(NAV_PARENT[navKey] ? [NAV_PARENT[navKey]] : []); }, [navKey]);
+  useEffect(() => { setOpenKeys(navOpenKeys()); }, [navKey]);
   return (
     <>
       {/* main action of the app, an outlined primary button above the menu (Figma Menu - Light, Collapsed=False) */}
@@ -3389,66 +3484,56 @@ const isToday = (t) => !isOverdue(t) && t.due.isSame(NOW, 'day');
 const isSoon = (t) => !isOverdue(t) && t.due.diff(NOW, 'hour') <= 72;
 const TASK_COUNTS = { soon: TASKS.filter(isSoon).length, today: TASKS.filter(isToday).length, overdue: TASKS.filter(isOverdue).length };
 
+const AC_TASKS = [
+  ...range(390, (i) => ({ key: 'regular-' + i, name: 'Import Container Dispatch', date: ['9 Oct, 07:00', '2 Oct, 07:00', '1 Oct, 23:00'][i % 3], object: ['SP-004827', 'SP-004865', 'SP-004778'][i % 3], exception: false, later: false })),
+  ...range(116, (i) => ({ key: 'exception-' + i, name: ['Link Containers', 'Link Containers', 'Tracker has missing dates'][i % 3], date: ['24 Oct, 14:40', '24 Oct, 14:20', '25 Sep, 01:00'][i % 3], object: ['SP-005535', 'SP-005534', 'SP-004784'][i % 3], exception: true, later: false })),
+  ...range(2, (i) => ({ key: 'later-' + i, name: ['Import Container Dispatch', 'Submit Shipping Instructions'][i], date: ['5 Nov, 07:00', '7 Nov, 14:00'][i], object: ['SP-005550', 'SP-005549'][i], exception: false, later: true })),
+].map((t, i) => ({ ...t, module: 'Plan & Track', assignee: 'Olga Petrova', status: 'Open', mine: true }));
 function TasksPage() {
   const [scope, setScope] = useState('mine');
-  const [kind, setKind] = useState('regular');
   const [quick, setQuick] = useState(null);
   const [f, setF] = useState({});
-  const [selected, setSelected] = useState([]);
-  const base = TASKS.filter((t) => (scope === 'mine' ? t.mine : true));
-  const rows = base.filter((t) => (kind === 'exceptions') === t.exception)
-    .filter((t) => !f.assignee || t.assignees.includes(f.assignee))
-    .filter((t) => !f.module || t.module === f.module)
-    .filter((t) => !f.status || t.status === f.status)
-    .filter((t) => !quick || quick === 'all' || (quick === 'soon' ? isSoon(t) : quick === 'today' ? isToday(t) : isOverdue(t)));
-  const cols = [
-    { title: 'Name', dataIndex: 'name', sorter: byKey('name'), ellipsis: true },
-    { title: 'Due Date', dataIndex: 'due', width: 160, sorter: (a, b) => a.due - b.due, render: (d, t) => (
-      <span className="due">{isOverdue(t) ? <I.ExclamationCircleFilled style={{ color: '#ff4d4f' }} /> : <I.ClockCircleOutlined style={{ color: isSoon(t) ? '#fa8c16' : '#6a6f88' }} />}{d.format('D MMM, HH:mm')}</span>
-    ) },
-    { title: 'Object', dataIndex: 'object', width: 160, render: (v) => <PageLink to={SHIPMENT_PATH}>{v}</PageLink> },
-    { title: 'Module', dataIndex: 'module', width: 160, filters: MODULES.map((m) => ({ text: m, value: m })), onFilter: (v, r) => r.module === v },
-    { title: 'Assignee', dataIndex: 'assignees', width: 130, render: (a) => <People names={a} /> },
-    { key: 'go', width: 60, render: () => <ArrowBtn onClick={() => go(SHIPMENT_PATH)} /> },
-  ];
-  const group = (title, data) => (
-    <section className="card-flat table-card" key={title}>
-      <div className="group-title">{title} <span className="muted">· {data.length}</span></div>
-      <DataTable columns={cols} dataSource={data} pagination={data.length > 10 ? PAGINATION : false}
-        rowSelection={{ selectedRowKeys: selected, onChange: setSelected }} locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No tasks" /> }} />
-    </section>
-  );
-  const sel = (key, ph, options) => (
-    <Select allowClear placeholder={ph} value={f[key]} onChange={(v) => setF({ ...f, [key]: v })} options={options.map((o) => ({ value: o, label: o }))} className="filter-select" />
-  );
-  return (
-    <div className="page-stack">
-      <div className="card-flat tabs-card">
-        <Tabs activeKey={scope} onChange={(k) => { setScope(k); setSelected([]); }} items={[
-          { key: 'mine', label: <span><I.UserOutlined /> My tasks</span> },
-          { key: 'org', label: <span><I.TeamOutlined /> My organization tasks</span> },
-        ]} />
-      </div>
-      <StatTiles active={quick} onPick={setQuick} items={[
-        { key: 'soon', value: base.filter(isSoon).length, label: 'Due soon', icon: <I.ExclamationCircleOutlined /> },
-        { key: 'today', value: base.filter(isToday).length, label: 'Today', icon: <I.ClockCircleOutlined /> },
-        { key: 'overdue', value: base.filter(isOverdue).length, label: 'Overdue', icon: <I.HistoryOutlined /> },
-        { key: 'all', value: base.length, label: 'All tasks', icon: <I.CheckCircleOutlined /> },
-      ]} />
-      <div className="card-flat filters-row">
-        {sel('assignee', 'Assignee', PEOPLE)}{sel('module', 'Module', MODULES)}{sel('status', 'Status', TASK_STATUS)}
-        <Segmented className="dark-seg" value={kind} onChange={setKind} options={[{ value: 'regular', label: 'Regular' }, { value: 'exceptions', label: 'Exceptions' }]} />
-      </div>
-      {selected.length > 0 && (
-        <div className="bulk-bar card-flat">
-          <span><b>{selected.length}</b> selected</span>
-          <Button size="small" onClick={() => setSelected([])}>Clear</Button>
-        </div>
-      )}
-      {group('Overdue', rows.filter(isOverdue))}
-      {group('Later', rows.filter((t) => !isOverdue(t)))}
-    </div>
-  );
+  const [open, setOpen] = useState({ Overdue: true, Later: false });
+  const [expanded, setExpanded] = useState({});
+  const base = AC_TASKS.filter(t => scope !== 'mine' || t.mine);
+  const rows = base.filter(t => (!f.assignee || t.assignee === f.assignee) && (!f.module || t.module === f.module) && (!f.status || t.status === f.status))
+    .filter(t => !quick || quick === 'all' || (quick === 'overdue' && !t.later));
+  const toggleGroup = (title) => setOpen(v => ({ ...v, [title]: !v[title] }));
+  const renderGroup = (title, later) => {
+    const data = rows.filter(t => t.later === later);
+    return <section className="ac-section card-flat" key={title}>
+      <div className="ac-section-head"><button className="ac-heading" onClick={() => toggleGroup(title)} aria-expanded={open[title]}>{title}<span className={'ac-count ' + (!later ? 'ac-count-danger' : '')}>{data.length}</span></button><Button aria-label={(open[title] ? 'Collapse ' : 'Expand ') + title} icon={open[title] ? <ChevronIcon dir="up" /> : <ChevronIcon dir="down" />} onClick={() => toggleGroup(title)} /></div>
+      {open[title] && <div className="ac-scroll"><div className="ac-table-content">
+        <div className="ac-grid ac-columns"><span></span><span>Due Date</span><span>Object</span><span>Module</span><span>Assignee</span><span>Action</span></div>
+        {[false, true].map(exception => {
+          const items = data.filter(t => t.exception === exception);
+          if (!items.length) return null;
+          const key = title + exception;
+          return <div className="ac-subgroup" key={key}><div className="ac-subhead">{exception ? 'Exceptions' : 'Regular'}<span className="ac-count">{items.length}</span></div>
+            {(expanded[key] ? items : items.slice(0, 3)).map(t => <div className="ac-grid ac-task-row" key={t.key}>
+              <span>{t.name}</span><span><span className={'ac-due ' + (!later ? 'ac-due-overdue' : '')}>{!later ? <I.WarningFilled /> : <I.ClockCircleOutlined />}{t.date}</span></span>
+              <PageLink to={SHIPMENT_PATH}>{t.object}</PageLink><span>{t.module}</span><span className="ac-assignee"><Tooltip title={t.assignee}><Avatar size={24} style={{ background: 'var(--primary-bg)', color: 'var(--primary)' }}>O</Avatar></Tooltip></span>
+              <span className="ac-action"><Button shape="circle" size="small" type="primary" aria-label={'Open ' + t.object} icon={<ChevronIcon dir="right" />} onClick={() => go(SHIPMENT_PATH)} /></span>
+            </div>)}
+            {items.length > 3 && <div className="ac-expand"><Button icon={expanded[key] ? <ChevronIcon dir="up" /> : <ChevronIcon dir="down" />} onClick={() => setExpanded(v => ({ ...v, [key]: !v[key] }))}>{expanded[key] ? 'Show less' : `Expand All (${items.length - 3})`}</Button></div>}
+          </div>;
+        })}
+        {!data.length && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No tasks" />}
+      </div></div>}
+    </section>;
+  };
+  return <div className="page-stack ac-page">
+    <div className="ac-scope-switch"><Segmented aria-label="Task scope" value={scope} onChange={setScope} options={[
+      { value: 'mine', label: 'My tasks', icon: <I.UserOutlined /> },
+      { value: 'org', label: 'My organization tasks', icon: <I.TeamOutlined /> },
+    ]} /></div>
+    <div className="ac-stats">{[
+      ['soon', 'Due soon', 0, <I.WarningOutlined />], ['today', 'Today', 0, <I.FieldTimeOutlined />],
+      ['overdue', 'Overdue', base.filter(t => !t.later).length, <I.HistoryOutlined />], ['all', 'All tasks', base.length, <I.CheckCircleOutlined />],
+    ].map(([key, label, count, icon]) => <button key={key} className={'ac-stat ' + (quick === key ? 'active' : '')} aria-pressed={quick === key} onClick={() => { setQuick(quick === key ? null : key); if (key === 'overdue') setOpen(v => ({ ...v, Overdue: true })); }}><span className="ac-stat-label">{label}</span><span className="ac-stat-value"><span className={key === 'overdue' ? 'ac-red' : ''}>{icon}</span>{count}</span></button>)}</div>
+    <div className="ac-filters">{[['assignee', 'Assignee', ['Olga Petrova']], ['module', 'Module', ['Plan & Track']], ['status', 'Status', TASK_STATUS]].map(([key, label, options]) => <Select key={key} aria-label={label} allowClear placeholder={label} value={f[key]} onChange={v => setF({ ...f, [key]: v })} options={options.map(v => ({ value: v, label: v }))} />)}{Object.values(f).some(Boolean) && <Button type="text" onClick={() => setF({})}>Clear filters</Button>}</div>
+    {renderGroup('Overdue', false)}{renderGroup('Later', true)}
+  </div>;
 }
 
 /* ---------- 3. Notifications ---------- */
@@ -3968,6 +4053,173 @@ function RateTablePage({ slug }) {
   );
 }
 
+/* Local UI data for the pages ported from the QA reference. */
+function usePortedState(key, initial) {
+  const [value, setValue] = useState(() => { try { return JSON.parse(localStorage.getItem('skypace.ported.' + key)) ?? initial; } catch { return initial; } });
+  useEffect(() => { try { localStorage.setItem('skypace.ported.' + key, JSON.stringify(value)); } catch {} }, [key, value]);
+  return [value, setValue];
+}
+function PortedHeader({ title, back, children }) {
+  return <div className="ported-heading"><div className="ported-heading-title">{back && <Button type="text" aria-label="Back to all rates" icon={<ChevronIcon dir="left" />} onClick={() => go(back)} />}<h1>{title}</h1></div><Space wrap>{children}</Space></div>;
+}
+function PortedFilter({ label, value, onChange, options, ...rest }) {
+  return <Select aria-label={label} allowClear placeholder={label} value={value} onChange={onChange} options={options.map(o => typeof o === 'string' ? { value: o, label: o } : o)} popupMatchSelectWidth={false} {...rest} />;
+}
+const PORTED_PAGER = { pageSize: 15, showSizeChanger: false, className: 'page-pager' };
+const PORTED_NOTIFICATION_ROWS = [
+  ['Pickup time for Container (<22G0>) has been set', '30 Oct, 16:11', 'SP-005550', 'Plan & Track'],
+  ['Pickup time for Container (<22G0> | ref2) has been set', '30 Oct, 16:04', 'SP-005550', 'Plan & Track'],
+  ['Shipment has been confirmed', '30 Oct, 12:04', 'SP-005553', 'Booking'],
+  ['New Booking Request is submitted', '30 Oct, 12:03', 'SP-005553', 'Documentation'],
+  ['Full Container Drop-Off Location has been updated', '29 Oct, 13:23', 'SP-005550', 'Booking'],
+  ['Pickup time for Container (<42G0> | BNTY0000001) has been updated', '29 Oct, 13:04', 'SP-005510', 'Plan & Track'],
+  ['Shipment has been confirmed', '29 Oct, 10:17', 'SP-005550', 'Booking'],
+  ['New Booking Request is submitted', '29 Oct, 10:16', 'SP-005550', 'Documentation'],
+  ['Shipment schedule has been updated', '29 Oct, 08:00', 'SP-005296', 'Documentation'],
+  ['Shipment schedule has been updated', '28 Oct, 20:00', 'SP-005533', 'Documentation'],
+  ['Empty Container Pick-up Location has been updated', '28 Oct, 17:06', 'SP-005549', 'Booking'],
+  ['Full Container Drop-Off Location has been updated', '28 Oct, 16:56', 'SP-005531', 'Booking'],
+  ['Destination Empty Container Drop-Off Location has been updated', '28 Oct, 16:43', 'SP-005531', 'Booking'],
+].map(([name, received, object, module], i) => ({ key: 'ported-n' + i, name, received, object, module, important: [4,8,9,10,11,12].includes(i), unread: true }));
+function PortedNotificationsPage() {
+  const [items, setItems] = usePortedState('notifications', PORTED_NOTIFICATION_ROWS);
+  const [quick, setQuick] = useState(); const [onlyUnread, setOnlyUnread] = useState(false); const [f, setF] = useState({});
+  const rows = items.filter(n => (!onlyUnread || n.unread) && (!quick || (quick === 'unread' ? n.unread : quick === 'important' ? n.important : !n.important)) && (!f.priority || (f.priority === 'Important') === n.important) && (!f.module || f.module === n.module) && (!f.date || (f.date === 'today' ? n.received.startsWith('30 Oct') : true)));
+  const mark = (key, unread) => setItems(v => v.map(n => n.key === key ? {...n, unread} : n));
+  const cols = [
+    { title: <Space>Notification<Button size="small" icon={<I.CheckOutlined />} onClick={() => setItems(v => v.map(n => ({...n, unread:false})))}>Mark All as Read</Button></Space>, dataIndex:'name', render:(v,n) => <span className="ported-notification"><button className={'ported-dot ' + (n.important ? 'important' : '') + (!n.unread ? ' read' : '')} aria-label={(n.unread ? 'Mark as read: ' : 'Mark as unread: ') + n.name} onClick={() => mark(n.key, !n.unread)} /><span>{v}</span></span> },
+    { title:'Received Date', dataIndex:'received', width:175 },
+    { title:'Object', dataIndex:'object', width:160, render:v => <PageLink to={SHIPMENT_PATH}>{v}</PageLink> },
+    { title:'Module', dataIndex:'module', width:180 },
+  ];
+  return <div className="page-stack ported-page"><PortedHeader title="Notifications" />
+    <div className="ac-stats ported-three">{[['important','Important',<I.BellOutlined />],['regular','Regular',<I.BellOutlined />],['unread','All unread',<I.EyeInvisibleOutlined />]].map(([key,label,icon]) => <button key={key} className={'ac-stat ' + (quick === key ? 'active' : '')} aria-pressed={quick === key} onClick={() => setQuick(quick === key ? undefined : key)}><span className="ac-stat-label">{label}</span><span className="ac-stat-value">{icon}{items.filter(n => key === 'unread' ? n.unread : key === 'important' ? n.important : !n.important).length}</span></button>)}</div>
+    <div className="ported-filters"><label className="ported-switch"><Switch size="small" checked={onlyUnread} onChange={setOnlyUnread} aria-label="Show Only Unread" />Show Only Unread</label>
+      <PortedFilter label="Priority" value={f.priority} onChange={v => setF({...f,priority:v})} options={['Important','Regular']} />
+      <PortedFilter label="Received Date" value={f.date} onChange={v => setF({...f,date:v})} options={[{value:'today',label:'Today'},{value:'week',label:'Last 7 days'}]} />
+      <PortedFilter label="Module" value={f.module} onChange={v => setF({...f,module:v})} options={['Plan & Track','Booking','Documentation']} />
+    </div>
+    <section className="card-flat table-card ported-table"><DataTable columns={cols} dataSource={rows} pagination={false} minWidth={1000} expandable={{
+      rowExpandable:n => n.name !== 'Shipment has been confirmed', onExpand:(open,n) => open && mark(n.key,false),
+      expandIcon:({expanded,onExpand,record,expandable}) => expandable ? <Button type="text" size="small" aria-label={(expanded ? 'Collapse notification ' : 'Expand notification ') + record.key} icon={expanded ? <ChevronIcon dir="down" /> : <ChevronIcon dir="right" />} onClick={e => onExpand(record,e)} /> : null,
+      expandedRowRender:n => <div className="notif-body"><p>{n.name} for shipment <PageLink to={SHIPMENT_PATH}>{n.object}</PageLink>.</p><Space><Button size="small" onClick={() => go(SHIPMENT_PATH)}>Open shipment</Button><Button type="text" size="small" onClick={() => mark(n.key,true)}>Mark as unread</Button></Space></div>
+    }} /></section>
+  </div>;
+}
+const PORTED_QUOTES = [
+  ['Vancouver, CA','Mundra, IN','30 Oct',5], ['Chicago, US','Hamburg, DE','2 Nov',10], ['Shanghai, CN','Los Angeles, US','2 Nov',15], ['Shanghai, CN','Los Angeles, US','2 Nov',15], ['Chicago, IL, US','Gdynia, PL','29 Oct',16], ['Shanghai, CN','Los Angeles, US','2 Nov',20], ['New York, US','Shanghai, CN','28 Oct',12], ['New York, US','Shanghai, CN','28 Oct',12], ['New York, US','Shanghai, CN','28 Oct',12], ['Vancouver, CA','El Dekheila, EG','27 Oct',0],
+].map(([origin,dest,etd,offers],i) => ({key:'pq'+i,origin,dest,etd,equipment:i===1?'40′ ST × 1':i===4?'20′ ST × 2':'20′ ST × 1',cargo:'Freight All Kinds',by:'Kate Miller',created:i===0?'30 Oct 2026, 10:42':'29 Oct 2026, '+['23:58','17:02','17:01','10:13','01:20'][i%5],offers,saved:false}));
+function PortedQuoteRequestsPage() {
+  const [items,setItems] = usePortedState('quotes',PORTED_QUOTES); const [favorites,setFavorites] = useState(false); const [f,setF] = useState({});
+  const [detail,setDetail] = useState(null);
+  const rows = items.filter(r => (!favorites || r.saved) && (!f.origin || r.origin===f.origin) && (!f.dest || r.dest===f.dest) && (!f.originCountry || r.origin.endsWith(f.originCountry)) && (!f.destCountry || r.dest.endsWith(f.destCountry)) && (!f.by || r.by===f.by) && (!f.date || r.created.startsWith(f.date)));
+  const opts = k => [...new Set(items.map(r=>r[k]))];
+  const filters = [['origin','Origin City',opts('origin')],['originCountry','Origin Country',['CA','US','CN']],['dest','Destination City',opts('dest')],['destCountry','Destination Country',['IN','DE','US','PL','CN','EG']],['date','Created Date',['30 Oct','29 Oct']],['by','Created By',opts('by')]];
+  const place = (name,sub) => <div className="ported-route-cell"><span className="sq-ico"><Ic n="port" size={16}/></span><div>{name}<div className="lbl">{sub}</div></div></div>;
+  return <div className="page-stack ported-page"><PortedHeader title="Quote requests"><Button type="primary" icon={<I.PlusOutlined/>} onClick={()=>go('/quote-shipments')}>New request</Button></PortedHeader>
+    <div className="ported-filters"><label className="ported-switch"><Switch size="small" checked={favorites} onChange={setFavorites} aria-label="Show only favorites"/>Show only favorites</label>{filters.map(([key,label,options])=><PortedFilter key={key} label={label} options={options} value={f[key]} onChange={v=>setF({...f,[key]:v})}/>)}</div>
+    <div className="ported-list-scroll"><div className="ported-quote-list"><div className="ported-quote-grid ported-list-labels"><span/><span>Origin</span><span>Destination</span><span>Containers</span><span>Commodity</span><span>Created by</span><span>Quotes</span></div>
+    {rows.map(r=><article key={r.key} className="ported-quote-grid ported-quote-row" role="link" tabIndex={0} aria-label={'View quote request '+r.origin+' to '+r.dest} onClick={()=>setDetail(r)} onKeyDown={e=>e.key==='Enter'&&setDetail(r)}>
+      <button className={'ported-bookmark '+(r.saved?'on':'')} aria-label={'Bookmark '+r.key} aria-pressed={r.saved} onClick={e=>{e.stopPropagation();setItems(items.map(x=>x.key===r.key?{...x,saved:!x.saved}:x));}}><BookmarkIcon filled={r.saved}/></button>
+      {place(r.origin,'ETD '+r.etd)}{place(r.dest,'ETA N/A')}<div className="ported-route-cell"><span className="sq-ico"><Ic n="container" size={16}/></span>{r.equipment}</div><div className="ported-route-cell"><span className="sq-ico"><I.CodeSandboxOutlined/></span>{r.cargo}</div><div className="ported-route-cell"><span className="sq-ico"><I.UserAddOutlined/></span><div>{r.by}<div className="lbl">{r.created}</div></div></div><span className="ac-count">{r.offers}</span>
+    </article>)}{!rows.length&&<section className="card-flat"><Empty description="No quote requests match your filters"/></section>}</div></div>
+    {detail&&<Drw title="Quote request" width={600} onClose={()=>setDetail(null)} footer={<Button onClick={()=>setDetail(null)}>Close</Button>}><Descriptions column={1} bordered items={[['Origin',detail.origin],['Destination',detail.dest],['Containers',detail.equipment],['Commodity',detail.cargo],['Created by',detail.by],['Quotes',detail.offers]].map(([label,children])=>({key:label,label,children}))}/><Button type="primary" style={{marginTop:16}} onClick={()=>go('/quote-shipments')}>View available quotes</Button></Drw>}
+  </div>;
+}
+function PortedGuestBookingsPage() {
+  const [items,setItems] = usePortedState('guest-bookings',GUESTS.map((r,i)=>({...r,status:i===13?'Completed':i===14?'In progress':'Pending'})));
+  const [detail,setDetail] = useState(null);
+  const cols = [
+    {key:'pdf',width:44,render:(_,r)=><Button type="text" size="small" aria-label={'View booking document '+r.id} icon={<I.FilePdfOutlined/>} onClick={()=>setDetail(r)}/>},
+    {title:'ID',dataIndex:'id',width:85,render:(v,r)=><a onClick={()=>setDetail(r)}>{v}</a>},
+    {title:'Customer name',dataIndex:'name',width:150},{title:'Organization',dataIndex:'org',width:160},{title:'Country',dataIndex:'country',width:85},
+    {title:'Email',dataIndex:'email',width:195},{title:'Phone',dataIndex:'phone',width:160},
+    {title:'Additional information',width:175,render:(_,r)=><Button type="text" size="small" icon={<I.InfoCircleOutlined/>} onClick={()=>setDetail(r)}>View more</Button>},
+    {title:'Created',dataIndex:'created',width:130,render:d=>dayjs(d).format('D MMM YYYY')},
+    {title:'Status',dataIndex:'status',width:160,render:(v,r)=><Select aria-label={'Status '+r.id} value={v} disabled={v==='Completed'} style={{width:140}} options={['Pending','In progress','Completed'].map(v=>({value:v,label:v}))} onChange={status=>setItems(items.map(x=>x.key===r.key?{...x,status}:x))}/>},
+  ];
+  return <div className="page-stack ported-page"><PortedHeader title="Guest bookings"/><section className="card-flat table-card ported-table"><DataTable columns={cols} dataSource={items} pagination={false} minWidth={1400}/></section>
+    {detail&&<Drw title={'Guest booking '+detail.id} width={560} onClose={()=>setDetail(null)} footer={<Button onClick={()=>setDetail(null)}>Close</Button>}><Descriptions column={1} bordered items={['name','org','country','email','phone','status'].map(k=>({key:k,label:{name:'Customer name',org:'Organization',country:'Country',email:'Email',phone:'Phone',status:'Status'}[k],children:detail[k]}))}/><div className="ported-note"><b>Additional information</b><p>Ocean freight booking request. Please contact the customer to confirm shipment details.</p></div></Drw>}
+  </div>;
+}
+const PORTED_INVOICES = {
+  receivables: [[1333,'Demooo Customer','SP-005323',999],[1332,'Demooo Customer','SP-005323',3324],[1330,'Demooo Customer','SP-005321',5676.5],[1321,'Winter26-BCO company','SP-004924',4793.92],[1320,'Winter26-BCO company','SP-004993',2707],[1319,'Winter26-BCO company','SP-004991',394],[1318,'Winter26-BCO company','SP-004988',227,'Void'],[1317,'Northwind Polymers','SP-004987',397],[1316,'Northwind Polymers','SP-004986',712],[1315,'Winter26-BCO company','SP-004978',127],[1314,'Winter26-BCO company','SP-004977',127],[1313,'Winter26-BCO company','SP-004968',489],[1311,'Winter26-BCO company','SP-004962',399],[1310,'Winter26-BCO company','SP-004961',756],[1309,'Winter26-BCO company','SP-004957',15]],
+  payables: [[1335,'Door Carrier','SP-005063',828],[1334,'Dray1','SP-005063',828],[1331,'Maxton Shipping Sp.z.o.o.','SP-005323',3124],[1329,'Maxton Shipping Sp.z.o.o.','SP-005321',5576.5],[1327,'Dray1','SP-005063',828,'Void'],[1326,'Door Carrier','SP-005063',828,'Void'],[1325,'dray2','SP-005063',828],[1323,'Dray1','SP-005063',828,'Void'],[1322,'Door Carrier','SP-005060',828],[1312,'YML','SP-004944',60],[1264,'OOCL','SP-004865',1293],[1263,'Maxton Shipping Sp.z.o.o.','SP-004865',25],[1262,'Maxton Shipping Sp.z.o.o.','SP-004865',280],[1255,'OOCL','SP-004820',2424],[1251,'Hapag Lloyd','SP-004809',8]],
+};
+function PortedFinancePage({payable,transactions}) {
+  const [detail,setDetail]=useState(null);
+  const side=payable?'payables':'receivables';
+  const rows=transactions?(payable?[]:[['PY-999-31','Customer US New',2484,0],['PY-479-30','Northwind Polymers',8000,0],['PY-918-29','Winter26-BCO company',399,0],['PY-485-28','Demooo Customer',1150,0],['PY-454-7','Skypace Inc',5700,4900]].map(([id,party,total,balance],i)=>({key:id,id,party,total,balance,status:balance?'Partially Applied':'Applied',posted:i===4?'20 Mar 2025':(i<2?'6':'5')+' Aug 2026'}))):PORTED_INVOICES[side].map(([id,party,shipment,total,status='Unpaid'],i)=>({key:String(id),id:'INV-'+id,party,shipment,total,balance:status==='Void'?0:total,status,created:payable&&i<2?'21 Sep 2026':i<3?'18 Sep 2026':'24 Aug 2026',due:payable&&i<2?'22 Sep 2026':i<3?'19 Sep 2026':'27 Aug 2026'}));
+  const link=(v,r)=><a onClick={()=>setDetail(r)}>{v}</a>;
+  const status=s=><DotStatus color={s==='Void'?'#a1a5b3':s==='Unpaid'?'#5f68c0':s==='Applied'?'#52a880':'#d5a342'}>{s}</DotStatus>;
+  const cols=transactions?[
+    {title:"Payment's ID",dataIndex:'id',width:180,render:link},{title:'Posted Date',dataIndex:'posted',width:170},{title:payable?'Vendor':'Debtor Name',dataIndex:'party'},
+    {title:'Status',dataIndex:'status',width:190,render:status},{title:payable?'Total Paid Amount':'Total Received Amount',dataIndex:'total',width:190,align:'right',render:money},{title:'Total Amount Left',dataIndex:'balance',width:190,align:'right',render:money},
+  ]:[
+    {key:'pdf',width:48,render:(_,r)=><Button type="text" size="small" aria-label={'View '+r.id} icon={<I.FilePdfOutlined/>} onClick={()=>setDetail(r)}/>},
+    {title:'ID',dataIndex:'id',width:120,render:link},{title:payable?'Vendor':'Debtor Name',dataIndex:'party'},
+    {title:'Shipment',dataIndex:'shipment',width:140,render:v=><PageLink to={SHIPMENT_PATH}>{v}</PageLink>},{title:'Created',dataIndex:'created',width:145},{title:'Due Date',dataIndex:'due',width:145},
+    {title:'Status',dataIndex:'status',width:130,render:status},{title:'Total',dataIndex:'total',width:140,align:'right',render:money},{title:'Balance',dataIndex:'balance',width:140,align:'right',render:money},
+  ];
+  return <div className="page-stack ported-page"><PortedHeader title={transactions?'Payments':'Invoices'}/>{transactions&&payable?<section className="card-flat ported-empty"><Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={<><b>No payments yet.</b><p>You have no payments made at the moment. New payments will be displayed here when they are posted.</p></>}/></section>:<section className="card-flat table-card ported-table"><DataTable columns={cols} dataSource={rows} pagination={PORTED_PAGER} minWidth={transactions?1000:1200}/></section>}
+    {detail&&<Drw title={detail.id} width={600} onClose={()=>setDetail(null)} footer={<Button onClick={()=>setDetail(null)}>Close</Button>}><Descriptions bordered column={1} items={[[payable?'Vendor':'Debtor Name',detail.party],['Status',status(detail.status)],['Total',money(detail.total)],['Balance',money(detail.balance)],...(detail.shipment?[['Shipment',<PageLink to={SHIPMENT_PATH}>{detail.shipment}</PageLink>]]:[])].map(([label,children])=>({key:label,label,children}))}/></Drw>}
+  </div>;
+}
+function PortedContactsPage() {
+  const [items,setItems]=usePortedState('contacts',CONTACTS.slice(0,20));const [detail,setDetail]=useState(null);const [form]=Form.useForm();
+  const close=()=>{setDetail(null);form.resetFields();};
+  const save=async()=>{const v=await form.validateFields().catch(()=>null);if(!v)return;setItems(detail.key?items.map(x=>x.key===detail.key?{...x,...v}:x):[{...v,key:'contact-'+Date.now()},...items]);close();};
+  const edit=r=>{setDetail(r);form.setFieldsValue(r);};
+  const cols=[{title:'Company',dataIndex:'company',width:'44%',render:(v,r)=><a onClick={()=>edit(r)}>{v}</a>},{title:'Country',dataIndex:'country',width:'18%'},{title:'City',dataIndex:'city',width:'22%'},{title:'Contact Person',dataIndex:'contact',align:'center',render:v=><People names={[v]}/>}];
+  return <div className="page-stack ported-page"><PortedHeader title="Contact Book"><Button type="primary" icon={<I.PlusOutlined/>} onClick={()=>setDetail({})}>Add Company</Button></PortedHeader><section className="card-flat table-card ported-table"><DataTable columns={cols} dataSource={items} pagination={false} minWidth={760}/></section>
+    {detail&&<Drw title={detail.key?'Company details':'Add Company'} width={560} onClose={close} footer={<><Button onClick={close}>Cancel</Button><Button type="primary" onClick={save}>{detail.key?'Save changes':'Add Company'}</Button></>}><Form form={form} layout="vertical" requiredMark={false}>
+      <Form.Item name="company" label="Company name" rules={[{required:true,whitespace:true,message:'Enter the company name'}]}><Input/></Form.Item><div className="grid-2 form-2"><Form.Item name="country" label="Country" rules={[{required:true,message:'Select a country'}]}><Select showSearch options={['US','UK','DE','JP','CA','IN','PL','AF'].map(v=>({value:v,label:v}))}/></Form.Item><Form.Item name="city" label="City" rules={[{required:true,whitespace:true,message:'Enter a city'}]}><Input/></Form.Item></div>
+      <Form.Item name="contact" label="Contact person" rules={[{required:true,message:'Select a contact'}]}><Select options={PEOPLE.map(v=>({value:v,label:v}))}/></Form.Item><Form.Item name="email" label="Email" rules={[{type:'email',message:'Enter a valid email'}]}><Input/></Form.Item><Form.Item name="phone" label="Phone"><Input/></Form.Item>
+    </Form></Drw>}
+  </div>;
+}
+function PortedRatesPage() {
+  return <div className="page-stack ported-page"><PortedHeader title="All rates"/><div className="ported-rate-groups">{RATE_GROUPS.slice(0,2).map(([g,items])=><section key={g}><h2>{g}</h2><div className="ported-rate-grid">{items.map(([slug,t,ic])=><a className="ported-rate-card" href={href('/rates/'+slug)} key={slug}><Img src={'assets/rate-'+ic+'.svg'} size={56}/><strong>{t==='Ocean Rates'?'Ocean rates':t}</strong></a>)}</div></section>)}</div></div>;
+}
+const PORTED_CONTRACTS = [['510621','MSC'],['510617','MSC'],['61566100','Evergreen'],['MT266822','OOCL'],['TurkonQuote','Turkon Line'],['61565724','Evergreen'],['Tanya SEP29','Evergreen'],['Tanya Sep28','Evergreen'],['PL-506235','MSC'],['506237','MSC'],['MATU123456','Matson'],['61565732','Evergreen'],['SeaGold','Evergreen'],['SeaGold','HMM'],['12433-1','MSC'],['00132607','OOCL']].map(([number,carrier],i)=>({key:'pc'+i,number,carrier,category:i===15?'B':'A'}));
+function PortedContractsPage() {
+  const [q,setQ]=useState('');const [category,setCategory]=useState();const [carrier,setCarrier]=useState();const [detail,setDetail]=useState(null);
+  const rows=PORTED_CONTRACTS.filter(r=>includesQ(q,r.number)&&(!category||r.category===category)&&(!carrier||r.carrier===carrier));
+  return <div className="page-stack ported-page"><PortedHeader title="Contracts"><Button type="primary" icon={<I.PlusOutlined/>} disabled>Add Contract</Button></PortedHeader><div className="ported-filters"><span className="muted">Filters</span><PortedFilter label="Category" value={category} onChange={setCategory} options={['A','B','C']}/><PortedFilter label="Carriers" value={carrier} onChange={setCarrier} options={[...new Set(PORTED_CONTRACTS.map(r=>r.carrier))]}/><Input prefix={<I.SearchOutlined/>} placeholder="Search by contract name or number" value={q} onChange={e=>setQ(e.target.value)} style={{maxWidth:320,marginLeft:'auto'}}/></div><section className="card-flat table-card ported-table"><DataTable columns={[{title:'Contract Number',dataIndex:'number'},{title:'Category',dataIndex:'category',width:160},{title:'Carrier',dataIndex:'carrier'},{title:'Actions',width:100,render:(_,r)=><Button type="text" icon={<I.EyeOutlined/>} aria-label={'View contract '+r.key} onClick={()=>setDetail(r)}/>}]} dataSource={rows} pagination={false}/></section>{detail&&<Drw title={'Contract '+detail.number} width={480} onClose={()=>setDetail(null)} footer={<Button onClick={()=>setDetail(null)}>Close</Button>}><Descriptions column={1} bordered items={['number','category','carrier'].map(k=>({key:k,label:k==='number'?'Contract Number':k==='category'?'Category':'Carrier',children:detail[k]}))}/></Drw>}</div>;
+}
+function PortedRateRequestsPage() {
+  const [tab,setTab]=useState('Pending');const [detail,setDetail]=useState(null);
+  const rows=range(12,i=>({key:'rr'+i,id:'#'+(1787-i),origin:i<3?'Argentia, CA':i===7?'Oakland, CA, US':'New York, NY, US',dest:i<3?'New York, NY, US':i===3?'Brest, BY':'Minsk, BY',date:i<3?'29 Oct 2026':'20 Oct 2026',container:'40′ ST',cargo:'Freight all kinds',by:pick(PEOPLE,i),created:'29 Oct 2026, 14:'+String(27-i).padStart(2,'0'),status:i<8?'Pending':i<10?'Completed':'Rejected'})).filter(r=>r.status===tab);
+  return <div className="page-stack ported-page"><PortedHeader title="Rates requests"/><div className="card-flat tabs-card"><Tabs activeKey={tab} onChange={setTab} items={['Pending','Completed','Rejected'].map(v=>({key:v,label:v}))}/></div><div className="ported-list-scroll"><div className="ported-request-list"><div className="ported-request-grid ported-list-labels">{['Request','Origin','Destination','Cargo ready date','Container','Cargo','Created by','Status'].map(v=><span key={v}>{v}</span>)}</div>{rows.map(r=><article className="ported-request-grid ported-request-row" key={r.key} role="link" tabIndex={0} onClick={()=>setDetail(r)} onKeyDown={e=>e.key==='Enter'&&setDetail(r)}><a>{r.id}</a><span className="ported-route-cell"><Ic n="port" size={16}/>{r.origin}</span><span className="ported-route-cell"><Ic n="port" size={16}/>{r.dest}</span><span className="ported-route-cell"><I.CalendarOutlined/>{r.date}</span><span className="ported-route-cell"><Ic n="container" size={16}/>{r.container}</span><span>{r.cargo}</span><div>{r.by}<div className="lbl">{r.created}</div></div><DotStatus color={tab==='Pending'?'#d5a342':tab==='Completed'?'#52a880':'#cf5866'}>{r.status}</DotStatus></article>)}</div></div>{detail&&<Drw title={'Rate request '+detail.id} width={560} onClose={()=>setDetail(null)} footer={<Button onClick={()=>setDetail(null)}>Close</Button>}><Descriptions bordered column={1} items={['origin','dest','date','container','cargo','by','status'].map(k=>({key:k,label:{origin:'Origin',dest:'Destination',date:'Cargo ready date',container:'Container',cargo:'Cargo',by:'Created by',status:'Status'}[k],children:detail[k]}))}/></Drw>}</div>;
+}
+const PORTED_RATE_COLUMNS = {
+  'ocean-rates':['Id','Origin','Destination','Via','Carrier','Type','Contract/Reference','Price','Origin charges','Freight charges','Destination charges','Container','FAK','Valid from','Valid to','Book validity','Created on','Created by','Source'],
+  'port-surcharges':['Id','Name','Charge code','Origin','Destination','Phase','Carrier','Price','Measure by','Range (min)','Range (max)','Price by','Container','Subject to','Valid from','Valid to','Comments','Original description','Created on','Created by','Source'],
+  'drayage-rates':['Id','Port/Ramp','From/to','Phase','Search radius','Ocean carrier','Measure by','Range (min)','Range (max)','Price','Min price','Round trip','Valid from','Valid to','Comments','Created on','Created by'],
+  'drayage-surcharges':['Id','Name','Charge code','Port/country','Phase','Ocean carrier','Measure by','Range (min)','Range (max)','Price','Min price','Container','Subject to','Valid from','Valid to','Comments','Created on','Created by'],
+};
+function PortedRateTablePage({slug}) {
+  const surcharge=slug.includes('surcharges');const drayage=slug.startsWith('drayage');const title=drayage?(surcharge?'Drayage surcharges':'Drayage rates'):(surcharge?'Ocean surcharges':'Ocean rates');
+  const [items,setItems]=usePortedState('rates-'+slug,[]);const [selected,setSelected]=useState([]);const [panel,setPanel]=useState(null);const [filters,setFilters]=useState({});const [searched,setSearched]=useState(false);const [form]=Form.useForm();const [filterForm]=Form.useForm();
+  const labels=PORTED_RATE_COLUMNS[slug]||PORTED_RATE_COLUMNS['ocean-rates'];
+  const close=()=>{setPanel(null);form.resetFields();};
+  const save=async()=>{const v=await form.validateFields().catch(()=>null);if(!v)return;const data={...v,Id:String(9876211+items.length),'Created on':'30 Oct 2026','Created by':'Kate Miller',Source:'Carrier'};
+    if(panel==='edit')setItems(items.map(x=>selected.includes(x.key)?{...x,...v}:x));else setItems([{...data,key:'rate-'+Date.now()},...items]);setSearched(true);close();setSelected([]);};
+  const apply=async()=>{const v=await filterForm.validateFields().catch(()=>null);if(!v)return;setFilters(v);setSearched(true);setPanel(null);};
+  const rows=items.filter(r=>Object.entries(filters).every(([k,v])=>!v||!String(v).length||String(r[k]||'').toLowerCase().includes(String(v).toLowerCase())));
+  const cols=labels.map(label=>({title:label,dataIndex:label,key:label,width:label==='Id'?100:['Origin','Destination','Port/Ramp','From/to','Contract/Reference','Name'].includes(label)?200:150,render:v=>v==null?'—':label.includes('Price')||label==='Min price'?money(Number(v)):String(v)}));
+  const filterFields=drayage?['Port/Ramp','From/to','Phase','Ocean carrier','Measure by','Container','Valid from','Valid to','Created by']:['Origin','Destination','Carrier','Contract/Reference','Type','Container','Valid from','Valid to','Created by','Source'];
+  const selectOptions={Carrier:['Maersk','MSC','CMA CGM','OOCL','Evergreen'],'Ocean carrier':['Maersk','MSC','CMA CGM','OOCL'],Type:['Spot','Contract'],Phase:['Origin','Destination'],Container:['20′ ST','40′ ST','40′ HC'],'Measure by':['Container','Shipment','Weight','Distance'],Source:['API','Carrier','Descartes']};
+  return <div className="page-stack ported-page"><PortedHeader title={title} back="/rates"><Button type="primary" icon={<I.PlusOutlined/>} onClick={()=>setPanel('add')}>{surcharge?'Add surcharge':'Add rate'}</Button></PortedHeader>
+    <div className="ported-filters"><Button icon={<I.FilterOutlined/>} onClick={()=>{filterForm.setFieldsValue(filters);setPanel('filters');}}>Filters{Object.values(filters).some(Boolean)?' · '+Object.values(filters).filter(Boolean).length:''}</Button>{(surcharge||drayage)&&<Button disabled={!selected.length} onClick={()=>setPanel('edit')}>Edit selected</Button>}<Button disabled={!selected.length} onClick={()=>{setItems(items.filter(r=>!selected.includes(r.key)));setSelected([]);}}>Delete selected</Button></div>
+    <section className="card-flat table-card ported-table ported-wide-table"><DataTable columns={cols} dataSource={rows} pagination={rows.length?PORTED_PAGER:false} minWidth={labels.length*160} rowSelection={{selectedRowKeys:selected,onChange:setSelected}} locale={{emptyText:<div className="ported-search-empty">{searched?<><Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No matching results"/><Button onClick={()=>{setFilters({});filterForm.resetFields();setSearched(false);}}>Clear filters</Button></>:<Button icon={<I.SearchOutlined/>} onClick={()=>setPanel('filters')}>{surcharge?'Search surcharges':'Search rates'}</Button>}</div>}}/></section>
+    {panel==='filters'&&<Drw title="Filters" width={480} onClose={()=>setPanel(null)} footer={<><Button onClick={()=>{filterForm.resetFields();setFilters({});}}>Clear filters</Button><Button type="primary" onClick={apply}>Apply filters</Button></>}><Form form={filterForm} layout="vertical">{filterFields.map(label=><Form.Item key={label} name={label} label={label}>{selectOptions[label]?<Select allowClear options={selectOptions[label].map(v=>({value:v,label:v}))}/>:<Input placeholder={['Origin','Destination','Port/Ramp','From/to'].includes(label)?'Search location':label}/>}</Form.Item>)}</Form></Drw>}
+    {panel&&panel!=='filters'&&<Drw title={(panel==='edit'?'Edit selected':surcharge?'Add surcharge':'Add rate')} width={600} onClose={close} footer={<><Button onClick={close}>Cancel</Button><Button type="primary" onClick={save}>Save</Button></>}><Form form={form} layout="vertical" initialValues={{Type:'Spot',Container:'20′ ST',Phase:'Origin','Measure by':'Container'}}><div className="grid-2 form-2">{labels.filter(v=>!['Id','Created on','Created by','Source'].includes(v)).map(label=><Form.Item key={label} name={label} label={label} rules={['Origin','Destination','Port/Ramp','From/to','Price',...(surcharge?['Name','Charge code']:[])].includes(label)?[{required:panel!=='edit',message:'Enter '+label.toLowerCase()}]:[]}>
+      {selectOptions[label]?<Select allowClear options={selectOptions[label].map(v=>({value:v,label:v}))}/>:['Price','Min price','Range (min)','Range (max)','Search radius'].includes(label)?<InputNumber min={0} style={{width:'100%'}}/>:label==='Round trip'||label==='FAK'?<Select options={['Yes','No'].map(v=>({value:v,label:v}))}/>:<Input placeholder={label.includes('Valid')?'e.g. 30 Oct 2026':undefined}/>}
+    </Form.Item>)}</div></Form></Drw>}
+  </div>;
+}
+
 /* ---------- 13. Analytics (inline SVG charts) ---------- */
 const CHART = { indigo: '#5f68c0', red: '#ff4d4f', redSoft: '#ff7875', green: '#52c41a', teal: '#006d75', purple: '#722ed1', grid: '#eeeff1', axis: '#555a75' };
 function useWidth() {
@@ -4118,7 +4370,7 @@ function AnalyticsPage() {
                   {split.map((p, k) => <Tooltip key={k} title={`${BROWSERS[k][0]}: ${Math.round((n * p) / 100)} persons`}><span style={{ width: p + '%', background: BROWSERS[k][1] }} /></Tooltip>)}
                 </div>
                 <div className="lbl">→ {n} persons</div>
-                {i > 0 && <div className="lbl fs-meta"><span><I.ArrowRightOutlined /> {n} persons ({Math.round((n / prev) * 100)}%) completed step</span><span className="drop"><I.ArrowDownOutlined /> {drop} persons ({Math.round((drop / prev) * 100)}%) dropped off</span></div>}
+                {i > 0 && <div className="lbl fs-meta"><span><ChevronIcon dir="right" /> {n} persons ({Math.round((n / prev) * 100)}%) completed step</span><span className="drop"><ChevronIcon dir="down" /> {drop} persons ({Math.round((drop / prev) * 100)}%) dropped off</span></div>}
               </div>
             );
           })}
@@ -4627,7 +4879,7 @@ function InternalOfferCard({ o, q, incl, onSelect, save }) {
           {save && <span className="pill-save">Save {save}%</span>}
           <div className="iq-price">{fmtUsd(price)}</div>
           <Button type="primary" block className="btn-slate" onClick={() => onSelect(o, price)}>Select</Button>
-          <Button block className="btn-soft" icon={open ? <I.UpOutlined /> : <I.DownOutlined />} onClick={() => setOpen(!open)}>Breakdown</Button>
+          <Button block className="btn-soft" icon={open ? <ChevronIcon dir="up" /> : <ChevronIcon dir="down" />} onClick={() => setOpen(!open)}>Breakdown</Button>
         </div>
       </div>
       {open && <Breakdown o={o} incl={incl} />}
@@ -4726,7 +4978,7 @@ function AltList({ alts, q, incl, onSelect, avg }) {
     <>
       {alts.slice(0, n).map((o) => <InternalOfferCard key={o.key} o={o} q={q} incl={incl} onSelect={onSelect} save={Math.max(1, Math.round((1 - offerPrice(o, incl) / (avg || 1)) * 100))} />)}
       <div className="alt-more">
-        {n < alts.length && <Button icon={<I.DownOutlined />} onClick={() => setN(Math.min(alts.length, n + 10))}>Show {Math.min(10, alts.length - n)} more</Button>}
+        {n < alts.length && <Button icon={<ChevronIcon dir="down" />} onClick={() => setN(Math.min(alts.length, n + 10))}>Show {Math.min(10, alts.length - n)} more</Button>}
         {n > 4 && <Button type="text" onClick={() => setN(4)}>Show less</Button>}
       </div>
     </>
@@ -4843,7 +5095,7 @@ function PublicOfferCard({ o, q, incl, cta, onSelect, recommended }) {
             onClick: ({ key }) => (key === 'print' ? window.print() : navigator.clipboard?.writeText(location.href)) }}>
             <Button icon={<I.MoreOutlined />} aria-label="More actions" />
           </Dropdown>
-          <Button icon={open ? <I.UpOutlined /> : <I.DownOutlined />} onClick={() => setOpen(!open)}>Details</Button>
+          <Button icon={open ? <ChevronIcon dir="up" /> : <ChevronIcon dir="down" />} onClick={() => setOpen(!open)}>Details</Button>
           <Button type="primary" className="btn-slate" onClick={() => onSelect(o)}>{cta}</Button>
         </div>
       </div>
@@ -4885,7 +5137,7 @@ function CallBack({ onDone }) {
     <div className="ns-callback" onClick={(e) => e.stopPropagation()}>
       <Input size="large" autoFocus value={phone} status={err ? 'error' : ''} placeholder="Phone number, e.g. +1 415 555 0134"
         prefix={<I.PhoneOutlined className="muted" />} onChange={(e) => { setPhone(e.target.value); setErr(false); }} onPressEnter={submit} />
-      <Button type="primary" size="large" icon={<I.ArrowRightOutlined />} onClick={submit} aria-label="Request a call back" />
+      <Button type="primary" size="large" icon={<ChevronIcon dir="right" />} onClick={submit} aria-label="Request a call back" />
       {err && <span className="ns-err">Enter a phone number in international format</span>}
     </div>
   );
@@ -4944,7 +5196,7 @@ function HowItWorksCard() {
     <a className="ns-video" href={HOW_IT_WORKS_URL} target="_blank" rel="noopener noreferrer">
       <span className="ns-video-ic"><I.PlayCircleOutlined /></span>
       <span className="ns-video-txt"><b>How it works</b><span>See what happens after you send a booking request.</span></span>
-      <span className="ns-video-cta">Watch video <I.ArrowRightOutlined /></span>
+      <span className="ns-video-cta">Watch video <ChevronIcon dir="right" /></span>
     </a>
   );
 }
@@ -6746,7 +6998,7 @@ function GcQuickView({ r, onClose }) {
       <div className="cn-stack">
         {issues.length > 0 && <Alert type="warning" showIcon title={issues.join(' · ')} />}
         <div className="card">
-          <div className="gc-qv-route"><b>{r.pol}</b><I.ArrowRightOutlined className="muted" /><b>{r.pod}</b><span className="muted">· {r.line} · {r.shipment}</span></div>
+          <div className="gc-qv-route"><b>{r.pol}</b><ChevronIcon dir="right" className="muted" /><b>{r.pod}</b><span className="muted">· {r.line} · {r.shipment}</span></div>
           <div className="hub-steps-wrap"><Steps size="small" className="hub-steps gc-steps" current={r.ms} labelPlacement="vertical" responsive={false}
             items={GC_MS.map((t, i) => ({ title: t, status: i < r.ms ? 'finish' : i === r.ms ? 'process' : 'wait' }))} /></div>
           <div className="dsp-2">
@@ -9491,7 +9743,7 @@ function IpUpdates() {
           </a>
         ))}
       </div>
-      <DoLink size="small" onClick={() => go(DISPATCH_PATH)}>All activity <I.ArrowRightOutlined /></DoLink>
+      <DoLink size="small" onClick={() => go(DISPATCH_PATH)}>All activity <ChevronIcon dir="right" /></DoLink>
     </section>
   );
 }
@@ -9960,14 +10212,19 @@ function PlaceholderPage({ title }) {
 const crumb = (title, to) => ({ title, to });
 const HOME = crumb('Home', '/overview');
 function resolvePage(path, query) {
+  const aliases = { '/action-center/notification':'/action-center/notifications', '/incoming-bookings':'/guest-bookings', '/contact-book':'/contacts', '/all-rates':'/rates', '/contracts':'/rates/contracts', '/ocean/rates':'/rates/ocean-rates', '/ocean/surcharges':'/rates/port-surcharges', '/drayage/rates':'/rates/drayage-rates', '/drayage/surcharges':'/rates/drayage-surcharges', '/finances/invoices':'/finances/receivables/billing', '/finances/ap-invoices':'/finances/payables/billing', '/finances/payments/receivables':'/finances/receivables/transactions', '/finances/payments/payables':'/finances/payables/transactions' };
+  if (aliases[path]) return resolvePage(aliases[path], query);
+  if (path === '/rates-requests') return {navKey:'/rates-requests',crumbs:[HOME,crumb('Rates'),crumb('Rates requests')],el:<PortedRateRequestsPage/>};
+  if (path === '/rates/contracts') return {navKey:'/rates/contracts',crumbs:[HOME,crumb('Rates','/rates'),crumb('Contracts')],el:<PortedContractsPage/>};
+
   const fin = path.match(/^\/finances\/(receivables|payables)\/(billing|transactions)$/);
   if (fin) {
     const [, side, kind] = fin; const payable = side === 'payables';
     return { navKey: path, crumbs: [HOME, crumb('Finances'), crumb(payable ? 'Payables' : 'Receivables'), crumb(kind === 'billing' ? 'Billing' : 'Transactions')],
-      el: kind === 'billing' ? <BillingPage key={path} payable={payable} /> : <TransactionsPage key={path} payable={payable} /> };
+      el: <PortedFinancePage key={path} payable={payable} transactions={kind === 'transactions'} /> };
   }
   const rate = path.match(/^\/rates\/([\w-]+)$/);
-  if (rate && RATE_TITLES[rate[1]]) return { navKey: path, crumbs: [HOME, crumb('Rates', '/rates'), crumb(RATE_TITLES[rate[1]])], el: <RateTablePage key={rate[1]} slug={rate[1]} /> };
+  if (rate && RATE_TITLES[rate[1]]) return { navKey: path, crumbs: [HOME, crumb('Rates', '/rates'), crumb(RATE_TITLES[rate[1]])], el: rate[1] === 'contracts' ? <PortedContractsPage /> : <PortedRateTablePage key={rate[1]} slug={rate[1]} /> };
   const auth = path.match(/^\/auth\/([\w-]+)$/);
   if (auth && AUTH_STEPS.includes(auth[1])) return { bare: true, crumbs: [crumb({ 'sign-in': 'Sign In', forgot: 'Forgot password', reset: 'Change password', 'sign-up': 'Sign Up', verify: 'Verify your email' }[auth[1]])], el: <AuthPage step={auth[1]} /> };
   if (path === DOC_PATH) return { bare: true, crumbs: [crumb('Dispatch Order')], el: <DispatchOrderDocPage variant={query.v} /> };
@@ -10017,14 +10274,14 @@ function resolvePage(path, query) {
   const simple = {
     '/overview': ['Overview', <OverviewPage />],
     '/action-center/tasks': ['Tasks', <TasksPage />, 'Action Center'],
-    '/action-center/notifications': ['Notifications', <NotificationsPage />, 'Action Center'],
-    '/quote-requests': ['Quote requests', <QuoteRequestsPage />],
-    '/guest-bookings': ['Guest bookings', <GuestBookingsPage />],
+    '/action-center/notifications': ['Notifications', <PortedNotificationsPage />, 'Action Center'],
+    '/quote-requests': ['Quote requests', <PortedQuoteRequestsPage />],
+    '/guest-bookings': ['Guest bookings', <PortedGuestBookingsPage />],
     '/dispatches': ['Dispatches', <DispatchesAllPage />],
     '/shipments': ['Shipments', <ShipmentsPage />],
     '/containers': ['Containers', <AllContainersPage />],
-    '/contacts': ['Contacts', <ContactsPage />],
-    '/rates': ['Rates', <RatesPage />],
+    '/contacts': ['Contact Book', <PortedContactsPage />],
+    '/rates': ['All rates', <PortedRatesPage />],
     '/analytics': ['Analytics', <AnalyticsPage />],
   }[path];
   if (simple) {

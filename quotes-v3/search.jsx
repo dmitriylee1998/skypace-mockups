@@ -180,7 +180,7 @@ function EndPanel({ which, e, set, onDone, onUnsupported }) {
       <div><Lbl req={isOrigin}>{isOrigin ? 'Cargo ready date' : 'Required delivery date'}{!isOrigin && <span className="muted"> · optional</span>}</Lbl>
         <DatePicker style={{ width: '100%' }} format="D MMM YYYY" value={e.date ? dayjs(e.date) : null} disabledDate={(d) => d.isBefore(NOW, 'day')}
           onChange={(d) => set({ date: d ? d.format('YYYY-MM-DD') : null })} placeholder={isOrigin ? 'When can we pick it up?' : 'Leave empty if flexible'} /></div>
-      {onDone && <Button color="default" variant="solid" block disabled={!ok} onClick={onDone}>{isOrigin ? 'Next: destination' : 'Next: cargo'} <I.ArrowRightOutlined /></Button>}
+      {onDone && <Button color="default" variant="solid" block disabled={!ok} onClick={onDone}>{isOrigin ? 'Next: destination' : 'Next: cargo'} <ChevronIcon dir="right" /></Button>}
     </>
   );
 }
@@ -196,14 +196,14 @@ function CommodityPicker({ value, onChange, autoFocus }) {
   const row = (n) => (
     <Tooltip key={n.code} title={n.excluded ? 'Excluded commodity — we can’t quote it on this service' : null} placement="right">
       <div className={'hs-row' + (n.excluded ? ' off' : '') + (value === n.code ? ' on' : '')} onMouseDown={(ev) => { ev.preventDefault(); pick(n); }}>
-        <span className="grow">{n.label}</span>{n.code !== 'FAK' && <span className="hs-code">{n.code}</span>}{n.children && <I.RightOutlined className="hs-go" />}
+        <span className="grow">{n.label}</span>{n.code !== 'FAK' && <span className="hs-code">{n.code}</span>}{n.children && <ChevronIcon dir="right" className="hs-go" />}
       </div>
     </Tooltip>
   );
   const dd = (
     <div className="hs-dd">
       {results ? (results.length ? results.map(row) : <div className="hs-empty"><I.SearchOutlined /> No results found</div>) : <>
-        {path.length > 0 && <div className="hs-back" onMouseDown={(ev) => { ev.preventDefault(); setPath(path.slice(0, -1)); }}><I.ArrowLeftOutlined /> <span className="grow">{path[path.length - 1].label}</span></div>}
+        {path.length > 0 && <div className="hs-back" onMouseDown={(ev) => { ev.preventDefault(); setPath(path.slice(0, -1)); }}><ChevronIcon dir="left" /> <span className="grow">{path[path.length - 1].label}</span></div>}
         {level.map(row)}
       </>}
     </div>
@@ -276,7 +276,7 @@ function CargoPanel({ c, set, onDone }) {
         </Checkbox.Group>
       </div>
       <div className="row" style={{ justifyContent: 'flex-end' }}>
-        <Button color="default" variant="solid" disabled={!ok} onClick={onDone}>Next: payment details <I.ArrowRightOutlined /></Button>
+        <Button color="default" variant="solid" disabled={!ok} onClick={onDone}>Next: payment details <ChevronIcon dir="right" /></Button>
       </div>
     </Form>
   );
@@ -308,8 +308,8 @@ function PayPanel({ f, p, set, onDone }) {
       </PaySec>
       <PaySec n={2} title="Shipment direction">
         <Segmented block value={p.flow} onChange={(flow) => set({ flow })} className="pay-flow"
-          options={[flowOpt('import', 'Import', <I.ArrowDownOutlined />, true),
-            flowOpt('export', 'Export', <I.ArrowUpOutlined />, true)]} />
+          options={[flowOpt('import', 'Import', <ChevronIcon dir="down" />, true),
+            flowOpt('export', 'Export', <ChevronIcon dir="up" />, true)]} />
       </PaySec>
       {p.flow && <PaySec n={3} title={`Who pays ${exp ? 'destination' : 'origin'} charges?`} tip="Defines the Incoterms applied to the quote">
         <Radio.Group value={p.payer} onChange={(e) => set({ payer: e.target.value })} className="pay-radios">
@@ -459,7 +459,7 @@ function StartLists({ onPick }) {
                 <span className="strong ell">{endName(f.origin)} → {endName(f.dest)}</span>
                 <span className="muted ell">{f.origin.kind === 'door' ? 'Door' : 'Port'} to {f.dest.kind === 'door' ? 'door' : 'port'} · {cargoSummary(f.cargo)}</span>
               </span>
-              <I.ArrowRightOutlined className="st-go" />
+              <ChevronIcon dir="right" className="st-go" />
             </button>
           ))}
         </section>

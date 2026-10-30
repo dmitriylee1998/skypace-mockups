@@ -126,7 +126,7 @@ function QuotesApp() {
   return (
     <Shell>
       <div className="page">
-        <div className="page-title"><Button type="text" icon={<I.ArrowLeftOutlined />} onClick={() => go('new')} aria-label="Back" /><h1>New quote request</h1></div>
+        <div className="page-title"><Button type="text" icon={<ChevronIcon dir="left" />} onClick={() => go('new')} aria-label="Back" /><h1>New quote request</h1></div>
         <ResultsPage key={screen + nonce} q={q} onSearch={setQ} scenario={sc} onSelect={(o, total) => setBooking({ quote: { o, total }, role: 'client', step: 'Quote' })} />
       </div>
       <RollShipment open={roll} onClose={() => setRoll(false)} q={q} />

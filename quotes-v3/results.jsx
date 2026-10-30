@@ -81,7 +81,7 @@ function FxSec({ title, aside, children }) {
     <div className={'fx-sec' + (open ? '' : ' closed')}>
       <button type="button" className="fx-h fx-toggle" onClick={() => setOpen(!open)} aria-expanded={open}>
         <span className="strong grow">{title}</span>{aside}
-        <I.DownOutlined className="fx-chev" />
+        <ChevronIcon dir="down" className="fx-chev" />
       </button>
       {open && children}
     </div>

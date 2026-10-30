@@ -8,6 +8,15 @@ const {
 } = antd;
 const I = icons;
 
+const CHEVRON_PATH = 'M5.95622 12.1674C5.95622 11.9542 6.02597 11.7409 6.16548 11.5784L9.23077 8.00077L6.16381 4.42265C5.88479 4.09713 5.88479 3.56978 6.16381 3.24426C6.44283 2.91874 6.89483 2.91874 7.17385 3.24426L10.7453 7.41093C11.0243 7.73645 11.0243 8.26379 10.7453 8.58931L7.17385 12.756C6.89483 13.0815 6.44283 13.0815 6.16381 12.756C6.02541 12.5945 5.95622 12.381 5.95622 12.1674Z';
+const ChevronSvg = (p) => <svg viewBox="0 0 16 16" width="1em" height="1em" fill="currentColor" {...p}><path d={CHEVRON_PATH} /></svg>;
+const CHEVRON_ROTATE = { right: 0, down: 90, left: 180, up: -90 };
+const ChevronIcon = ({ dir = 'right', style, ...rest }) => {
+  const { token } = antd.theme.useToken();
+  return <icons.default component={ChevronSvg} rotate={CHEVRON_ROTATE[dir]} style={{ fontSize: token.fontSizeLG, color: 'currentColor', ...style }} {...rest} />;
+};
+
+
 const NOW = dayjs('2026-10-21T10:00');
 const range = (n, f) => Array.from({ length: n }, (_, i) => f(i));
 const hashStr = (s) => { let h = 2166136261; for (const ch of s) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return h >>> 0; };

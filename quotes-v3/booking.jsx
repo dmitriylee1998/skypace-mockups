@@ -177,7 +177,7 @@ function SummaryStep({ q, quote, agree, setAgree, go, steps, schedule }) {
       <Card title="Shipping parties" extra={<EditBtn onClick={() => go(idx(partiesStep))} />}>
         <div className="grid3">{party('Shipper')}{party('Consignee')}{party('Notify')}</div>
         {more && <div className="grid3">{party('Forwarder')}{party('Customs broker')}{party('Payer')}</div>}
-        <Button style={{ alignSelf: 'flex-start' }} icon={more ? <I.UpOutlined /> : <I.DownOutlined />} onClick={() => setMore(!more)}>{more ? 'View Less' : 'View More (3)'}</Button>
+        <Button style={{ alignSelf: 'flex-start' }} icon={more ? <ChevronIcon dir="up" /> : <ChevronIcon dir="down" />} onClick={() => setMore(!more)}>{more ? 'View Less' : 'View More (3)'}</Button>
       </Card>
       <Card title="Supplier & Receiver" extra={<EditBtn onClick={() => go(idx(steps.includes('Pickup') ? 'Pickup' : 'Supplier & Receiver'))} />}>
         <div className="grid2">
