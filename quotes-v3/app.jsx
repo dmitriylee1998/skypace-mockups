@@ -136,16 +136,5 @@ function QuotesApp() {
   );
 }
 
-const theme = {
-  token: {
-    colorPrimary: '#5f68c0', colorLink: '#5f68c0', colorText: '#323656', colorTextSecondary: '#414663', colorTextTertiary: '#555a75',
-    colorBorderSecondary: '#f0f0f0', colorBgSolid: '#323656', colorBgSolidHover: '#454a6e', colorBgSolidActive: '#22253d', colorInfo: '#5f68c0',
-    fontFamily: 'Roboto, -apple-system, "Segoe UI", sans-serif', borderRadius: 6, borderRadiusLG: 8,
-  },
-  components: {
-    Alert: { colorInfoBg: '#f0f1fa', colorInfoBorder: '#c3c7e6' },
-    Tabs: { itemColor: '#555a75' },
-    Steps: { dotSize: 8, dotCurrentSize: 10 },
-  },
-};
+const theme = window.SKYPACE_DESIGN_SYSTEM;
 ReactDOM.createRoot(document.getElementById('root')).render(<ConfigProvider theme={theme}><AntApp><QuotesApp /></AntApp></ConfigProvider>);
