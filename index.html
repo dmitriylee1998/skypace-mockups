@@ -3401,7 +3401,7 @@ const NAV = [
   { key: 'rates', icon: <I.StockOutlined />, label: 'Rates', children: [
     { key: '/rates', label: 'All rates' },
     { key: '/rates-requests', label: 'Rates requests' },
-    ...RATE_GROUPS.map(([g, items]) => ({ type: 'group', label: g, children: items.map(([slug, t]) => ({ key: `/rates/${slug}`, label: t })) })),
+    { key: '/rates/contracts', label: 'Contracts' },
   ] },
   { key: '/analytics', icon: <I.FundOutlined />, label: 'Analytics' },
 ];
