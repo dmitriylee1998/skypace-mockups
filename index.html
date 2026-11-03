@@ -3936,7 +3936,7 @@ const companyAddresses = (c) => [
 ];
 function CompanyPage({ ckey }) {
   const { token } = antd.theme.useToken();
-  const { Text, Title } = Typography;
+  const { Text, Title } = Typography; const { Row, Col } = antd;
   const [items, setItems] = useLocalRows('contacts', CONTACTS);
   const c = items.find((x) => x.key === ckey);
   const [addresses, setAddresses] = useLocalRows('addresses.' + ckey, c ? companyAddresses(c) : []);
@@ -3980,14 +3980,15 @@ function CompanyPage({ ckey }) {
           </Flex>
           <Button icon={<I.EditOutlined />} onClick={() => openEdit('company')}>Edit company details</Button>
         </Flex>
-      </Card>
-      <Card variant="borderless" styles={{ body: { padding: token.padding } }}>
-        <Descriptions column={{ xs: 1, sm: 2, lg: 4 }} layout="vertical" colon={false} items={[
-          { key: 'tax', label: 'Tax ID', children: taxId },
-          { key: 'country', label: 'Country', children: COUNTRY_NAMES[c.country] || c.country },
-          { key: 'contact', label: 'Contact person', children: <TableCell primary={c.contact} icon={<People names={[c.contact]} />} /> },
-          { key: 'email', label: 'Email', children: c.email || <Text type="secondary">Not provided</Text> },
-        ]} />
+        <Row gutter={[token.margin, token.marginSM]} style={{ marginTop: token.margin, padding: token.padding, borderRadius: token.borderRadiusLG, background: token.colorFillTertiary }}>
+          {[['Tax ID', taxId], ['Country', COUNTRY_NAMES[c.country] || c.country], ['City', c.city],
+            ['Contact person', <Flex gap={token.marginXS} align="center"><People names={[c.contact]} /><Text>{c.contact}</Text></Flex>],
+            ['Email', c.email || <Text type="secondary">Not provided</Text>]].map(([label, value]) => (
+            <Col key={label} xs={24} sm={12} lg={{ flex: '1 1 0' }}>
+              <Flex vertical gap={token.marginXXS}><Text type="secondary" style={{ fontSize: token.fontSizeSM }}>{label}</Text><Text>{value}</Text></Flex>
+            </Col>
+          ))}
+        </Row>
       </Card>
       <ListPanel title="Addresses" count={rows.length} search={q} onSearch={setQ} placeholder="Address, city or contact"
         actions={<Button type="primary" icon={<I.PlusOutlined />} onClick={() => openEdit({})}>Add address</Button>}>
