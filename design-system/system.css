@@ -568,3 +568,10 @@ html { scrollbar-gutter:stable; }
 /* Fixed (sticky) table cells must be opaque: the exported header fill is translucent, so layer it over the container color. */
 .ant-table-thead > tr > th.ant-table-cell-fix,
 .ant-table-summary .ant-table-cell-fix { background:linear-gradient(var(--ant-color-fill-quaternary), var(--ant-color-fill-quaternary)), var(--ant-color-bg-container) !important; }
+
+/* Cost tracking: vertical dividers between Payables / Receivables / Profit groups, group rows and totals on the fill. */
+.ct-table .ct-sep { border-inline-start:var(--ant-line-width, 1px) solid var(--ds-split); }
+.ct-table .ant-table-thead > tr:first-child:not(:last-child) > th { background:transparent; }
+.ct-table .ant-table-thead > tr:first-child:not(:last-child) > th:first-child { font-size:var(--ds-font-size-lg); }
+.ct-table td.ct-group { background:var(--ds-fill-tertiary); color:var(--ds-muted); font-size:var(--ds-font-size-sm); padding-block:var(--ds-space-xxs) !important; }
+.ct-table .ct-total > td { background:var(--ds-fill-tertiary); }
