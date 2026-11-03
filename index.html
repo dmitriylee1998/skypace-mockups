@@ -3766,6 +3766,8 @@ function ShipmentsPage() {
   const [kpi, setKpi] = useState(null);
   const [q, setQ] = useState('');
   const [sel, setSel] = useState([]);
+  const [fl, setFl] = useState({});
+  const FILTERS = [['status', 'Status'], ['customer', 'Customer'], ['ops', 'Ops'], ['origin', 'Origin'], ['dest', 'Destination']];
   const KPIS = [
     { key: 'action', title: 'Action required', icon: <I.ExclamationCircleOutlined />, test: (s) => s.alerts > 0, note: 'Unread notifications' },
     { key: 'pending', title: 'Pending confirmation', icon: <I.CheckCircleOutlined />, test: (s) => s.status === 'Pending Confirmation', note: 'Waiting for the carrier' },
@@ -3775,7 +3777,7 @@ function ShipmentsPage() {
   ];
   const kpiTest = KPIS.find((k) => k.key === kpi)?.test || (() => true);
   const inTab = (s, k) => k === 'all' || s.state === k;
-  const shown = SHIPMENTS.filter((s) => inTab(s, tab) && kpiTest(s) && includesQ(q, s.id, s.bn, s.origin, s.dest, s.customer, s.ops));
+  const shown = SHIPMENTS.filter((s) => inTab(s, tab) && kpiTest(s) && FILTERS.every(([k]) => !fl[k] || s[k] === fl[k]) && includesQ(q, s.id, s.bn, s.origin, s.dest, s.customer, s.ops));
   const open = () => go(SHIPMENT_PATH);
   const small = { fontSize: token.fontSizeSM };
   const two = (top, bottom) => <Flex vertical><Text>{top}</Text>{bottom && <Text type="secondary" style={small}>{bottom}</Text>}</Flex>;
@@ -3831,6 +3833,11 @@ function ShipmentsPage() {
       <section className="card-flat do-list">
         <div className="do-list-head">
           <Input allowClear className="do-search" placeholder="Shipment, booking, port, customer" value={q} onChange={(e) => setQ(e.target.value)} prefix={<I.SearchOutlined className="muted" />} />
+          <FilterBtn active={Object.values(fl).filter(Boolean).length} content={<Flex vertical gap={token.marginXS}>
+            {FILTERS.map(([k, l]) => <Select key={k} allowClear aria-label={l} placeholder={l} value={fl[k]} onChange={(v) => setFl({ ...fl, [k]: v })}
+              options={[...new Set(SHIPMENTS.map((x) => x[k]).filter(Boolean))].map((v) => ({ value: v, label: v }))} />)}
+            {Object.values(fl).some(Boolean) && <Button type="link" onClick={() => setFl({})}>Reset filters</Button>}
+          </Flex>} />
           {kpi && <Tag closable onClose={() => setKpi(null)}>{KPIS.find((k) => k.key === kpi).title}</Tag>}
         </div>
         <DataTable rowKey="key" className="dog-table" columns={cols} dataSource={shown} pagination={false} scroll={{ x: 1150 }}
