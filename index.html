@@ -10147,8 +10147,8 @@ function ServiceCard({ s, onAdd, onInfo, onRemove }) {
   const warn = s.status === 'info';
   const tag = SW_SERVICE_TAG[s.status];
   const stripe = token.marginXXS + token.lineWidth; // warning accent on the left edge
-  return <Card variant="borderless" styles={{ body: { padding: token.padding, paddingInlineStart: warn ? token.padding - stripe : token.padding } }}
-    style={{ borderRadius: token.borderRadiusSM, borderInlineStart: warn ? `${stripe}px solid ${token.colorWarningBorder}` : undefined }}>
+  return <Card variant="outlined" styles={{ body: { padding: token.padding, paddingInlineStart: warn ? token.padding - stripe + token.lineWidth : token.padding } }}
+    style={{ borderRadius: token.borderRadiusLG, borderColor: warn ? token.colorWarningBorder : token.colorBorderSecondary, borderInlineStartWidth: warn ? stripe : undefined }}>
     <Flex gap={token.marginXL} align="flex-start">
       <Flex gap={token.padding} align="flex-start" flex={1} style={{ minWidth: 0 }}>
         <Flex align="center" justify="center" style={{ width: token.controlHeightLG + token.marginXS, height: token.controlHeightLG + token.marginXS, flex: 'none', borderRadius: token.borderRadiusLG, background: token.colorFillTertiary, fontSize: token.fontSizeHeading3 }}>
@@ -10177,14 +10177,12 @@ function ShipmentServices() {
   const [info, setInfo] = useState(null); const [form] = Form.useForm();
   const set = (key, status) => setItems((prev) => prev.map((x) => x.key === key ? { ...x, status } : x));
   const added = items.filter((s) => s.status); const available = items.filter((s) => !s.status);
-  const group = (title, list) => <Flex vertical gap={token.marginXS}>
-    <Typography.Title level={5} style={{ margin: 0 }}>{title}</Typography.Title>
+  const group = (title, list) => <Card variant="borderless" title={title} styles={{ header: { borderBottom: 0, paddingInline: token.padding, minHeight: 0, paddingBlockStart: token.padding }, body: { padding: token.padding, display: 'flex', flexDirection: 'column', gap: token.marginXS } }}>
     {list.length ? list.map((s) => <ServiceCard key={s.key} s={s} onAdd={() => { set(s.key, 'requested'); message.success(`${s.name} added`); }}
       onInfo={() => { form.resetFields(); setInfo(s); }} onRemove={() => set(s.key, undefined)} />)
-      : <Card variant="borderless"><Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={title === 'Added services' ? 'No services added yet' : 'All services are added'} /></Card>}
-  </Flex>;
-  return <Flex vertical gap={token.marginLG}>
-    <Typography.Title level={4} style={{ margin: 0 }}>Services</Typography.Title>
+      : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={title === 'Added services' ? 'No services added yet' : 'All services are added'} />}
+  </Card>;
+  return <Flex vertical gap={token.marginXS}>
     {group('Added services', added)}
     {group('Available services', available)}
     <Modal open={!!info} title={info && `${info.name} · information`} okText="Submit" onCancel={() => setInfo(null)}
