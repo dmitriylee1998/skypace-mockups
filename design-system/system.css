@@ -500,14 +500,14 @@ html { scrollbar-gutter:stable; }
 .do-head2 { padding-inline-end:var(--ds-space-xl); }
 
 /* Party groups are complete surfaces with inset party cards. */
-.shipment-workspace > .sw-section { background:var(--ds-surface); border-radius:var(--ds-radius-lg); padding:var(--ds-space-xs); }
-.shipment-workspace > .sw-section .sw-section-title { padding:var(--ds-space-xs); margin-bottom:var(--ds-space-xs); }
+.shipment-workspace > .sw-section { background:var(--ds-surface); border-radius:var(--ds-radius-lg); padding:var(--ds-space); }
+.shipment-workspace > .sw-section .sw-section-title { padding:0; margin-bottom:var(--ds-space-sm); }
 .shipment-workspace > .sw-section .sw-party-grid > .ant-card { border:1px solid var(--ds-split); }
 
 /* Party information uses the same gray field blocks as dispatch details. */
 .shipment-workspace > .sw-section .sw-party-grid > .ant-card { background:var(--ds-fill-tertiary); border:0; }
 .sw-party-grid .ant-card-head { border-bottom:0; min-height:40px; padding-top:var(--ds-space-xs); }
-.shipment-workspace .sw-party-grid .ant-card-body { padding-top:var(--ds-space-xs); }
+.shipment-workspace .sw-party-grid .ant-card-body { padding:var(--ds-space-xs) var(--ds-space) var(--ds-space); }
 .sw-party-details { gap:var(--ds-space); }
 .sw-party-details > div:first-child > div { margin-top:var(--ds-space-xxs); }
 .sw-party-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--ds-space-sm) var(--ds-space); }
@@ -532,6 +532,7 @@ html { scrollbar-gutter:stable; }
 
 .bol-page { gap:var(--ds-space-xs); }
 .bol-section { overflow:hidden; }
+.bol-section > .do-list-head { padding:var(--ds-space); }
 .bol-section-body { padding:0 var(--ds-space) var(--ds-space); }
 .bol-inset { background:var(--ds-fill-tertiary); border-radius:var(--ds-radius-lg); padding:var(--ds-space); display:flex; flex-direction:column; gap:var(--ds-space-xs); overflow-wrap:anywhere; }
 .bol-inset-head { display:flex; align-items:center; justify-content:space-between; gap:var(--ds-space-xs); }
