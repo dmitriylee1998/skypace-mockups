@@ -1976,7 +1976,7 @@
 
 </style>
 <script src="design-system/theme.js"></script>
-<link rel="stylesheet" href="design-system/system.css?v=20261103-seg3" />
+<link rel="stylesheet" href="design-system/system.css?v=20261103-list1" />
 </head>
 <body>
 <div id="root"></div>
@@ -3307,11 +3307,12 @@ function ListTabs({ items, active, onChange }) {
 }
 function ListPanel({ title, search, onSearch, placeholder = 'Search', actions, filters, filterCount = 0, children, count }) {
   return <section className="card-flat do-list list-panel">
-    <div className="do-list-head"><b>{title}{count != null && <span className="list-count">{count}</span>}</b>
-      <div className="list-controls">{onSearch && <Input allowClear className="do-search" aria-label={`Search ${title}`} placeholder={placeholder}
+    {/* a searchable list is the only table on its page: search and filter replace the title, actions stay on the right */}
+    <div className="do-list-head">{!onSearch && <b>{title}{count != null && <span className="list-count">{count}</span>}</b>}
+      <div className={'list-controls' + (onSearch ? ' list-controls-fill' : '')}>{onSearch && <Input allowClear className="do-search" aria-label={`Search ${typeof title === 'string' ? title : 'list'}`} placeholder={placeholder}
         value={search} onChange={(e) => onSearch(e.target.value)} prefix={<I.SearchOutlined className="muted" />} />}{filters && <Popover trigger="click" placement="bottomRight" title="Filters" content={<div className="list-filter-popover">{filters}</div>}>
         <Button icon={<I.FilterOutlined />} className={filterCount ? 'filter-on' : ''}>Filter{filterCount ? ` · ${filterCount}` : ''}</Button>
-      </Popover>}{actions}</div>
+      </Popover>}{actions && <div className="list-actions">{actions}</div>}</div>
     </div>{children}
   </section>;
 }
@@ -3578,15 +3579,14 @@ function NotificationsPage({shipment=false}) {
       ]} />
       <section className="card-flat table-card notifications-panel">
       <div className="do-list-head notifications-table-head">
-        <b>Updates <span className="list-count">{rows.length}</span></b>
-        <div className="list-controls">
+        <div className="list-controls list-controls-fill">
         <FilterBtn active={Object.values(f).filter(Boolean).length} content={<div className="task-filter-fields">
         {sel('priority', 'Priority', [{ value: 'Important', label: 'Important' }, { value: 'Regular', label: 'Regular' }])}
         {sel('date', 'Received date', [{ value: 'today', label: 'Last 24 hours' }, { value: 'week', label: 'Last 7 days' }, { value: 'month', label: 'Last 30 days' }])}
         {sel('module', 'Module', MODULES.map((m) => ({ value: m, label: m })))}
         {Object.values(f).some(Boolean) && <Button type="link" onClick={() => setF({})}>Reset filters</Button>}
         </div>} />
-        <Button icon={<I.CheckOutlined />} disabled={!items.some(n => n.unread)} onClick={() => setItems(items.map((n) => ({ ...n, unread: false })))}>Mark all as read</Button>
+        <div className="list-actions"><Button icon={<I.CheckOutlined />} disabled={!items.some(n => n.unread)} onClick={() => setItems(items.map((n) => ({ ...n, unread: false })))}>Mark all as read</Button></div>
         </div>
       </div>
         <DataTable columns={shipment ? cols.filter(c=>c.dataIndex!=='object') : cols} dataSource={rows} pagination={PAGINATION}
@@ -3830,8 +3830,8 @@ function ShipmentsPage() {
       </div>
       <section className="card-flat do-list">
         <div className="do-list-head">
-          <b>Shipments{kpi && <Tag closable style={{ marginInlineStart: token.marginXS, fontWeight: token.fontWeightNormal ?? 400 }} onClose={() => setKpi(null)}>{KPIS.find((k) => k.key === kpi).title}</Tag>}</b>
-          <Input allowClear className="do-search" placeholder="Shipment, booking, port, customer" value={q} onChange={(e) => setQ(e.target.value)} suffix={!q && <I.SearchOutlined className="muted" />} />
+          <Input allowClear className="do-search" placeholder="Shipment, booking, port, customer" value={q} onChange={(e) => setQ(e.target.value)} prefix={<I.SearchOutlined className="muted" />} />
+          {kpi && <Tag closable onClose={() => setKpi(null)}>{KPIS.find((k) => k.key === kpi).title}</Tag>}
         </div>
         <DataTable rowKey="key" className="dog-table" columns={cols} dataSource={shown} pagination={false} scroll={{ x: 1150 }}
           rowSelection={{ selectedRowKeys: sel, onChange: setSel, columnWidth: 40 }}
@@ -9285,11 +9285,10 @@ function LegacyDispatchOrdersPage({ f }) {
       </div>
       <section className="card-flat do-list">
         <div className="do-list-head">
-          <b>Dispatches</b>
-          <Input allowClear className="do-search" placeholder="Container, dispatch ID, carrier" value={q} onChange={(e) => setQ(e.target.value)} suffix={!q && <I.SearchOutlined className="muted" />} />
-          <Popover trigger="click" placement="bottomRight" title="Recommended dates" content={recContent}>
+          <Input allowClear className="do-search" placeholder="Container, dispatch ID, carrier" value={q} onChange={(e) => setQ(e.target.value)} prefix={<I.SearchOutlined className="muted" />} />
+          <div className="list-actions"><Popover trigger="click" placement="bottomRight" title="Recommended dates" content={recContent}>
             <Button icon={<I.CalendarOutlined />}>Recommended dates · {drafts.length}</Button>
-          </Popover>
+          </Popover></div>
         </div>
         {selDrafts.length > 0 && (
           <div className="dsp-bulkbar">
@@ -9445,8 +9444,8 @@ function DispatchesAllPage({shipment=false,movement}) {
       </div>
       <section className="card-flat do-list">
         <div className="do-list-head">
-          <b>Dispatches{kpi && <Tag closable style={{ marginInlineStart: token.marginXS, fontWeight: token.fontWeightNormal ?? 400 }} onClose={() => setKpi(null)}>{KPIS.find((k) => k.key === kpi).title}</Tag>}</b>
-          <Input allowClear className="do-search" placeholder={shipment?'Container, dispatch ID, customer':'Container, dispatch ID, shipment, customer'} value={q} onChange={(e) => setQ(e.target.value)} suffix={!q && <I.SearchOutlined className="muted" />} />
+          <Input allowClear className="do-search" placeholder={shipment?'Container, dispatch ID, customer':'Container, dispatch ID, shipment, customer'} value={q} onChange={(e) => setQ(e.target.value)} prefix={<I.SearchOutlined className="muted" />} />
+          {kpi && <Tag closable onClose={() => setKpi(null)}>{KPIS.find((k) => k.key === kpi).title}</Tag>}
         </div>
         <DataTable rowKey="id" className="dog-table" columns={shipment?cols.filter(c=>c.dataIndex!=='shipment'):cols} dataSource={shown} pagination={false} scroll={{ x: shipment?1050:1150 }}
           rowSelection={{ selectedRowKeys: sel, onChange: setSel, columnWidth: 40 }}

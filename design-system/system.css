@@ -580,3 +580,8 @@ html { scrollbar-gutter:stable; }
 .shipment-workspace .ct-table .ant-table-tbody > tr.ant-table-row-level-1 > td.ct-group:first-child { padding-left:calc(var(--ds-control-height) + 2 * var(--ds-space)) !important; }
 /* In table toolbars the solid switch sits on the default gray Segmented track (colorBgLayout) with the default 2px inset. */
 .do-list-head .solid-seg.ant-segmented { padding:calc(var(--ds-space-xxs) / 2); background:var(--ant-color-bg-layout); }
+
+/* single-table pages: search and filter on the left instead of a title, actions pinned right */
+.list-controls-fill { flex:1; min-width:0; }
+.list-actions { display:flex; align-items:center; gap:var(--ds-space-xs); margin-inline-start:auto; flex-wrap:wrap; }
+.do-list-head > .do-search { flex:0 1 240px; min-width:200px; width:240px; }
