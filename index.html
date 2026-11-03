@@ -3928,9 +3928,102 @@ const CONTACTS = range(85, (i) => ({
   key: 'c' + i, company: pick(['Maxton Shipping', 'Blue Ocean Ltd', 'FastFreight LLC', 'Nordic Lines', 'Sakura Logistics'], i),
   country: pick(['UK', 'US', 'US', 'DE', 'JP'], i), city: pick(['London', 'Houston', 'Newark', 'Hamburg', 'Tokyo'], i), contact: pick(PEOPLE, i),
 }));
+const COUNTRY_NAMES = { UK: 'United Kingdom', US: 'United States', DE: 'Germany', JP: 'Japan', VN: 'Vietnam' };
+const companyAddresses = (c) => [
+  { key: 'a1', name: 'Head office', street: '12 Harbour Road', city: c.city, country: c.country, contact: c.contact, primary: true },
+  { key: 'a2', name: 'Warehouse', street: '48 Dock Street', city: c.city, country: c.country, contact: pick(PEOPLE, c.key.length + 1) },
+  { key: 'a3', name: 'Billing', street: '5 Market Square', city: c.city, country: c.country, contact: c.contact },
+];
+function CompanyPage({ ckey }) {
+  const { token } = antd.theme.useToken();
+  const { Text, Title } = Typography;
+  const [items, setItems] = useLocalRows('contacts', CONTACTS);
+  const c = items.find((x) => x.key === ckey);
+  const [addresses, setAddresses] = useLocalRows('addresses.' + ckey, c ? companyAddresses(c) : []);
+  const [q, setQ] = useState('');
+  const [editing, setEditing] = useState(null); // 'company' | address record | {}
+  const [form] = Form.useForm();
+  const [msgApi, msgCtx] = message.useMessage();
+  if (!c) return <Card variant="borderless"><Result status="404" title="Company not found" extra={<Button type="primary" onClick={() => go('/contacts')}>Back to contacts</Button>} /></Card>;
+  const taxId = c.taxId || `${c.country}-${String(4000000 + +c.key.replace(/\D/g, '') * 7919).slice(0, 7)}`;
+  const rows = addresses.filter((a) => includesQ(q, a.name, a.street, a.city, a.country, a.contact));
+  const countries = Object.entries(COUNTRY_NAMES).map(([value, label]) => ({ value, label }));
+  const openEdit = (what) => { setEditing(what); form.setFieldsValue(what === 'company' ? { ...c, taxId } : what); };
+  const save = async () => {
+    const v = await form.validateFields().catch(() => null); // invalid fields are shown inline
+    if (!v) return;
+    if (editing === 'company') { setItems(items.map((x) => (x.key === ckey ? { ...x, ...v } : x))); msgApi.success('Company details saved'); }
+    else {
+      const next = v.primary ? addresses.map((a) => ({ ...a, primary: false })) : addresses;
+      setAddresses(editing.key ? next.map((a) => (a.key === editing.key ? { ...a, ...v } : a)) : [...next, { key: 'a' + Date.now(), ...v }]);
+      msgApi.success(editing.key ? 'Address saved' : 'Address added');
+    }
+    setEditing(null); form.resetFields();
+  };
+  const cols = [
+    { title: 'Address', dataIndex: 'name', render: (v, a) => <TableCell primary={<Flex gap={token.marginXS} align="center"><Typography.Link onClick={() => openEdit(a)}>{v}</Typography.Link>{a.primary && <Tag color="success">Primary</Tag>}</Flex>} secondary={a.street} /> },
+    { title: 'Country', dataIndex: 'country', width: 200, render: (v) => COUNTRY_NAMES[v] || v },
+    { title: 'City', dataIndex: 'city', width: 200 },
+    { title: 'Contact', dataIndex: 'contact', width: 220, render: (p) => p ? <TableCell primary={p} icon={<People names={[p]} />} /> : <Text type="secondary">Not set</Text> },
+    { key: 'edit', width: 56, align: 'right', render: (_, a) => <Button type="text" size="small" icon={<I.EditOutlined />} aria-label={`Edit ${a.name}`} onClick={() => openEdit(a)} /> },
+  ];
+  return (
+    <div className="page-stack">
+      {msgCtx}
+      <Card variant="borderless" styles={{ body: { padding: token.padding } }}>
+        <Flex gap={token.marginSM} align="center" wrap>
+          <Button type="text" icon={<ChevronIcon dir="left" />} onClick={() => go('/contacts')} aria-label="Back to contacts" />
+          <Avatar shape="square" size={token.controlHeightLG} icon={<I.BankOutlined />} style={{ background: token.colorFillTertiary, color: token.colorTextSecondary, flex: 'none' }} />
+          <Flex vertical style={{ flex: 1, minWidth: 0 }}>
+            <Title level={4} style={{ margin: 0 }}>{c.company}</Title>
+            <Text type="secondary">Tax ID {taxId} · {c.city}, {COUNTRY_NAMES[c.country] || c.country}</Text>
+          </Flex>
+          <Button icon={<I.EditOutlined />} onClick={() => openEdit('company')}>Edit company details</Button>
+        </Flex>
+      </Card>
+      <Card variant="borderless" styles={{ body: { padding: token.padding } }}>
+        <Descriptions column={{ xs: 1, sm: 2, lg: 4 }} layout="vertical" colon={false} items={[
+          { key: 'tax', label: 'Tax ID', children: taxId },
+          { key: 'country', label: 'Country', children: COUNTRY_NAMES[c.country] || c.country },
+          { key: 'contact', label: 'Contact person', children: <TableCell primary={c.contact} icon={<People names={[c.contact]} />} /> },
+          { key: 'email', label: 'Email', children: c.email || <Text type="secondary">Not provided</Text> },
+        ]} />
+      </Card>
+      <ListPanel title="Addresses" count={rows.length} search={q} onSearch={setQ} placeholder="Address, city or contact"
+        actions={<Button type="primary" icon={<I.PlusOutlined />} onClick={() => openEdit({})}>Add address</Button>}>
+        <DataTable columns={cols} dataSource={rows} pagination={false} minWidth={760} />
+      </ListPanel>
+      {editing && (
+        <Drw title={editing === 'company' ? 'Edit company details' : editing.key ? 'Edit address' : 'Add address'} width={480} onClose={() => setEditing(null)}
+          footer={<><Button onClick={() => setEditing(null)}>Cancel</Button><Button type="primary" onClick={save}>{editing === 'company' || editing.key ? 'Save' : 'Add'}</Button></>}>
+          <Form form={form} layout="vertical" requiredMark={false}>
+            {editing === 'company' ? <>
+              <Form.Item name="company" label="Company name" rules={[{ required: true, whitespace: true, message: 'Enter the company name' }]}><Input /></Form.Item>
+              <Form.Item name="taxId" label="Tax ID"><Input /></Form.Item>
+              <div className="grid-2 form-2">
+                <Form.Item name="country" label="Country" rules={[{ required: true, message: 'Select a country' }]}><Select options={countries} /></Form.Item>
+                <Form.Item name="city" label="City" rules={[{ required: true, whitespace: true, message: 'Enter the city' }]}><Input /></Form.Item>
+              </div>
+              <Form.Item name="contact" label="Contact person"><Select options={PEOPLE.map((p) => ({ value: p, label: p }))} /></Form.Item>
+              <Form.Item name="email" label="Email" rules={[{ type: 'email', message: 'Enter a valid email' }]}><Input placeholder="name@company.com" /></Form.Item>
+            </> : <>
+              <Form.Item name="name" label="Address name" rules={[{ required: true, whitespace: true, message: 'Enter the address name' }]}><Input placeholder="Head office" /></Form.Item>
+              <Form.Item name="street" label="Street address" rules={[{ required: true, whitespace: true, message: 'Enter the street address' }]}><Input /></Form.Item>
+              <div className="grid-2 form-2">
+                <Form.Item name="country" label="Country" rules={[{ required: true, message: 'Select a country' }]}><Select options={countries} /></Form.Item>
+                <Form.Item name="city" label="City" rules={[{ required: true, whitespace: true, message: 'Enter the city' }]}><Input /></Form.Item>
+              </div>
+              <Form.Item name="contact" label="Contact person"><Select allowClear options={PEOPLE.map((p) => ({ value: p, label: p }))} /></Form.Item>
+              <Form.Item name="primary" valuePropName="checked"><Checkbox>Primary address</Checkbox></Form.Item>
+            </>}
+          </Form>
+        </Drw>
+      )}
+    </div>
+  );
+}
 function ContactsPage() {
   const [items, setItems] = useLocalRows('contacts', CONTACTS);
-  const [detail,setDetail]=useState(null);
   const [q, setQ] = useState('');
   const [sort, setSort] = useState('company');
   const [open, setOpen] = useState(false);
@@ -3942,7 +4035,7 @@ function ContactsPage() {
     { title: 'Country', dataIndex: 'country', width: 199, filters: filtersOf(CONTACTS, 'country'), onFilter: (v, r) => r.country === v },
     { title: 'City', dataIndex: 'city', sorter: byKey('city') },
     { title: 'Contact Person', dataIndex: 'contact', width: 199, filters: PEOPLE.map((p) => ({ text: p, value: p })), onFilter: (v, r) => r.contact === v, render: (p) => <TableCell primary={p} icon={<People names={[p]} />} /> },
-    { key: 'go', width: 44, render: (_,r) => <ArrowBtn onClick={()=>setDetail(r)}/> },
+    { key: 'go', width: 44, render: (_,r) => <ArrowBtn onClick={()=>go('/contacts/'+r.key)}/> },
   ];
   const save = async () => {
     const v = await form.validateFields().catch(() => null); // invalid fields are shown inline
@@ -3956,8 +4049,7 @@ function ContactsPage() {
       <ListPanel title="Companies" count={rows.length} search={q} onSearch={setQ} placeholder="Company, city or contact" actions={<>
         <SortBtn value={sort} onChange={setSort} options={[['company', 'Company A–Z'], ['city', 'City A–Z'], ['country', 'Country']]} />
         <Button type="primary" icon={<I.PlusOutlined />} onClick={() => setOpen(true)}>Add company</Button>
-      </>}><DataTable columns={cols} dataSource={rows} minWidth={900} onRow={r=>({onClick:()=>setDetail(r),className:'clickable-row'})}/></ListPanel>
-      <TableDetails record={detail} onClose={()=>setDetail(null)} fields={detail?[['Company',detail.company],['Country',detail.country],['City',detail.city],['Contact person',detail.contact],['Email',detail.email || 'Not provided']]:[]}/>
+      </>}><DataTable columns={cols} dataSource={rows} minWidth={900} onRow={r=>({onClick:()=>go('/contacts/'+r.key),className:'clickable-row'})}/></ListPanel>
       {open && (
         <Drw title="Add company" width={480} onClose={() => setOpen(false)} footer={<><Button onClick={() => setOpen(false)}>Cancel</Button><Button type="primary" onClick={save}>Add</Button></>}>
           <Form form={form} layout="vertical" requiredMark={false}>
@@ -10607,6 +10699,11 @@ function resolvePage(path, query) {
     }
     return { navKey: '/dispatches', crumbs: [crumb('Shipments', '/shipments'), crumb(SHIPMENT_ID, SHIPMENT_PATH), crumb('Inland Pickup'), crumb('Dispatches', DISPATCH_PATH), crumb(dspRoute)],
       el: <DispatchPage key={dspRoute} id={dspRoute} /> };
+  }
+  const coRoute = path.match(/^\/contacts\/(c\d+)$/);
+  if (coRoute) {
+    const co = store.get('skypace.lists.contacts', CONTACTS).find((x) => x.key === coRoute[1]);
+    return { navKey: '/contacts', crumbs: [HOME, crumb('Contacts', '/contacts'), crumb(co ? co.company : 'Not found')], el: <CompanyPage key={coRoute[1]} ckey={coRoute[1]} /> };
   }
   const gcRoute = path.match(/^\/containers\/(g\d+)$/);
   if (gcRoute) {
