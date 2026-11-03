@@ -10101,7 +10101,6 @@ const SW_COLLECTIONS = {
   cargo:{title:'Goods',action:'Add cargo',rows:SW_CARGO,fields:[['hs','HS Code'],['description','Description'],['references','References'],['pcs','Pcs','number'],['weight','Weight, kg','number'],['volume','Volume, cbm','number'],['value','Goods value, USD','money']]},
   documents:{title:'Files',action:'Upload document',rows:[],fields:[['name','Document name'],['category','Category',['Bill of Lading','Commercial Invoice','Packing List','Booking Confirmation','Other']],['status','Status',['Draft','Approved','Pending review']],['updated','Updated']]},
   bol:{title:'Shipping documents',action:'Add Bill of Lading',rows:[],fields:[['number','B/L number'],['type','Type',['Master B/L','House B/L']],['shipper','Shipper'],['consignee','Consignee'],['status','Status',['Draft','Submitted','Released']]]},
-  services:{title:'Requested services',action:'Add service',rows:[],fields:[['name','Service',['Customs clearance','Cargo insurance','Inspection','Warehousing','Documentation']],['provider','Provider'],['status','Status',['Requested','In progress','Completed']],['notes','Notes']]},
   charges:{title:'Charges',action:'Add charge',rows:SW_CHARGES,fields:[['name','Charge'],['party','Vendor'],['category','Category',['Ocean','Origin','Destination','Inland','Other']],['quantity','Quantity','number'],['rate','Rate, USD','money'],['status','Status',['Estimated','Confirmed','Invoiced']]]},
   people:{title:'Participants',action:'Add participant',rows:[{key:'p1',name:'Kate Miller',company:'Maxton Shipping',email:'kate@example.com',role:'Shipment operator'},{key:'p2',name:'Liam Green',company:'Tesla Inc',email:'liam@example.com',role:'Customer'}],fields:[['name','Name'],['company','Organization'],['email','Email','email'],['role','Role',['Shipment operator','Customer','Carrier','Observer']]]},
   receivables:{title:'Invoices',action:'Add invoice',rows:[],fields:[['number','ID'],['party','Debtor name'],['type','Type',['Invoice','Credit note']],['created','Created','date'],['due','Due date','date'],['status','Status',['Draft','Unpaid','Paid','Void']],['total','Total, USD','money'],['balance','Balance, USD','money']]},
@@ -10135,6 +10134,68 @@ function ShipmentCollection({kind}) {
     </ListPanel>
     {editing&&<ShipmentRecordForm title={editing.key?'Edit '+cfg.title.toLowerCase():cfg.action} fields={cfg.fields.filter(f=>f[0]!=='updated')} initial={editing} onClose={()=>setEditing(null)} onSave={save} upload={kind==='documents'}/>}
   </>;
+}
+const SW_SERVICES = [
+  { key: 'isf', name: 'Import Security Filing (ISF)', text: 'ISF filing for US-bound shipments. Required 24 hours before vessel departure.', price: 25, status: 'info' },
+  { key: 'aes', name: 'Export Customs Clearance (AES)', text: 'Handles AES filing and export customs clearance for your shipment.', price: 25 },
+  { key: 'fumigation', name: 'Fumigation', text: 'Something to tell about fumigation service', price: 25 },
+];
+// status: 'info' — waiting for information from the customer, 'requested' — added and in review
+const SW_SERVICE_TAG = { info: ['warning', 'Waiting information from you'], requested: ['processing', 'Requested'] };
+function ServiceCard({ s, onAdd, onInfo, onRemove }) {
+  const { token } = antd.theme.useToken();
+  const warn = s.status === 'info';
+  const tag = SW_SERVICE_TAG[s.status];
+  const stripe = token.marginXXS + token.lineWidth; // warning accent on the left edge
+  return <Card variant="borderless" styles={{ body: { padding: token.padding, paddingInlineStart: warn ? token.padding - stripe : token.padding } }}
+    style={{ borderRadius: token.borderRadiusSM, borderInlineStart: warn ? `${stripe}px solid ${token.colorWarningBorder}` : undefined }}>
+    <Flex gap={token.marginXL} align="flex-start">
+      <Flex gap={token.padding} align="flex-start" flex={1} style={{ minWidth: 0 }}>
+        <Flex align="center" justify="center" style={{ width: token.controlHeightLG + token.marginXS, height: token.controlHeightLG + token.marginXS, flex: 'none', borderRadius: token.borderRadiusLG, background: token.colorFillTertiary, fontSize: token.fontSizeHeading3 }}>
+          <I.FileTextTwoTone twoToneColor={[token.colorText, token.colorFillTertiary]} />
+        </Flex>
+        <Flex vertical gap={token.marginXS} style={{ minWidth: 0 }}>
+          <Flex gap={token.marginXS} align="center" wrap>
+            <Typography.Title level={5} style={{ margin: 0 }}>{s.name}</Typography.Title>
+            {tag && <Tag color={tag[0]} variant="outlined" style={{ margin: 0 }}>{tag[1]}</Tag>}
+          </Flex>
+          <Typography.Text>{s.text}</Typography.Text>
+        </Flex>
+      </Flex>
+      <Flex vertical gap={token.marginXS} align="flex-end" style={{ flex: 'none' }}>
+        <Typography.Text strong>{money(s.price)}</Typography.Text>
+        {!s.status ? <Button color="default" variant="solid" icon={<I.PlusOutlined />} onClick={onAdd}>Add</Button>
+          : warn ? <Button color="gold" variant="outlined" onClick={onInfo}>Provide Information</Button>
+          : <Button onClick={onRemove}>Remove</Button>}
+      </Flex>
+    </Flex>
+  </Card>;
+}
+function ShipmentServices() {
+  const { token } = antd.theme.useToken();
+  const [items, setItems] = useLocalRows('shipment-' + SHIPMENT_ID + '-services', SW_SERVICES);
+  const [info, setInfo] = useState(null); const [form] = Form.useForm();
+  const set = (key, status) => setItems((prev) => prev.map((x) => x.key === key ? { ...x, status } : x));
+  const added = items.filter((s) => s.status); const available = items.filter((s) => !s.status);
+  const group = (title, list) => <Flex vertical gap={token.marginXS}>
+    <Typography.Title level={5} style={{ margin: 0 }}>{title}</Typography.Title>
+    {list.length ? list.map((s) => <ServiceCard key={s.key} s={s} onAdd={() => { set(s.key, 'requested'); message.success(`${s.name} added`); }}
+      onInfo={() => { form.resetFields(); setInfo(s); }} onRemove={() => set(s.key, undefined)} />)
+      : <Card variant="borderless"><Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={title === 'Added services' ? 'No services added yet' : 'All services are added'} /></Card>}
+  </Flex>;
+  return <Flex vertical gap={token.marginLG}>
+    <Typography.Title level={4} style={{ margin: 0 }}>Services</Typography.Title>
+    {group('Added services', added)}
+    {group('Available services', available)}
+    <Modal open={!!info} title={info && `${info.name} · information`} okText="Submit" onCancel={() => setInfo(null)}
+      onOk={() => form.validateFields().then(() => { set(info.key, 'requested'); setInfo(null); message.success('Information submitted'); })}>
+      <Form form={form} layout="vertical" requiredMark={false}>
+        <Form.Item name="importer" label="Importer of record" rules={[{ required: true, message: 'Enter the importer of record' }]}><Input /></Form.Item>
+        <Form.Item name="manufacturer" label="Manufacturer / supplier" rules={[{ required: true, message: 'Enter the manufacturer' }]}><Input /></Form.Item>
+        <Form.Item name="hts" label="HTS code" rules={[{ required: true, message: 'Enter the HTS code' }]}><Input placeholder="0202.20" /></Form.Item>
+      </Form>
+    </Modal>
+  </Flex>;
 }
 function ShipmentParties() {
   const roles=['Shipper','Consignee','Notify Party','Cargo Supplier','Cargo Receiver'];
@@ -10308,6 +10369,7 @@ function ShipmentWorkspace({section,tab}) {
   else if(section==='notifications')content=<NotificationsPage shipment/>;
   else if(section==='parties')content=<ShipmentParties/>;
   else if(section==='bol')content=<BillsOfLadingPage/>;
+  else if(section==='services')content=<ShipmentServices/>;
   else if(section==='tracker')content=<ShipmentTracker/>;
   else if(['ocean','export','import'].includes(section))content=<ShipmentTransport mode={section} tab={tab||'overview'}/>;
   else if(['charges','billing'].includes(section))content=<ShipmentAccounting section={section} tab={tab}/>;
