@@ -3767,6 +3767,7 @@ function ShipmentsPage() {
   const [q, setQ] = useState('');
   const [sel, setSel] = useState([]);
   const [fl, setFl] = useState({});
+  const [sort, setSort] = useState('newest');
   const FILTERS = [['status', 'Status'], ['customer', 'Customer'], ['ops', 'Ops'], ['origin', 'Origin'], ['dest', 'Destination']];
   const KPIS = [
     { key: 'action', title: 'Action required', icon: <I.ExclamationCircleOutlined />, test: (s) => s.alerts > 0, note: 'Unread notifications' },
@@ -3778,6 +3779,10 @@ function ShipmentsPage() {
   const kpiTest = KPIS.find((k) => k.key === kpi)?.test || (() => true);
   const inTab = (s, k) => k === 'all' || s.state === k;
   const shown = SHIPMENTS.filter((s) => inTab(s, tab) && kpiTest(s) && FILTERS.every(([k]) => !fl[k] || s[k] === fl[k]) && includesQ(q, s.id, s.bn, s.origin, s.dest, s.customer, s.ops));
+  // TBD dates go last
+  const at = (d) => { if (!d) return Infinity; const [, day, mon, hh, mm] = d[1].match(/(\d+) (\w+), (\d+):(\d+)/); return new Date(2026, 'JanFebMarAprMayJunJulAugSepOctNovDec'.indexOf(mon) / 3, +day, +hh, +mm).valueOf(); };
+  const SORTS = { newest: (a, b) => b.id.localeCompare(a.id), etd: (a, b) => at(a.dep) - at(b.dep), eta: (a, b) => at(a.arr) - at(b.arr), status: (a, b) => a.status.localeCompare(b.status), customer: (a, b) => a.customer.localeCompare(b.customer) };
+  shown.sort(SORTS[sort]);
   const open = () => go(SHIPMENT_PATH);
   const small = { fontSize: token.fontSizeSM };
   const two = (top, bottom) => <Flex vertical><Text>{top}</Text>{bottom && <Text type="secondary" style={small}>{bottom}</Text>}</Flex>;
@@ -3838,6 +3843,7 @@ function ShipmentsPage() {
               options={[...new Set(SHIPMENTS.map((x) => x[k]).filter(Boolean))].map((v) => ({ value: v, label: v }))} />)}
             {Object.values(fl).some(Boolean) && <Button type="link" onClick={() => setFl({})}>Reset filters</Button>}
           </Flex>} />
+          <SortBtn value={sort} onChange={setSort} options={[['newest', 'Newest first'], ['etd', 'ETD'], ['eta', 'ETA'], ['status', 'Status'], ['customer', 'Customer A–Z']]} />
           {kpi && <Tag closable onClose={() => setKpi(null)}>{KPIS.find((k) => k.key === kpi).title}</Tag>}
         </div>
         <DataTable rowKey="key" className="dog-table" columns={cols} dataSource={shown} pagination={false} scroll={{ x: 1150 }}
