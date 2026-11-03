@@ -303,10 +303,11 @@ table, .ant-table-wrapper, .ant-table, .ant-table-container, .ant-table-content,
   border-bottom:0;
 }
 
-/* Compact table toolbars; keep the shared 16px horizontal inset. */
+/* Compact table toolbars; keep the shared 16px horizontal inset. Headers without a control keep the same height as ones with a button. */
 .do-list-head,
 .overview-tables .card-head.pad {
   padding-block:var(--ds-space-xs);
+  min-height:calc(var(--ds-control-height) + 2 * var(--ds-space-xs));
 }
 
 .list-filter-popover:has(> .contracts-filter-fields) { display:block; width:260px; }
