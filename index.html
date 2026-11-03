@@ -3961,10 +3961,10 @@ function CompanyPage({ ckey }) {
     setEditing(null); form.resetFields();
   };
   const cols = [
-    { title: 'Address', dataIndex: 'name', render: (v, a) => <TableCell primary={<Flex gap={token.marginXS} align="center"><Typography.Link onClick={() => openEdit(a)}>{v}</Typography.Link>{a.primary && <Tag color="success">Primary</Tag>}</Flex>} secondary={a.street} /> },
+    { title: 'Address', dataIndex: 'name', render: (v, a) => <Flex gap={token.marginXS} align="center"><Typography.Link onClick={() => openEdit(a)}>{v}</Typography.Link>{a.primary && <Tag color="success">Primary</Tag>}</Flex> },
     { title: 'Country', dataIndex: 'country', width: 200, render: (v) => COUNTRY_NAMES[v] || v },
     { title: 'City', dataIndex: 'city', width: 200 },
-    { title: 'Contact', dataIndex: 'contact', width: 220, render: (p) => p ? <TableCell primary={p} icon={<People names={[p]} />} /> : <Text type="secondary">Not set</Text> },
+    { title: 'Contact', dataIndex: 'contact', width: 220, render: (p) => p ? <Flex gap={token.marginXS} align="center"><People names={[p]} /><Text>{p}</Text></Flex> : <Text type="secondary">Not set</Text> },
     { key: 'edit', width: 56, align: 'right', render: (_, a) => <Button type="text" size="small" icon={<I.EditOutlined />} aria-label={`Edit ${a.name}`} onClick={() => openEdit(a)} /> },
   ];
   return (
@@ -4035,7 +4035,7 @@ function ContactsPage() {
     { title: 'Company', dataIndex: 'company', width: 187, sorter: byKey('company') },
     { title: 'Country', dataIndex: 'country', width: 199, filters: filtersOf(CONTACTS, 'country'), onFilter: (v, r) => r.country === v },
     { title: 'City', dataIndex: 'city', sorter: byKey('city') },
-    { title: 'Contact Person', dataIndex: 'contact', width: 199, filters: PEOPLE.map((p) => ({ text: p, value: p })), onFilter: (v, r) => r.contact === v, render: (p) => <TableCell primary={p} icon={<People names={[p]} />} /> },
+    { title: 'Contact Person', dataIndex: 'contact', width: 199, filters: PEOPLE.map((p) => ({ text: p, value: p })), onFilter: (v, r) => r.contact === v, render: (p) => <Flex gap={TOKEN.marginXS} align="center"><People names={[p]} /><Typography.Text>{p}</Typography.Text></Flex> },
     { key: 'go', width: 44, render: (_,r) => <ArrowBtn onClick={()=>go('/contacts/'+r.key)}/> },
   ];
   const save = async () => {
