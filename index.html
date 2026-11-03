@@ -8941,15 +8941,17 @@ const DoEdBtns = ({ editing, all, onEdit, onCancel, onSave, extra }) => (
 const DO_KEY_DATES = [['Cargo ready', '28 May'], ['Earliest release', '27 May, 08:00'], ['Earliest receive', '27 May, 08:00'], ['Port cutoff', '02 Jun, 18:00'], ['VGM cutoff', '02 Jun, 12:00'], ['Last free day (Detention)', '01 Jun, 17:00']];
 const DO_REC_WIN = { 'dp-appt': '07:00–08:00', 'dp-fcfs': 'site hours', 'live-fcfs': '06:00–08:00', 'live-appt': '08:00–10:00' };
 const doDayVal = (k) => (k ? dayjs(doDay(k).iso) : null);
-// Locked (read-only) field styles to compare: disabled · filled · lock · text
-const DO_LOCK_STYLES = [['disabled', 'Disabled'], ['filled', 'Filled'], ['lock', 'Lock'], ['text', 'Text']];
+// Locked (read-only) field styles to compare: underlined · hint · tag · change
+const DO_LOCK_STYLES = [['underlined', 'Underlined'], ['hint', 'Hint'], ['tag', 'Tag'], ['change', 'Change']];
 const DoLocked = ({ value, why, look }) => {
-  const { token } = antd.theme.useToken(); const { Text } = Typography;
-  const lock = <Tooltip title={why}><I.LockOutlined style={{ color: token.colorTextTertiary }} /></Tooltip>;
-  if (look === 'filled') return <Input variant="filled" value={value} readOnly />;
-  if (look === 'lock') return <Input value={value} readOnly suffix={lock} />;
-  if (look === 'text') return <Flex align="center" gap={token.marginXS} style={{ minHeight: token.controlHeight }}><Text>{value}</Text>{lock}</Flex>;
-  return <Input value={value} disabled />;
+  const { token } = antd.theme.useToken(); const { Text, Link } = Typography;
+  const [edit, setEdit] = React.useState(false);
+  const line = (c) => <Flex align="center" gap={token.marginXS} style={{ minHeight: token.controlHeight }}>{c}</Flex>;
+  if (look === 'underlined') return <Input variant="underlined" value={value} readOnly />;
+  if (look === 'hint') return <Flex vertical gap={token.marginXXS}><Input value={value} readOnly /><Text type="secondary" style={{ fontSize: token.fontSizeSM }}>{why}</Text></Flex>;
+  if (look === 'tag') return line(<Tooltip title={why}><Tag bordered={false} icon={<I.LockOutlined />}>{value}</Tag></Tooltip>);
+  if (edit) return <Input defaultValue={value} autoFocus onBlur={() => setEdit(false)} />;
+  return line(<><Text>{value}</Text><Link onClick={() => setEdit(true)}>Change</Link></>);
 };
 const DoPF = ({ label, opt, children }) => <label className="do-pf"><span>{label}{opt && <span className="do-sub muted"> · optional</span>}</span>{children}</label>;
 function DoRecRow({ title, note, onUse, onAll }) {
@@ -9066,8 +9068,8 @@ function DoDaysModal({ d, which, close, msg }) {
 function DoEditor({ d, close, open, msg }) {
   const missing = doMissing(d).length;
   const patchCargo = (patch) => doPatch(d.id, { cargo: { ...d.cargo, ...patch } });
-  const [look, setLook] = React.useState(() => { try { return localStorage.getItem('skypace.lockLook') || 'lock'; } catch { return 'lock'; } });
-  React.useEffect(() => { try { localStorage.setItem('skypace.lockLook', look); } catch {} }, [look]);
+  const [look, setLook] = React.useState(() => { try { return localStorage.getItem('skypace.lockLook2') || 'underlined'; } catch { return 'underlined'; } });
+  React.useEffect(() => { try { localStorage.setItem('skypace.lockLook2', look); } catch {} }, [look]);
   const typeLabel = { '20 ft Standard': '20 Dry standard', '40 ft Standard': '40 Dry standard', '40 ft High Cube': '40 High cube' }[d.cargo.type] || d.cargo.type;
   const kg = (v) => (v ? num(v).replace(/,/g, ' ') : '');
   // Route details: each place picked from the saved places, the drawer (Edit) also holds the site contact
@@ -9112,7 +9114,7 @@ function DoEditor({ d, close, open, msg }) {
               <b>Container</b>
               <div className="do-pf-row">
                 <DoPF label="Container number"><Input value={d.number || ''} placeholder="Assigned at empty pickup" onChange={(e) => doPatch(d.id, { number: e.target.value || null })} /></DoPF>
-                <DoPF label="Container Type"><DoLocked value={typeLabel} look={look} why="From the booking · change it in the booking" /></DoPF>
+                <DoPF label="Container Type"><DoLocked value={typeLabel} look={look} why="From the booking" /></DoPF>
                 <DoPF label="Seal Number"><Input value={d.cargo.sealNo || ''} placeholder="After loading" onChange={(e) => patchCargo({ sealNo: e.target.value })} /></DoPF>
                 <DoPF label="Genset"><Select value={d.cargo.genset ? 'Yes' : 'No'} onChange={(v) => patchCargo({ genset: v === 'Yes' })} options={[{ value: 'Yes', label: 'Yes' }, { value: 'No', label: 'No' }]} /></DoPF>
                 <DoPF label="Temperature"><Input value={d.cargo.temp || ''} onChange={(e) => patchCargo({ temp: e.target.value })} /></DoPF>
@@ -9122,7 +9124,7 @@ function DoEditor({ d, close, open, msg }) {
             <div className="do-ed-box">
               <b>Cargo</b>
               <div className="do-pf-row">
-                <DoPF label="Description"><DoLocked value={d.cargo.desc} look={look} why="From the booking · change it in the booking" /></DoPF>
+                <DoPF label="Description"><DoLocked value={d.cargo.desc} look={look} why="From the booking" /></DoPF>
                 <DoPF label="Estimated load weight"><Input id="do-est-weight" value={kg(d.cargo.weight)} status={d.cargo.weight ? '' : 'warning'} placeholder="kg" onChange={(e) => patchCargo({ weight: Number(e.target.value.replace(/\D/g, '')) || null })} /></DoPF>
               </div>
             </div>
