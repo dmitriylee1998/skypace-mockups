@@ -3936,7 +3936,7 @@ const companyAddresses = (c) => [
 ];
 function CompanyPage({ ckey }) {
   const { token } = antd.theme.useToken();
-  const { Text, Title } = Typography; const { Row, Col } = antd;
+  const { Text, Title } = Typography;
   const [items, setItems] = useLocalRows('contacts', CONTACTS);
   const c = items.find((x) => x.key === ckey);
   const [addresses, setAddresses] = useLocalRows('addresses.' + ckey, c ? companyAddresses(c) : []);
@@ -3961,11 +3961,11 @@ function CompanyPage({ ckey }) {
     setEditing(null); form.resetFields();
   };
   const cols = [
-    { title: 'Address', dataIndex: 'name', render: (v, a) => <Flex gap={token.marginXS} align="center"><Typography.Link onClick={() => openEdit(a)}>{v}</Typography.Link>{a.primary && <Tag color="success">Primary</Tag>}</Flex> },
+    { title: 'Address', dataIndex: 'name', render: (v, a) => <Flex gap={token.marginXS} align="center"><Typography.Link onClick={() => go(`/contacts/${ckey}/${a.key}`)}>{v}</Typography.Link>{a.primary && <Tag color="success">Primary</Tag>}</Flex> },
     { title: 'Country', dataIndex: 'country', width: 200, render: (v) => COUNTRY_NAMES[v] || v },
     { title: 'City', dataIndex: 'city', width: 200 },
     { title: 'Contact', dataIndex: 'contact', width: 220, render: (p) => p ? <Flex gap={token.marginXS} align="center"><People names={[p]} /><Text>{p}</Text></Flex> : <Text type="secondary">Not set</Text> },
-    { key: 'edit', width: 56, align: 'right', render: (_, a) => <Button type="text" size="small" icon={<I.EditOutlined />} aria-label={`Edit ${a.name}`} onClick={() => openEdit(a)} /> },
+    { key: 'edit', width: 56, align: 'right', render: (_, a) => <Button type="text" size="small" icon={<I.EditOutlined />} aria-label={`Edit ${a.name}`} onClick={(e) => { e.stopPropagation(); openEdit(a); }} /> },
   ];
   return (
     <div className="page-stack">
@@ -3980,19 +3980,10 @@ function CompanyPage({ ckey }) {
           </Flex>
           <Button icon={<I.EditOutlined />} onClick={() => openEdit('company')}>Edit company details</Button>
         </Flex>
-        <Row gutter={[token.margin, token.marginSM]} style={{ marginTop: token.margin, padding: token.padding, borderRadius: token.borderRadiusLG, background: token.colorFillTertiary }}>
-          {[['Tax ID', taxId], ['Country', COUNTRY_NAMES[c.country] || c.country], ['City', c.city],
-            ['Contact person', <Flex gap={token.marginXS} align="center"><People names={[c.contact]} /><Text>{c.contact}</Text></Flex>],
-            ['Email', c.email || <Text type="secondary">Not provided</Text>]].map(([label, value]) => (
-            <Col key={label} xs={24} sm={12} lg={{ flex: '1 1 0' }}>
-              <Flex vertical gap={token.marginXXS}><Text type="secondary" style={{ fontSize: token.fontSizeSM }}>{label}</Text><Text>{value}</Text></Flex>
-            </Col>
-          ))}
-        </Row>
       </Card>
       <ListPanel title="Addresses" count={rows.length} search={q} onSearch={setQ} placeholder="Address, city or contact"
         actions={<Button type="primary" icon={<I.PlusOutlined />} onClick={() => openEdit({})}>Add address</Button>}>
-        <DataTable columns={cols} dataSource={rows} pagination={false} minWidth={760} />
+        <DataTable columns={cols} dataSource={rows} pagination={false} minWidth={760} onRow={(a) => ({ onClick: () => go(`/contacts/${ckey}/${a.key}`), className: 'clickable-row' })} />
       </ListPanel>
       {editing && (
         <Drw title={editing === 'company' ? 'Edit company details' : editing.key ? 'Edit address' : 'Add address'} width={480} onClose={() => setEditing(null)}
@@ -4016,6 +4007,89 @@ function CompanyPage({ ckey }) {
               </div>
               <Form.Item name="contact" label="Contact person"><Select allowClear options={PEOPLE.map((p) => ({ value: p, label: p }))} /></Form.Item>
               <Form.Item name="primary" valuePropName="checked"><Checkbox>Primary address</Checkbox></Form.Item>
+            </>}
+          </Form>
+        </Drw>
+      )}
+    </div>
+  );
+}
+const addressPeople = (a) => [a.contact, pick(PEOPLE, a.key.length + 2)].filter((v, i, x) => v && x.indexOf(v) === i).map((name, i) => ({
+  key: 'p' + i, name, email: name.toLowerCase().replace(/\s+/g, '.') + '@example.com', phone: `+49 40 ${3100 + i * 17} ${5520 + i * 31}`, phone2: i ? '' : `+49 151 ${2200 + i} ${8800 + i}`,
+}));
+function AddressPage({ ckey, akey }) {
+  const { token } = antd.theme.useToken();
+  const { Text, Title } = Typography;
+  const [items] = useLocalRows('contacts', CONTACTS);
+  const c = items.find((x) => x.key === ckey);
+  const [addresses, setAddresses] = useLocalRows('addresses.' + ckey, c ? companyAddresses(c) : []);
+  const a = addresses.find((x) => x.key === akey);
+  const [people, setPeople] = useLocalRows(`people.${ckey}.${akey}`, a ? addressPeople(a) : []);
+  const [q, setQ] = useState('');
+  const [editing, setEditing] = useState(null); // 'address' | person record | {}
+  const [form] = Form.useForm();
+  const [msgApi, msgCtx] = message.useMessage();
+  const back = () => go('/contacts/' + ckey);
+  if (!c || !a) return <Card variant="borderless"><Result status="404" title="Address not found" extra={<Button type="primary" onClick={() => go(c ? '/contacts/' + ckey : '/contacts')}>Back</Button>} /></Card>;
+  const rows = people.filter((p) => includesQ(q, p.name, p.email, p.phone, p.phone2));
+  const openEdit = (what) => { setEditing(what); form.setFieldsValue(what); };
+  const save = async () => {
+    const v = await form.validateFields().catch(() => null); // invalid fields are shown inline
+    if (!v) return;
+    if (editing === 'address') {
+      const next = v.primary ? addresses.map((x) => ({ ...x, primary: false })) : addresses;
+      setAddresses(next.map((x) => (x.key === akey ? { ...x, ...v } : x))); msgApi.success('Address saved');
+    } else {
+      setPeople(editing.key ? people.map((p) => (p.key === editing.key ? { ...p, ...v } : p)) : [...people, { key: 'p' + Date.now(), ...v }]);
+      msgApi.success(editing.key ? 'Contact person saved' : 'Contact person added');
+    }
+    setEditing(null); form.resetFields();
+  };
+  const none = <Text type="secondary">—</Text>;
+  const cols = [
+    { title: 'Contact person', dataIndex: 'name', render: (p) => <Flex gap={token.marginXS} align="center"><People names={[p]} /><Text>{p}</Text></Flex> },
+    { title: 'Email', dataIndex: 'email', render: (v) => v ? <Typography.Link href={'mailto:' + v} onClick={(e) => e.stopPropagation()}>{v}</Typography.Link> : none },
+    { title: 'Phone', dataIndex: 'phone', width: 200, render: (v) => v || none },
+    { title: 'Additional phone', dataIndex: 'phone2', width: 200, render: (v) => v || none },
+    { key: 'edit', width: 56, align: 'right', render: (_, p) => <Button type="text" size="small" icon={<I.EditOutlined />} aria-label={`Edit ${p.name}`} onClick={() => openEdit(p)} /> },
+  ];
+  return (
+    <div className="page-stack">
+      {msgCtx}
+      <Card variant="borderless" styles={{ body: { padding: token.padding } }}>
+        <Flex gap={token.marginSM} align="center" wrap>
+          <Button type="text" icon={<ChevronIcon dir="left" />} onClick={back} aria-label={`Back to ${c.company}`} />
+          <Avatar shape="square" size={token.controlHeightLG} icon={<I.EnvironmentOutlined />} style={{ background: token.colorFillTertiary, color: token.colorTextSecondary, flex: 'none' }} />
+          <Flex vertical style={{ flex: 1, minWidth: 0 }}>
+            <Flex gap={token.marginXS} align="center"><Title level={4} style={{ margin: 0 }}>{a.name}</Title>{a.primary && <Tag color="success">Primary</Tag>}</Flex>
+            <Text type="secondary">{[a.street, a.city, COUNTRY_NAMES[a.country] || a.country].filter(Boolean).join(', ')} · <Typography.Link onClick={back}>{c.company}</Typography.Link></Text>
+          </Flex>
+          <Button icon={<I.EditOutlined />} onClick={() => openEdit('address')}>Edit address</Button>
+        </Flex>
+      </Card>
+      <ListPanel title="Contact persons" search={q} onSearch={setQ} placeholder="Name, email or phone"
+        actions={<Button type="primary" icon={<I.PlusOutlined />} onClick={() => openEdit({})}>Add contact person</Button>}>
+        <DataTable columns={cols} dataSource={rows} pagination={false} minWidth={760} />
+      </ListPanel>
+      {editing && (
+        <Drw title={editing === 'address' ? 'Edit address' : editing.key ? 'Edit contact person' : 'Add contact person'} width={480} onClose={() => setEditing(null)}
+          footer={<><Button onClick={() => setEditing(null)}>Cancel</Button><Button type="primary" onClick={save}>{editing === 'address' || editing.key ? 'Save' : 'Add'}</Button></>}>
+          <Form form={form} layout="vertical" requiredMark={false}>
+            {editing === 'address' ? <>
+              <Form.Item name="name" label="Address name" rules={[{ required: true, whitespace: true, message: 'Enter the address name' }]}><Input /></Form.Item>
+              <Form.Item name="street" label="Street address" rules={[{ required: true, whitespace: true, message: 'Enter the street address' }]}><Input /></Form.Item>
+              <div className="grid-2 form-2">
+                <Form.Item name="country" label="Country" rules={[{ required: true, message: 'Select a country' }]}><Select options={Object.entries(COUNTRY_NAMES).map(([value, label]) => ({ value, label }))} /></Form.Item>
+                <Form.Item name="city" label="City" rules={[{ required: true, whitespace: true, message: 'Enter the city' }]}><Input /></Form.Item>
+              </div>
+              <Form.Item name="primary" valuePropName="checked"><Checkbox>Primary address</Checkbox></Form.Item>
+            </> : <>
+              <Form.Item name="name" label="Full name" rules={[{ required: true, whitespace: true, message: 'Enter the name' }]}><Input /></Form.Item>
+              <Form.Item name="email" label="Email" rules={[{ type: 'email', message: 'Enter a valid email' }]}><Input placeholder="name@company.com" /></Form.Item>
+              <div className="grid-2 form-2">
+                <Form.Item name="phone" label="Phone"><Input placeholder="+49 40 0000 0000" /></Form.Item>
+                <Form.Item name="phone2" label="Additional phone"><Input /></Form.Item>
+              </div>
             </>}
           </Form>
         </Drw>
@@ -10701,9 +10775,14 @@ function resolvePage(path, query) {
     return { navKey: '/dispatches', crumbs: [crumb('Shipments', '/shipments'), crumb(SHIPMENT_ID, SHIPMENT_PATH), crumb('Inland Pickup'), crumb('Dispatches', DISPATCH_PATH), crumb(dspRoute)],
       el: <DispatchPage key={dspRoute} id={dspRoute} /> };
   }
-  const coRoute = path.match(/^\/contacts\/(c\d+)$/);
+  const coRoute = path.match(/^\/contacts\/(c\d+)(?:\/(a\d+))?$/);
   if (coRoute) {
     const co = store.get('skypace.lists.contacts', CONTACTS).find((x) => x.key === coRoute[1]);
+    if (coRoute[2]) {
+      const ad = co && store.get('skypace.lists.addresses.' + co.key, companyAddresses(co)).find((x) => x.key === coRoute[2]);
+      return { navKey: '/contacts', crumbs: [HOME, crumb('Contacts', '/contacts'), crumb(co ? co.company : 'Not found', '/contacts/' + coRoute[1]), crumb(ad ? ad.name : 'Not found')],
+        el: <AddressPage key={coRoute[0]} ckey={coRoute[1]} akey={coRoute[2]} /> };
+    }
     return { navKey: '/contacts', crumbs: [HOME, crumb('Contacts', '/contacts'), crumb(co ? co.company : 'Not found')], el: <CompanyPage key={coRoute[1]} ckey={coRoute[1]} /> };
   }
   const gcRoute = path.match(/^\/containers\/(g\d+)$/);
