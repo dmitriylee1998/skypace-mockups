@@ -1976,7 +1976,7 @@
 
 </style>
 <script src="design-system/theme.js"></script>
-<link rel="stylesheet" href="design-system/system.css?v=20261103-padding16" />
+<link rel="stylesheet" href="design-system/system.css?v=20261103-fixcells" />
 </head>
 <body>
 <div id="root"></div>
@@ -10124,12 +10124,12 @@ function ShipmentCollection({kind}) {
   const filterFields=cfg.fields.filter(f=>Array.isArray(f[2]));
   const rows=items.filter(r=>!q||Object.values(r).some(v=>String(v).toLowerCase().includes(q.toLowerCase()))).filter(r=>Object.entries(filter).every(([k,v])=>!v||r[k]===v));
   const save=v=>{setItems(prev=>editing.key?prev.map(r=>r.key===editing.key?{...r,...v}:r):[...prev,{...v,key:kind+'-'+Date.now()}]);setEditing(null);message.success('Saved locally');};
-  const columns=cfg.fields.map(([key,label,type],i)=>({title:label,dataIndex:key,ellipsis:true,width:i===0?200:type==='number'||type==='money'?130:160,sorter:(a,b)=>type==='number'||type==='money'?(Number(a[key])||0)-(Number(b[key])||0):String(a[key]||'').localeCompare(String(b[key]||'')),render:v=>type==='money'?money(Number(v)||0):key==='status'?<Tag color={['Approved','Confirmed','Paid','Released','Completed'].includes(v)?'success':undefined}>{v||'Draft'}</Tag>:v??'—'}));
-  if(kind==='charges')columns.splice(columns.length-1,0,{title:'Amount, USD',width:140,render:(_,r)=>money((r.quantity||0)*(r.rate||0))});
-  columns.push({title:'Actions',key:'actions',width:100,fixed:'right',render:(_,r)=><Dropdown menu={{items:[{key:'edit',label:'Edit'},{key:'delete',label:'Delete',danger:true}],onClick:({key})=>key==='edit'?setEditing(r):Modal.confirm({title:'Delete this record?',okText:'Delete',okButtonProps:{danger:true},onOk:()=>setItems(prev=>prev.filter(x=>x.key!==r.key))})}} trigger={['click']}><Button type="text" aria-label={'Actions for '+(r[cfg.fields[0][0]]||'record')} icon={<I.MoreOutlined/>}/></Dropdown>});
+  const columns=cfg.fields.map(([key,label,type],i)=>({title:label,dataIndex:key,ellipsis:true,width:i===0?undefined:type==='number'?90:type==='money'?110:key==='status'?100:140,sorter:(a,b)=>type==='number'||type==='money'?(Number(a[key])||0)-(Number(b[key])||0):String(a[key]||'').localeCompare(String(b[key]||'')),render:v=>type==='money'?money(Number(v)||0):key==='status'?<Tag color={['Approved','Confirmed','Paid','Released','Completed'].includes(v)?'success':undefined}>{v||'Draft'}</Tag>:v??'—'}));
+  if(kind==='charges')columns.splice(columns.length-1,0,{title:'Amount, USD',width:120,render:(_,r)=>money((r.quantity||0)*(r.rate||0))});
+  columns.push({title:'Actions',key:'actions',width:64,align:'center',fixed:'right',render:(_,r)=><Dropdown menu={{items:[{key:'edit',label:'Edit'},{key:'delete',label:'Delete',danger:true}],onClick:({key})=>key==='edit'?setEditing(r):Modal.confirm({title:'Delete this record?',okText:'Delete',okButtonProps:{danger:true},onOk:()=>setItems(prev=>prev.filter(x=>x.key!==r.key))})}} trigger={['click']}><Button type="text" aria-label={'Actions for '+(r[cfg.fields[0][0]]||'record')} icon={<I.MoreOutlined/>}/></Dropdown>});
   return <>
     <ListPanel title={cfg.title} count={rows.length} search={q} onSearch={setQ} placeholder={'Search '+cfg.title.toLowerCase()} actions={<Button type="primary" icon={kind==='documents'?<I.UploadOutlined/>:<I.PlusOutlined/>} onClick={()=>setEditing({})}>{cfg.action}</Button>} filterCount={Object.values(filter).filter(Boolean).length} filters={filterFields.length?<div className="sw-filter-fields">{filterFields.map(([key,label,opts])=><Select key={key} allowClear aria-label={label} placeholder={label} value={filter[key]} onChange={v=>setFilter({...filter,[key]:v})} options={opts.map(v=>({value:v,label:v}))}/>)}<Button type="link" onClick={()=>setFilter({})}>Reset filters</Button></div>:undefined}>
-      <DataTable columns={columns} dataSource={rows} minWidth={columns.reduce((sum,c)=>sum+(c.width||160),0)} pagination={items.length>10?PAGINATION:false} locale={{emptyText:<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={'No '+cfg.title.toLowerCase()+' yet'}/>}} />
+      <DataTable columns={columns} dataSource={rows} minWidth={columns.reduce((sum,c)=>sum+(c.width||140),0)} pagination={items.length>10?PAGINATION:false} locale={{emptyText:<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={'No '+cfg.title.toLowerCase()+' yet'}/>}} />
       {kind==='charges'&&<div className="sw-total"><span>Total cost</span><b>{money(rows.reduce((s,r)=>s+(r.quantity||0)*(r.rate||0),0))} USD</b></div>}
       {['receivables','payables'].includes(kind)&&<div className="sw-total"><span>Total / Balance</span><b>{money(rows.reduce((s,r)=>s+(r.total||0),0))} / {money(rows.reduce((s,r)=>s+(r.balance||0),0))} USD</b></div>}
     </ListPanel>

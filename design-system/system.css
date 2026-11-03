@@ -564,3 +564,7 @@ html { scrollbar-gutter:stable; }
 .data-table .ant-table-summary > tr > td { padding:var(--ds-space-sm) var(--ds-space-xs); }
 .data-table .ant-table-summary > tr > td:first-child { padding-left:var(--ds-space) !important; }
 @media(max-width:700px) { .bol-container-expanded { grid-template-columns:1fr; } .bol-container-seal { border-right:0; padding-right:0; } }
+
+/* Fixed (sticky) table cells must be opaque: the exported header fill is translucent, so layer it over the container color. */
+.ant-table-thead > tr > th.ant-table-cell-fix,
+.ant-table-summary .ant-table-cell-fix { background:linear-gradient(var(--ant-color-fill-quaternary), var(--ant-color-fill-quaternary)), var(--ant-color-bg-container) !important; }
