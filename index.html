@@ -7855,6 +7855,10 @@ const DO_PRESETS = {
       pickupReport: 'Reported by Swift by phone 06:40 · entered by [Operator]', loadReport: 'Reported by Swift by email 10:30 · entered by [Operator]', gateReport: "From Swift's gate receipt · entered by [Operator]" } } },
 };
 DO_PRESETS['1d'] = DO_PRESETS[1];
+// drop & pick after confirmation: empty dropped Thu, full pickup Fri in its own window
+DO_PRESETS.dp = { id: 'ID-9982', patch: { blocked: [], plan: { loading: 'dp', access: 'appt', drop: 'thu28', dropWin: '08:00–09:00', pickup: 'fri29', pickupWin: '10:00–11:00', dropRef: 'DRP-55120', pickupRef: 'PKP-55121' },
+  times: { pickup: 'Thu 28 May, 06:00', load: 'Thu 28 May, 08:00–09:00', gate: 'Fri 29 May, 13:00–16:00' }, dispatched: true, confirmed: true, confirmedAt: '27 May, 16:25', driver: '[Driver] · truck 118 · pool chassis',
+  appt: null, legsDone: 0, inLeg: false, vgm: false, snoozed: [] } };
 DO_PRESETS['2a'] = { ...DO_PRESETS[1], drawer: 'send' };
 DO_PRESETS['8b'] = { ...DO_PRESETS[8], drawer: 'leg:l3' };
 DO_PRESETS['8a'] = { ...DO_PRESETS[8], drawer: 'leg:l3' };
@@ -8458,6 +8462,8 @@ function doLegs(d) {
   const t = doTimes(d); const a = d.actual; const ms = d.ms || {};
   const pk = doParseWhen(t.pickup); const ld = doParseWhen(t.load, pk.day); const gt = doParseWhen(t.gate, ld.day);
   const at = (day, time, off = 0) => (time ? doAt(day, time).add(off, 'minute') : null);
+  // drop & pick: the empty is dropped on the drop day, the full container is picked up on its own day and window
+  const dp = d.plan.loading === 'dp'; const fp = dp && d.plan.pickup ? doParseWhen(`${doDay(d.plan.pickup).label}, ${d.plan.pickupWin || ''}`, d.plan.pickup) : ld;
   const r = (k, label, est, act) => { const a2 = ms[k] && 'act' in ms[k] ? (ms[k].act ? dayjs(ms[k].act) : null) : act; return { k, label, est: ms[k]?.est ? dayjs(ms[k].est) : est, act: a2, missing: !a2 && (d.missing || []).includes(k) }; };
   const l1 = d.legsDone >= 1; const l2in = d.legsDone >= 2 || d.inLeg; const l2 = d.legsDone >= 2; const l3 = d.legsDone >= 3;
   const legs = [
@@ -8469,10 +8475,14 @@ function doLegs(d) {
     { id: 'l2', n: '2', title: 'Loading & full pickup', place: d.places.load.short || d.places.load.name, fixed: [['Cargo ready', '27 May, 08:00']],
       method: [['Loading method', DO_LOADING[d.plan.loading]], ['Facility access', d.plan.access === 'appt' ? 'Appointment' : 'First come, first served'],
         ...(d.plan.loading === 'dp' ? [['Drop references', d.plan.dropRef || '—'], ['Pickup references', d.plan.pickupRef || '—']] : d.plan.access === 'appt' ? [['Appointment reference', d.plan.apptRef || '—']] : [])], rows: [
-      r('l2-arr', 'Arrival', at(ld.day, ld.start), l2in ? at(ld.day, a.arrived) : null),
-      r('l2-start', 'Loading started', at(ld.day, ld.start, 15), l2in ? at(ld.day, a.loadingSince || a.arrived, a.loadingSince ? 0 : 15) : null),
-      r('l2-done', 'Loading completed', at(ld.day, ld.end, -30), l2 ? at(ld.day, a.loaded, -10) : null),
-      r('l2-full', 'Full pickup', at(ld.day, ld.end), l2 ? at(ld.day, a.loaded) : null)] },
+      ...(dp ? [
+        r('l2-arr', 'Empty drop', at(ld.day, ld.start), l2in ? at(ld.day, a.arrived) : null),
+        { ...r('l2-done', 'Loading completed', at(fp.day, fp.start, -60), l2 ? at(fp.day, a.loaded, -60) : null), key: true },
+        r('l2-full', 'Full pickup', at(fp.day, fp.start), l2 ? at(fp.day, a.loaded) : null)] : [
+        r('l2-arr', 'Arrival', at(ld.day, ld.start), l2in ? at(ld.day, a.arrived) : null),
+        r('l2-start', 'Loading started', at(ld.day, ld.start, 15), l2in ? at(ld.day, a.loadingSince || a.arrived, a.loadingSince ? 0 : 15) : null),
+        r('l2-done', 'Loading completed', at(ld.day, ld.end, -30), l2 ? at(ld.day, a.loaded, -10) : null),
+        r('l2-full', 'Full pickup', at(ld.day, ld.end), l2 ? at(ld.day, a.loaded) : null)])] },
     d.extra && { id: 'ly', n: '+', yard: true, title: 'Yard stop · appointment only next day', place: `${DO_CARRIERS[d.carrier].short} yard, Elizabeth NJ`, fixed: [], rows: [
       r('ly-arr', 'Arrived at yard', doAt('wed27', '11:40'), doAt('wed27', '11:40')),
       r('ly-dep', 'Departed from yard', doAt('thu28', '12:10'), doAt('thu28', '12:10'))] },
@@ -8501,7 +8511,7 @@ function doFromLegs(d) {
 
 // only the key milestones are shown on the page: Gate out · Arrival · Full pickup · Gate in
 const DO_KEY_EVENTS = new Set(['l1-gout', 'l2-arr', 'l2-full', 'l3-gin', 'ly-arr', 'ly-dep']);
-const doKeyRows = (leg) => leg.rows.filter((x) => DO_KEY_EVENTS.has(x.k));
+const doKeyRows = (leg) => leg.rows.filter((x) => x.key || DO_KEY_EVENTS.has(x.k));
 // events of a leg = the Origin events it covers (Empty container pickup → Arrived to CY + Gate Out (Empty), …)
 const DO_LEG_EVENTS = { l1: ['l1-arr', 'l1-gout'], l2: ['l2-arr', 'l2-full'], l3: ['l3-arr', 'l3-gin'], ly: ['ly-arr', 'ly-dep'] };
 const doLegEvents = (leg) => leg.rows.filter((x) => (DO_LEG_EVENTS[leg.id] || []).includes(x.k));
@@ -10649,6 +10659,7 @@ const PAGE_SCREENS = [
   ['7623:151635', 'Dispatch · scenario 5 · live load, late window', DISPATCH_PATH + '/ID-9984?f=5'],
   ['7406:236419', 'Dispatch · 6 dispatched', DISPATCH_PATH + '/ID-9982?f=6'],
   ['7243:123607', 'Dispatch · 7 confirmed', DISPATCH_PATH + '/ID-9982?f=7'],
+  ['8403:207165', 'Dispatch · 7 confirmed · drop & pick (full pickup on its own day)', DISPATCH_PATH + '/ID-9982?f=dp'],
   ['7244:122894', 'Dispatch · 8 in progress', DISPATCH_PATH + '/ID-9983?f=8'],
   ['7445:218783', 'Dispatch · 8a edit milestones · leg 3 (Show all events → 8b–8d)', DISPATCH_PATH + '/ID-9983?f=8a'],
   ['7441:131605', 'Dispatch · issues · dispatched order', DISPATCH_PATH + '/ID-9983?f=issues-status'],
