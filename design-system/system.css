@@ -191,18 +191,21 @@ table, .ant-table-wrapper, .ant-table, .ant-table-container, .ant-table-content,
   background:var(--ds-surface);
   border-radius:var(--ds-radius-lg);
 }
-.task-scope-switch .ant-segmented {
+.task-scope-switch .ant-segmented, .solid-seg.ant-segmented {
   padding:var(--ds-space-xxs);
   background:var(--ds-surface);
   border-radius:var(--ds-radius-lg);
 }
-.task-scope-switch .ant-segmented-item {
+.task-scope-switch .ant-segmented-item, .solid-seg .ant-segmented-item {
   color:var(--ds-text-tertiary);
   border-radius:var(--ds-radius);
 }
 .task-scope-switch .ant-segmented-item-selected,
 .task-scope-switch .ant-segmented-item-selected:hover,
-.task-scope-switch .ant-segmented-thumb {
+.task-scope-switch .ant-segmented-thumb,
+.solid-seg .ant-segmented-item-selected,
+.solid-seg .ant-segmented-item-selected:hover,
+.solid-seg .ant-segmented-thumb {
   background:var(--ds-solid);
   color:var(--ds-surface);
   box-shadow:none;
@@ -211,7 +214,7 @@ table, .ant-table-wrapper, .ant-table, .ant-table-container, .ant-table-content,
   color:inherit;
   margin-inline-end:var(--ds-space-xs);
 }
-.task-scope-switch .ant-segmented-group { gap:var(--ds-space-xxs); }
+.task-scope-switch .ant-segmented-group, .solid-seg .ant-segmented-group { gap:var(--ds-space-xxs); }
 
 .task-scope-switch .ant-segmented-item-label {
   min-height:32px;
@@ -575,3 +578,5 @@ html { scrollbar-gutter:stable; }
 .ct-table td.ct-group { background:var(--ds-fill-tertiary); color:var(--ds-muted); font-size:var(--ds-font-size-sm); padding-block:var(--ds-space-xxs) !important; }
 .ct-table .ct-total > td { background:var(--ds-fill-tertiary); }
 .shipment-workspace .ct-table .ant-table-tbody > tr.ant-table-row-level-1 > td.ct-group:first-child { padding-left:calc(var(--ds-control-height) + 2 * var(--ds-space)) !important; }
+/* In table toolbars the solid switch drops its (white) track inset so the header keeps the shared 48px height. */
+.do-list-head .solid-seg.ant-segmented { padding:0; }

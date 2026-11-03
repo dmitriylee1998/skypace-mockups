@@ -1976,7 +1976,7 @@
 
 </style>
 <script src="design-system/theme.js"></script>
-<link rel="stylesheet" href="design-system/system.css?v=20261103-side3" />
+<link rel="stylesheet" href="design-system/system.css?v=20261103-seg2" />
 </head>
 <body>
 <div id="root"></div>
@@ -10380,10 +10380,8 @@ function CostTracking({ view }) {
   const all = [...CT_CONTAINERS, ...CT_FEES];
   const pay = ctSum(all, ctBuy), rec = ctSum(all, ctSell);
   const [side, setSide] = useState('buy');
-  // Active side is solid (dark) via the Segmented component tokens.
-  const sideSwitch = !customer && <ConfigProvider theme={{ components: { Segmented: { itemSelectedBg: token.colorBgSolid, itemSelectedColor: token.colorTextLightSolid } } }}>
-    <Segmented size="small" value={side} onChange={setSide} options={[{ value: 'buy', label: 'Payables' }, { value: 'sell', label: 'Receivables' }]} aria-label="Charges side" />
-  </ConfigProvider>;
+  // Same solid switch as the Tasks scope switch.
+  const sideSwitch = !customer && <Segmented className="solid-seg" value={side} onChange={setSide} options={[{ value: 'buy', label: 'Payables' }, { value: 'sell', label: 'Receivables' }]} aria-label="Charges side" />;
   const measure = !customer && <Flex gap={token.marginXS} align="center"><antd.Switch size="small" checked={percent} onChange={setPercent} checkedChildren="%" unCheckedChildren="$" aria-label="Profit measure" /><Typography.Text>Profit Measure</Typography.Text></Flex>;
   return <>
     {!customer && <antd.Row gutter={[token.marginXS, token.marginXS]}>
