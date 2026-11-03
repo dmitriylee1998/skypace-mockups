@@ -75,8 +75,18 @@
   .side .ant-menu-sub .ant-menu-item { padding-left: var(--ds-space-lg) !important; }
   .side .ant-menu-submenu-selected > .ant-menu-submenu-title { color: var(--text); }
   .content { flex: 1; display: flex; gap: var(--ds-space-xs); align-items: flex-start; min-width: 0; padding-bottom: var(--ds-space-lg); }
-  .col-left { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--ds-space-xs); }
-  .col-right { width: 389px; flex: none; display: flex; flex-direction: column; gap: 10px; }
+  /* Planning columns: legs 480–880px, side cards 300–400px; they stack when the area is narrower than both minimums. */
+  .content-wrap { container: plan / inline-size; }
+  .col-left { flex: 1 1 480px; min-width: 480px; max-width: 880px; display: flex; flex-direction: column; gap: var(--ds-space-xs); }
+  .col-right { flex: 0 1 400px; min-width: 300px; max-width: 400px; display: flex; flex-direction: column; gap: var(--ds-space-xs); }
+  .cutoffs-card { container-type: inline-size; }
+  @container (max-width: 340px) { .cutoffs-card .grid-3 { grid-template-columns: 1fr; gap: var(--ds-space-sm); } }
+  @container plan (max-width: 787px) {
+    .content { flex-direction: column; align-items: stretch; }
+    .col-left, .col-right { min-width: 0; max-width: none; flex: none; }
+    .col-right { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+  }
+  @container plan (max-width: 560px) { .col-right { grid-template-columns: 1fr; } }
 
   /* ---------- cards ---------- */
   .card { background: var(--ds-surface); border-radius: var(--ds-radius-lg); padding: var(--ds-space-sm); display: flex; flex-direction: column; gap: var(--ds-space-xs); }
@@ -575,10 +585,6 @@
   .drw .ant-drawer-footer { flex-wrap: wrap; }
 
   /* ---------- responsive ---------- */
-  @media (max-width: 1279px) {
-    .content { flex-direction: column; align-items: stretch; }
-    .col-right { width: auto; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: var(--ds-space-xs); }
-  }
   @media (max-width: 1100px) {
     .page-header { flex-wrap: wrap; gap: var(--ds-space-sm) var(--ds-space-lg); }
     .ph-left { width: 100%; }
@@ -602,7 +608,6 @@
     .ph-right { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .ph-transit { flex-wrap: wrap; gap: var(--ds-space-xs) var(--ds-space-sm); }
     .ph-item .t1, .ph-item .t2 { white-space: normal; overflow-wrap: anywhere; }
-    .col-right { grid-template-columns: 1fr; }
     .section, .card { padding: var(--ds-space-sm); }
     .sec-head { flex-wrap: wrap; }
     .sec-head .icon-box { padding: 9px; }
@@ -2311,22 +2316,22 @@ function RightColumn({ st, act }) {
           <div className="stat-tile"><b>6</b><span>Gate In</span></div>
         </div>
       </div>
-      <div className="card" style={{ gap: 12 }}>
-        <div className="card-head" style={{ marginTop: 4 }}><span className="title">General information</span></div>
+      <div className="card" style={{ gap: TOKEN.marginSM }}>
+        <div className="card-head"><span className="title">General information</span></div>
         <div className="gray-box kv-list">
           <KV k="Carrier" v="MAERSK" />
           <KV k="Booking number" v="412431231212" />
           <KV k="Vessel / Voyage" v="MAERSK SENTOSA / 2415" />
         </div>
       </div>
-      <div className="card" style={{ gap: 12 }}>
+      <div className="card cutoffs-card" style={{ gap: TOKEN.marginSM }}>
         <div className="card-head"><span className="title">Cutoffs</span>
           <LinkBtn icon={<I.EditOutlined />} onClick={() => act.drawer({ type: 'cutoffs' })}>Edit</LinkBtn></div>
         <div className="gray-box grid-3">
           <KV k="VGM" v="02 Jun, 12:00" /><KV k="Port" v="02 Jun, 12:00" /><KV k="Documentation" v="02 Jun, 12:00" />
         </div>
       </div>
-      <div className="card" style={{ gap: 12 }}>
+      <div className="card" style={{ gap: TOKEN.marginSM }}>
         <div className="card-head"><span className="title">Free time</span>
           <LinkBtn icon={<I.PlusOutlined />} onClick={() => act.drawer({ type: 'freeTime' })}>Add</LinkBtn></div>
         {[['origin', 'Origin'], ['dest', 'Destination']].map(([k, label]) => (
