@@ -10102,7 +10102,6 @@ const SW_COLLECTIONS = {
   documents:{title:'Files',action:'Upload document',rows:[],fields:[['name','Document name'],['category','Category',['Bill of Lading','Commercial Invoice','Packing List','Booking Confirmation','Other']],['status','Status',['Draft','Approved','Pending review']],['updated','Updated']]},
   bol:{title:'Shipping documents',action:'Add Bill of Lading',rows:[],fields:[['number','B/L number'],['type','Type',['Master B/L','House B/L']],['shipper','Shipper'],['consignee','Consignee'],['status','Status',['Draft','Submitted','Released']]]},
   charges:{title:'Charges',action:'Add charge',rows:SW_CHARGES,fields:[['name','Charge'],['party','Vendor'],['category','Category',['Ocean','Origin','Destination','Inland','Other']],['quantity','Quantity','number'],['rate','Rate, USD','money'],['status','Status',['Estimated','Confirmed','Invoiced']]]},
-  people:{title:'Participants',action:'Add participant',rows:[{key:'p1',name:'Kate Miller',company:'Maxton Shipping',email:'kate@example.com',role:'Shipment operator'},{key:'p2',name:'Liam Green',company:'Tesla Inc',email:'liam@example.com',role:'Customer'}],fields:[['name','Name'],['company','Organization'],['email','Email','email'],['role','Role',['Shipment operator','Customer','Carrier','Observer']]]},
   receivables:{title:'Invoices',action:'Add invoice',rows:[],fields:[['number','ID'],['party','Debtor name'],['type','Type',['Invoice','Credit note']],['created','Created','date'],['due','Due date','date'],['status','Status',['Draft','Unpaid','Paid','Void']],['total','Total, USD','money'],['balance','Balance, USD','money']]},
   payables:{title:'Vendor invoices',action:'Add invoice',rows:[],fields:[['number','ID'],['party','Creditor name'],['type','Type',['Invoice','Credit note']],['created','Created','date'],['due','Due date','date'],['status','Status',['Draft','Unpaid','Paid','Void']],['total','Total, USD','money'],['balance','Balance, USD','money']]},
 };
@@ -10194,6 +10193,49 @@ function ShipmentServices() {
       </Form>
     </Modal>
   </Flex>;
+}
+/* ---------- Shipment people: participants grouped by organization ---------- */
+const SW_PEOPLE = [
+  { key: 'customer', org: 'Demooo Customer (c18ser)', type: 'Customer', people: [{ key: 'c1', role: '', name: 'Test Name', email: 'preixepinosu-7225@yopmail.com' }] },
+  { key: 'own', org: 'Maxton Shipping', note: 'Your organization', type: 'Export Agent', editable: true, people: [
+    { key: 'o1', role: 'Booking OPS', name: 'Max Regular Partner', email: 'bridget@skypace.com' },
+    { key: 'o2', role: 'Documentation OPS (Export)', name: 'Vitali Nekhviadovich', email: 'nehved96@gmail.com' },
+    { key: 'o3', role: 'Drayage (Export)', name: 'yu6 any', email: 'yu6@any.pink' },
+    { key: 'o4', role: 'Account Management', name: 'Org 2 Partner', email: 'org2admin@mailto.plus', phone: '+375(44)123-456-789' },
+    { key: 'o5', role: 'Sales', name: 'tetts teteij', email: 'trirogittoise-1155@yopmail.com' },
+  ] },
+  { key: 'skypace', org: 'Skypace', type: 'Regional Office', people: [{ key: 's1', role: 'Accounting Payables', name: 'Max Skypace US', email: 'max@skypace.com' }] },
+];
+function ShipmentPeople() {
+  const { token } = antd.theme.useToken();
+  const [orgs, setOrgs] = useLocalRows('shipment-' + SHIPMENT_ID + '-people', SW_PEOPLE);
+  const [edit, setEdit] = useState(null); const [form] = Form.useForm();
+  const team = [...new Set(orgs.flatMap((o) => o.people.map((x) => x.name)))];
+  const columns = [
+    { title: 'Role', dataIndex: 'role', width: 240, render: (v) => v ? <Typography.Text strong>{v}</Typography.Text> : <Typography.Text type="secondary">No role</Typography.Text> },
+    { title: 'Person', dataIndex: 'name', width: 240, render: (v) => <Flex gap={token.marginXS} align="center"><Avatar size="small" style={{ background: token.colorPrimaryBg, color: token.colorPrimary, flex: 'none' }}>{v[0].toUpperCase()}</Avatar><span>{v}</span></Flex> },
+    { title: 'Email', dataIndex: 'email', ellipsis: true, render: (v) => <Flex gap={token.marginXS} align="center"><I.MailOutlined style={{ color: token.colorTextTertiary }} /><Typography.Link href={'mailto:' + v} ellipsis>{v}</Typography.Link></Flex> },
+    { title: 'Phone', dataIndex: 'phone', width: 200, render: (v) => <Flex gap={token.marginXS} align="center"><I.PhoneOutlined style={{ color: token.colorTextTertiary }} />{v ? <Typography.Link href={'tel:' + v}>{v}</Typography.Link> : <Typography.Text type="secondary">—</Typography.Text>}</Flex> },
+  ];
+  const save = () => form.validateFields().then((v) => {
+    setOrgs((prev) => prev.map((o) => o.key !== edit.key ? o : { ...o, people: o.people.map((x) => { const name = v[x.key]; const src = prev.flatMap((g) => g.people).find((y) => y.name === name) || x; return { ...x, name, email: src.email, phone: src.phone }; }) }));
+    setEdit(null); message.success('Assignments saved');
+  });
+  return <div className="page-stack">
+    {orgs.map((o) => <ListPanel key={o.key} count={o.people.length}
+      title={<>{o.org}{o.note && <Typography.Text type="secondary" style={{ fontWeight: token.fontWeightNormal }}> ({o.note})</Typography.Text>}<Tag style={{ marginInlineStart: token.marginXS, fontWeight: token.fontWeightNormal }}>{o.type}</Tag></>}
+      actions={o.editable && <Button icon={<I.EditOutlined />} onClick={() => { form.setFieldsValue(Object.fromEntries(o.people.map((x) => [x.key, x.name]))); setEdit(o); }}>Edit</Button>}>
+      <DataTable columns={columns} dataSource={o.people} pagination={false} minWidth={760} />
+    </ListPanel>)}
+    {edit && <Drw title={`${edit.org} · people`} width={420} onClose={() => setEdit(null)}
+      footer={<div className="sw-form-footer"><Button onClick={() => setEdit(null)}>Cancel</Button><Button type="primary" onClick={save}>Save</Button></div>}>
+      <Form form={form} layout="vertical" requiredMark={false}>
+        {edit.people.map((x) => <Form.Item key={x.key} name={x.key} label={x.role || 'No role'} rules={[{ required: true, message: 'Pick a person' }]}>
+          <Select showSearch options={team.map((n) => ({ value: n, label: n }))} />
+        </Form.Item>)}
+      </Form>
+    </Drw>}
+  </div>;
 }
 function ShipmentParties() {
   const roles=['Shipper','Consignee','Notify Party','Cargo Supplier','Cargo Receiver'];
@@ -10458,6 +10500,7 @@ function ShipmentWorkspace({section,tab}) {
   else if(section==='parties')content=<ShipmentParties/>;
   else if(section==='bol')content=<BillsOfLadingPage/>;
   else if(section==='services')content=<ShipmentServices/>;
+  else if(section==='people')content=<ShipmentPeople/>;
   else if(section==='tracker')content=<ShipmentTracker/>;
   else if(['ocean','export','import'].includes(section))content=<ShipmentTransport mode={section} tab={tab||'overview'}/>;
   else if(['charges','billing'].includes(section))content=<ShipmentAccounting section={section} tab={tab}/>;
