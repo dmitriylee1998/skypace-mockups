@@ -10445,9 +10445,28 @@ function ShipmentAccounting({section,tab='receivables'}) {
   return <div className="page-stack">{section==='billing'?<><ListTabs active={tab} onChange={v=>go(SHIPMENT_PATH+'/billing/'+v)} items={[{key:'receivables',label:'Receivables'},{key:'payables',label:'Payables'}]}/><ShipmentCollection key={tab} kind={tab}/></>:<><div className="card-flat sw-transport-tabs"><Tabs activeKey={view} onChange={setView} items={[{key:'operator',label:'Operator View'},{key:'customer',label:'Customer View'}]}
     tabBarExtraContent={view==='operator'&&<Dropdown trigger={['click']} menu={{items:[{key:'ar',label:'Create receivable invoice'},{key:'ap',label:'Add payable invoice'},{key:'post',label:'Post all charges'}],onClick:({key})=>message.success(key==='post'?'Charges posted':'Invoice draft created')}}><Button color="default" variant="solid" icon={<ChevronIcon dir="down" style={{color:'inherit'}}/>}>Invoices actions</Button></Dropdown>}/></div><CostTracking view={view}/></>}</div>;
 }
+const SW_INTTRA = [
+  ['booking-out', 'Sending Booking requests and amendments to Inttra'],
+  ['booking-in', 'Receiving Booking confirmations and updates from Inttra'],
+  ['si-out', 'Sending Shipping Instructions and amendments to Inttra'],
+  ['mbl-in', 'Receiving e-version of draft and final MBL from Inttra'],
+  ['tracking-in', 'Receiving tracking events from Inttra'],
+];
 function ShipmentSettings() {
-  const [rows,setRows]=useLocalRows('shipment-'+SHIPMENT_ID+'-settings',[{reference:'PO 4F0268',customer:'Tesla Inc',operator:'Kate Miller',status:'Confirmed',email:true}]);
-  return <Card title="Shipment settings"><Form layout="vertical" initialValues={rows[0]} onFinish={v=>{setRows([v]);message.success('Settings saved locally');}} className="sw-settings-form"><Form.Item label="Customer reference" name="reference"><Input/></Form.Item><Form.Item label="Customer" name="customer"><Input/></Form.Item><Form.Item label="Shipment operator" name="operator"><Select options={PEOPLE.map(v=>({value:v,label:v}))}/></Form.Item><Form.Item label="Status" name="status"><Select options={['Draft','Confirmed','In transit','Completed','Cancelled'].map(v=>({value:v,label:v}))}/></Form.Item><Divider/><Form.Item name="email" valuePropName="checked"><Checkbox>Email notifications for shipment updates</Checkbox></Form.Item><Button type="primary" htmlType="submit">Save changes</Button></Form></Card>;
+  const { token } = antd.theme.useToken();
+  const [rows, setRows] = useLocalRows('shipment-' + SHIPMENT_ID + '-inttra', [{ key: 'inttra' }]);
+  const on = rows[0];
+  const toggle = (k, v) => { setRows([{ ...on, [k]: v }]); message.success(v ? 'Synchronization on' : 'Synchronization off'); };
+  return <ListPanel title="Inttra synchronization" count={`${SW_INTTRA.filter(([k]) => on[k]).length}/${SW_INTTRA.length}`}>
+    <Flex vertical gap={token.marginXS} style={{ padding: `0 ${token.padding}px ${token.padding}px` }}>
+      {SW_INTTRA.map(([k, label]) => <Card key={k} variant="outlined" style={{ borderRadius: token.borderRadiusLG, borderColor: token.colorBorderSecondary }} styles={{ body: { padding: token.padding } }}>
+        <Flex justify="space-between" align="center" gap={token.margin}>
+          <Typography.Text strong id={'inttra-' + k}>{label}</Typography.Text>
+          <antd.Switch checked={!!on[k]} onChange={(v) => toggle(k, v)} aria-labelledby={'inttra-' + k} />
+        </Flex>
+      </Card>)}
+    </Flex>
+  </ListPanel>;
 }
 function BillsOfLadingPage() {
   const shipmentContainers=useContainers();
