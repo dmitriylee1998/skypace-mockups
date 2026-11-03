@@ -572,7 +572,6 @@ html { scrollbar-gutter:stable; }
 
 /* Cost tracking: vertical dividers between Payables / Receivables / Profit groups, group rows and totals on the fill. */
 .ct-table .ct-sep { border-inline-start:var(--ant-line-width, 1px) solid var(--ds-split); }
-.ct-table .ant-table-thead > tr:first-child:not(:last-child) > th { background:transparent; }
-.ct-table .ant-table-thead > tr:first-child:not(:last-child) > th:first-child { font-size:var(--ds-font-size-lg); }
 .ct-table td.ct-group { background:var(--ds-fill-tertiary); color:var(--ds-muted); font-size:var(--ds-font-size-sm); padding-block:var(--ds-space-xxs) !important; }
 .ct-table .ct-total > td { background:var(--ds-fill-tertiary); }
+.shipment-workspace .ct-table .ant-table-tbody > tr.ant-table-row-level-1 > td.ct-group:first-child { padding-left:calc(var(--ds-control-height) + 2 * var(--ds-space)) !important; }

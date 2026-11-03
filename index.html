@@ -1976,7 +1976,7 @@
 
 </style>
 <script src="design-system/theme.js"></script>
-<link rel="stylesheet" href="design-system/system.css?v=20261103-heads" />
+<link rel="stylesheet" href="design-system/system.css?v=20261103-side3" />
 </head>
 <body>
 <div id="root"></div>
@@ -10309,9 +10309,11 @@ function ShipmentMovementTable({imported}) {
   return <ListPanel title={imported?'Arrivals':'Departures'} count={3} actions={<Button onClick={()=>go(DISPATCH_PATH)}>Open dispatches</Button>}><DataTable minWidth={700} pagination={false} dataSource={['HAMU1481029','TGHU8820147','ONEU1051502'].map((v,i)=>({key:v,container:v,date:imported?'28 Feb, 15:34':'19 Feb, 08:00',id:'ID-'+(9981+i),status:i===0?'Confirmed':'Unassigned'}))} columns={[{title:'Container',dataIndex:'container',render:v=><PageLink to={CONTAINERS_PATH}>{v}</PageLink>},{title:imported?'Full arrival':'Empty pickup',dataIndex:'date'},{title:'Dispatch order',dataIndex:'id',render:v=><PageLink to={DISPATCH_PATH+'/'+v}>{v}</PageLink>},{title:'Status',dataIndex:'status',render:v=><Tag color={v==='Confirmed'?'success':undefined}>{v}</Tag>}]}/></ListPanel>;
 }
 /* ---------- Cost tracking: payables vs receivables per container and per fee ---------- */
-const CT_LINES = [['Ocean freight', 2150, 2230], ['Bunker surcharge (BAF)', 150, 160], ['Origin THC', 69.5, 79.5]];
+// [group] or [name, unit, buy rate, sell rate, qty, info]
+const CT_LINES = [['Origin'], ['Base Drayage Rate', 'mile', 5.15, 5.15, 150], ['Freight'], ['Emissions Trading System', 'flat', 52, 52, 1],
+  ['International Freight', 'container', 1375, 1475, 1, 'Ocean freight per container, carrier contract rate'], ['Emergency Fuel Surcharge', 'flat', 170, 170, 1, 'Carrier surcharge, passed through at cost']];
 const CT_CONTAINERS = [0, 1, 2].map((i) => ({ key: 'ct-c' + i, name: 'Number pending entry', size: "40'",
-  children: CT_LINES.map(([name, buy, sell], j) => ({ key: `ct-c${i}-${j}`, name, unit: "40'", buyRate: buy, buyQty: 1, sellRate: sell, sellQty: 1 })) }));
+  children: CT_LINES.map(([name, unit, buy, sell, qty, info], j) => unit ? { key: `ct-c${i}-${j}`, name, unit, info, buyRate: buy, buyQty: qty, sellRate: sell, sellQty: qty } : { key: `ct-c${i}-g${j}`, group: name }) }));
 const CT_FEES = [{ key: 'ct-g-origin', group: 'Origin' }, { key: 'ct-f1', name: 'Export Sea Handling', unit: 'flat', buyRate: 0, buyQty: 0, sellRate: 60, sellQty: 1 }];
 const ctBuy = (r) => r.children ? r.children.reduce((s, c) => s + ctBuy(c), 0) : (r.buyRate || 0) * (r.buyQty || 0);
 const ctSell = (r) => r.children ? r.children.reduce((s, c) => s + ctSell(c), 0) : (r.sellRate || 0) * (r.sellQty || 0);
@@ -10339,18 +10341,18 @@ function CtSummary({ title, icon, total, note, budget, parts }) {
     </antd.Row>
   </Card>;
 }
-function CostTable({ title, first, rows, customer, percent }) {
+function CostTable({ first, rows, customer, percent, side: shown = 'buy' }) {
   const { token } = antd.theme.useToken();
   const sep = { className: 'ct-sep' };
-  const num = (v) => <span className="ct-num">{v}</span>;
   const profit = (r) => { const b = ctBuy(r), sl = ctSell(r); return percent ? (b ? ((sl - b) / b * 100).toFixed(2) + '%' : '—') : money(sl - b); };
-  const name = (v, r) => r.group || (r.children ? <div className="sec-title"><CnBox /><Typography.Text type="secondary">{v}</Typography.Text></div> : v);
+  const name = (v, r) => r.group || (r.children ? <div className="sec-title"><CnBox /><Typography.Text type="secondary">{v}</Typography.Text></div>
+    : r.info ? <Flex gap={token.marginXXS} align="center" style={{ display: 'inline-flex' }}>{v}<Tooltip title={r.info}><I.InfoCircleOutlined style={{ color: token.colorTextTertiary }} /></Tooltip></Flex> : v);
   const groupCell = (r) => r.group ? { colSpan: 0 } : {};
-  const expand = { key: 'expand', width: 48, render: () => null, onCell: groupCell };
+  const expand = { key: 'expand', width: token.controlHeight + token.padding, render: () => null, onCell: groupCell };
   const lead = [
     ...(rows.some((r) => r.children) ? [expand] : []),
     { title: first, dataIndex: 'name', render: name, onCell: (r) => r.group ? { colSpan: 99, className: 'ct-group' } : {} },
-    { title: 'Unit', dataIndex: 'unit', width: 56, align: 'right', render: (v) => v && <Typography.Text type="secondary">{v}</Typography.Text>, onCell: groupCell },
+    { title: 'Unit', dataIndex: 'unit', width: 88, align: 'right', render: (v) => v && <Typography.Text type="secondary">{v}</Typography.Text>, onCell: groupCell },
   ];
   const side = (kind) => { const buy = kind === 'buy';
     return [
@@ -10359,13 +10361,10 @@ function CostTable({ title, first, rows, customer, percent }) {
       { title: customer ? (first === 'Service' ? 'Total' : 'Buy') : buy ? 'Buy' : 'Sell', key: kind, width: 104, align: 'right', onCell: groupCell, render: (_, r) => money(buy ? ctBuy(r) : ctSell(r)) },
       ...(customer ? [] : [{ title: buy ? 'Posted' : 'Invoiced', key: kind + 'St', width: 72, align: 'center', onCell: groupCell, render: (_, r) => r.children || r[kind + 'Qty'] ? <CtStatusIcon title={buy ? 'Not posted' : 'Not invoiced'} /> : null }]),
     ]; };
-  const columns = customer ? [...lead, ...side('sell')] : [
-    { title: '', children: lead },
-    { title: 'Payables', align: 'center', onHeaderCell: () => sep, children: side('buy') },
-    { title: 'Receivables', align: 'center', onHeaderCell: () => sep, children: side('sell') },
-    { title: '', onHeaderCell: () => sep, children: [{ title: 'Profit', key: 'profit', width: 100, align: 'right', onHeaderCell: () => sep, onCell: (r) => r.group ? { colSpan: 0 } : sep, render: (_, r) => profit(r) }] },
-  ];
-  const leaf = customer ? columns : columns.flatMap((c) => c.children);
+  // Operator view shows one side at a time (Payables or Receivables) plus Profit, so the table stays compact.
+  const columns = customer ? [...lead, ...side('sell')] : [...lead, ...side(shown),
+    { title: 'Profit', key: 'profit', width: 100, align: 'right', onHeaderCell: () => sep, onCell: (r) => r.group ? { colSpan: 0 } : sep, render: (_, r) => profit(r) }];
+  const leaf = columns;
   const total = (c) => ({ buy: money(ctSum(rows, ctBuy)), sell: money(ctSum(rows, ctSell)), profit: percent ? ((ctSum(rows, ctSell) - ctSum(rows, ctBuy)) / (ctSum(rows, ctBuy) || 1) * 100).toFixed(2) + '%' : money(ctSum(rows, ctSell) - ctSum(rows, ctBuy)) })[c.key];
   return <>
     <DataTable className="ct-table" rowKey="key" columns={columns} dataSource={rows} pagination={false} minWidth={leaf.reduce((a, c) => a + (c.width || 180), 0)}
@@ -10380,6 +10379,11 @@ function CostTracking({ view }) {
   const customer = view === 'customer';
   const all = [...CT_CONTAINERS, ...CT_FEES];
   const pay = ctSum(all, ctBuy), rec = ctSum(all, ctSell);
+  const [side, setSide] = useState('buy');
+  // Active side is solid (dark) via the Segmented component tokens.
+  const sideSwitch = !customer && <ConfigProvider theme={{ components: { Segmented: { itemSelectedBg: token.colorBgSolid, itemSelectedColor: token.colorTextLightSolid } } }}>
+    <Segmented size="small" value={side} onChange={setSide} options={[{ value: 'buy', label: 'Payables' }, { value: 'sell', label: 'Receivables' }]} aria-label="Charges side" />
+  </ConfigProvider>;
   const measure = !customer && <Flex gap={token.marginXS} align="center"><antd.Switch size="small" checked={percent} onChange={setPercent} checkedChildren="%" unCheckedChildren="$" aria-label="Profit measure" /><Typography.Text>Profit Measure</Typography.Text></Flex>;
   return <>
     {!customer && <antd.Row gutter={[token.marginXS, token.marginXS]}>
@@ -10388,11 +10392,11 @@ function CostTracking({ view }) {
       <antd.Col xs={24} lg={8}><CtSummary title="Profit" icon={<I.RiseOutlined />} total={money(rec - pay)} note={`${((rec - pay) / pay * 100).toFixed(2)}%`}
         parts={[['Transportation', money(ctSum(CT_CONTAINERS, ctSell) - ctSum(CT_CONTAINERS, ctBuy))], ['Fees', money(ctSum(CT_FEES, ctSell) - ctSum(CT_FEES, ctBuy))], ['Margin', `${((rec - pay) / rec * 100).toFixed(2)}%`]]} /></antd.Col>
     </antd.Row>}
-    <ListPanel title="Transportation" count={CT_CONTAINERS.length} actions={measure}>
-      <CostTable first="Container" rows={CT_CONTAINERS} customer={customer} percent={percent} />
+    <ListPanel title="Transportation" count={CT_CONTAINERS.length} actions={!customer && <Flex gap={token.margin} align="center" wrap>{measure}{sideSwitch}</Flex>}>
+      <CostTable first="Container" rows={CT_CONTAINERS} customer={customer} percent={percent} side={side} />
     </ListPanel>
-    <ListPanel title="Fees" count={CT_FEES.filter((r) => !r.group).length}>
-      <CostTable first="Service" rows={CT_FEES} customer={customer} percent={percent} />
+    <ListPanel title="Fees" count={CT_FEES.filter((r) => !r.group).length} actions={sideSwitch}>
+      <CostTable first="Service" rows={CT_FEES} customer={customer} percent={percent} side={side} />
     </ListPanel>
   </>;
 }
