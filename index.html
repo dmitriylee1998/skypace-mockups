@@ -10321,20 +10321,22 @@ function CtStatusIcon({ title }) {
   const { token } = antd.theme.useToken();
   return <Tooltip title={title}><I.ClockCircleOutlined style={{ color: token.colorTextQuaternary }} /></Tooltip>;
 }
-function CtSummary({ title, total, budget, parts }) {
+function CtSummary({ title, icon, total, note, budget, parts }) {
   const { token } = antd.theme.useToken();
-  return <Card variant="borderless" style={{ height: '100%' }} styles={{ body: { padding: token.padding, display: 'flex', flexDirection: 'column', gap: token.marginSM } }}>
-    <Flex justify="space-between" align="flex-start" gap={token.margin}>
-      <Flex vertical><Typography.Text type="secondary" style={{ fontSize: token.fontSizeSM }}>{title}</Typography.Text>
-        <Typography.Title level={3} style={{ margin: 0, fontWeight: token.fontWeightNormal }}>{total}</Typography.Title></Flex>
-      {budget && <Flex vertical align="center" gap={token.marginXXS} style={{ paddingInlineStart: token.padding, borderInlineStart: `${token.lineWidth}px dashed ${token.colorSplit}` }}>
-        <Typography.Text type="secondary" style={{ fontSize: token.fontSizeSM }}>Budget Plan <Tooltip title="Charges are within the budget plan"><I.InfoCircleOutlined /></Tooltip></Typography.Text>
-        <I.CheckCircleFilled style={{ color: token.colorSuccess, fontSize: token.fontSizeLG }} />
-      </Flex>}
+  const box = { background: token.colorFillTertiary, borderRadius: token.borderRadiusLG, padding: `${token.paddingSM}px ${token.padding}px` };
+  return <Card variant="borderless" style={{ height: '100%' }} styles={{ body: { padding: token.padding, display: 'flex', flexDirection: 'column', gap: token.marginXS, height: '100%' } }}>
+    <Flex justify="space-between" align="center" gap={token.marginXS}>
+      <Typography.Text strong>{title}</Typography.Text>
+      {budget ? <Tooltip title="Charges are within the budget plan"><Tag color="success" icon={<I.CheckCircleOutlined />} style={{ margin: 0 }}>Budget plan</Tag></Tooltip>
+        : <Typography.Text type="secondary">{icon}</Typography.Text>}
     </Flex>
-    {parts && <antd.Row gutter={token.margin} style={{ paddingTop: token.paddingXS, borderTop: `${token.lineWidth}px dashed ${token.colorSplit}` }}>
-      {parts.map(([k, v]) => <antd.Col span={8} key={k}><Typography.Text type="secondary" style={{ fontSize: token.fontSizeSM }}>{k}</Typography.Text><div>{v}</div></antd.Col>)}
-    </antd.Row>}
+    <Flex align="baseline" gap={token.marginXS} style={box}>
+      <Typography.Title level={3} style={{ margin: 0 }}>{total}</Typography.Title>
+      {note && <Typography.Text type="secondary">{note}</Typography.Text>}
+    </Flex>
+    <antd.Row gutter={token.margin} style={{ ...box, marginInline: 0, flex: 1 }}>
+      {parts.map(([k, v]) => <antd.Col span={8} key={k} style={{ paddingInline: 0 }}><Typography.Text type="secondary" style={{ fontSize: token.fontSizeSM }}>{k}</Typography.Text><div>{v}</div></antd.Col>)}
+    </antd.Row>
   </Card>;
 }
 function CostTable({ title, first, rows, customer, percent }) {
@@ -10342,9 +10344,11 @@ function CostTable({ title, first, rows, customer, percent }) {
   const sep = { className: 'ct-sep' };
   const num = (v) => <span className="ct-num">{v}</span>;
   const profit = (r) => { const b = ctBuy(r), sl = ctSell(r); return percent ? (b ? ((sl - b) / b * 100).toFixed(2) + '%' : '—') : money(sl - b); };
-  const name = (v, r) => r.group || (r.children ? <Flex gap={token.marginXS} align="center" style={{ display: 'inline-flex' }}><Tag style={{ margin: 0 }}>{r.size}</Tag>{v}</Flex> : v);
+  const name = (v, r) => r.group || (r.children ? <div className="sec-title"><CnBox /><Typography.Text type="secondary">{v}</Typography.Text></div> : v);
   const groupCell = (r) => r.group ? { colSpan: 0 } : {};
+  const expand = { key: 'expand', width: 48, render: () => null, onCell: groupCell };
   const lead = [
+    ...(rows.some((r) => r.children) ? [expand] : []),
     { title: first, dataIndex: 'name', render: name, onCell: (r) => r.group ? { colSpan: 99, className: 'ct-group' } : {} },
     { title: 'Unit', dataIndex: 'unit', width: 56, align: 'right', render: (v) => v && <Typography.Text type="secondary">{v}</Typography.Text>, onCell: groupCell },
   ];
@@ -10356,20 +10360,19 @@ function CostTable({ title, first, rows, customer, percent }) {
       ...(customer ? [] : [{ title: buy ? 'Posted' : 'Invoiced', key: kind + 'St', width: 72, align: 'center', onCell: groupCell, render: (_, r) => r.children || r[kind + 'Qty'] ? <CtStatusIcon title={buy ? 'Not posted' : 'Not invoiced'} /> : null }]),
     ]; };
   const columns = customer ? [...lead, ...side('sell')] : [
-    { title, align: 'left', children: lead },
+    { title: '', children: lead },
     { title: 'Payables', align: 'center', onHeaderCell: () => sep, children: side('buy') },
     { title: 'Receivables', align: 'center', onHeaderCell: () => sep, children: side('sell') },
     { title: '', onHeaderCell: () => sep, children: [{ title: 'Profit', key: 'profit', width: 100, align: 'right', onHeaderCell: () => sep, onCell: (r) => r.group ? { colSpan: 0 } : sep, render: (_, r) => profit(r) }] },
   ];
   const leaf = customer ? columns : columns.flatMap((c) => c.children);
   const total = (c) => ({ buy: money(ctSum(rows, ctBuy)), sell: money(ctSum(rows, ctSell)), profit: percent ? ((ctSum(rows, ctSell) - ctSum(rows, ctBuy)) / (ctSum(rows, ctBuy) || 1) * 100).toFixed(2) + '%' : money(ctSum(rows, ctSell) - ctSum(rows, ctBuy)) })[c.key];
-  return <Flex vertical gap={token.marginXS}>
-    {customer && <Typography.Title level={5} style={{ margin: 0 }}>{title}</Typography.Title>}
+  return <>
     <DataTable className="ct-table" rowKey="key" columns={columns} dataSource={rows} pagination={false} minWidth={leaf.reduce((a, c) => a + (c.width || 180), 0)}
-      expandable={{ indentSize: 0, expandIcon: ({ expanded, onExpand, record }) => record.children ? <Button type="text" size="small" aria-label={(expanded ? 'Collapse ' : 'Expand ') + record.name} icon={<ExpandArrow open={expanded} />} onClick={(e) => onExpand(record, e)} /> : null }}
+      expandable={{ indentSize: 0, expandIconColumnIndex: 0, expandIcon: ({ expanded, onExpand, record }) => record.children ? <Button type="text" size="small" aria-label={(expanded ? 'Collapse ' : 'Expand ') + record.name} icon={<ExpandArrow open={expanded} />} onClick={(e) => onExpand(record, e)} /> : null }}
       summary={() => <Table.Summary.Row className="ct-total">{leaf.map((c, i) => <Table.Summary.Cell key={c.key || c.dataIndex} index={i} align={c.align} className={c.onHeaderCell ? 'ct-sep' : undefined}>
-        {i === 0 ? <Typography.Text strong>Total</Typography.Text> : total(c) && <Typography.Text strong>{total(c)}</Typography.Text>}</Table.Summary.Cell>)}</Table.Summary.Row>} />
-  </Flex>;
+        {c.dataIndex === 'name' ? <Typography.Text strong>Total</Typography.Text> : total(c) && <Typography.Text strong>{total(c)}</Typography.Text>}</Table.Summary.Cell>)}</Table.Summary.Row>} />
+  </>;
 }
 function CostTracking({ view }) {
   const { token } = antd.theme.useToken();
@@ -10377,17 +10380,19 @@ function CostTracking({ view }) {
   const customer = view === 'customer';
   const all = [...CT_CONTAINERS, ...CT_FEES];
   const pay = ctSum(all, ctBuy), rec = ctSum(all, ctSell);
+  const measure = !customer && <Flex gap={token.marginXS} align="center"><antd.Switch size="small" checked={percent} onChange={setPercent} checkedChildren="%" unCheckedChildren="$" aria-label="Profit measure" /><Typography.Text>Profit Measure</Typography.Text></Flex>;
   return <>
     {!customer && <antd.Row gutter={[token.marginXS, token.marginXS]}>
       <antd.Col xs={24} lg={8}><CtSummary title="Payables" total={money(pay)} budget parts={[['Invoiced', money(0)], ['Uninvoiced', money(pay)], ['Paid', money(0)]]} /></antd.Col>
       <antd.Col xs={24} lg={8}><CtSummary title="Receivables" total={money(rec)} budget parts={[['Invoiced', money(0)], ['Uninvoiced', money(rec)], ['Paid', money(0)]]} /></antd.Col>
-      <antd.Col xs={24} lg={8}><CtSummary title="Profit" total={<>{money(rec - pay)} <Typography.Text type="secondary" style={{ fontSize: 'inherit' }}>({((rec - pay) / pay * 100).toFixed(2)}%)</Typography.Text></>} /></antd.Col>
+      <antd.Col xs={24} lg={8}><CtSummary title="Profit" icon={<I.RiseOutlined />} total={money(rec - pay)} note={`${((rec - pay) / pay * 100).toFixed(2)}%`}
+        parts={[['Transportation', money(ctSum(CT_CONTAINERS, ctSell) - ctSum(CT_CONTAINERS, ctBuy))], ['Fees', money(ctSum(CT_FEES, ctSell) - ctSum(CT_FEES, ctBuy))], ['Margin', `${((rec - pay) / rec * 100).toFixed(2)}%`]]} /></antd.Col>
     </antd.Row>}
-    <ListPanel title="Charges" actions={!customer && <Flex gap={token.marginXS} align="center"><antd.Switch size="small" checked={percent} onChange={setPercent} checkedChildren="%" unCheckedChildren="$" aria-label="Profit measure" /><Typography.Text>Profit Measure</Typography.Text></Flex>}>
-      <Flex vertical gap={token.marginLG} style={{ padding: `0 ${token.padding}px ${token.padding}px` }}>
-        <CostTable title="Transportation" first="Container" rows={CT_CONTAINERS} customer={customer} percent={percent} />
-        <CostTable title="Fees" first="Service" rows={CT_FEES} customer={customer} percent={percent} />
-      </Flex>
+    <ListPanel title="Transportation" count={CT_CONTAINERS.length} actions={measure}>
+      <CostTable first="Container" rows={CT_CONTAINERS} customer={customer} percent={percent} />
+    </ListPanel>
+    <ListPanel title="Fees" count={CT_FEES.filter((r) => !r.group).length}>
+      <CostTable first="Service" rows={CT_FEES} customer={customer} percent={percent} />
     </ListPanel>
   </>;
 }
