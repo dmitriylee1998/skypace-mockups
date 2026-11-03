@@ -578,5 +578,5 @@ html { scrollbar-gutter:stable; }
 .ct-table td.ct-group { background:var(--ds-fill-tertiary); color:var(--ds-muted); font-size:var(--ds-font-size-sm); padding-block:var(--ds-space-xxs) !important; }
 .ct-table .ct-total > td { background:var(--ds-fill-tertiary); }
 .shipment-workspace .ct-table .ant-table-tbody > tr.ant-table-row-level-1 > td.ct-group:first-child { padding-left:calc(var(--ds-control-height) + 2 * var(--ds-space)) !important; }
-/* In table toolbars the solid switch drops its (white) track inset so the header keeps the shared 48px height. */
-.do-list-head .solid-seg.ant-segmented { padding:0; }
+/* In table toolbars the solid switch sits on the default gray Segmented track (colorBgLayout) with the default 2px inset. */
+.do-list-head .solid-seg.ant-segmented { padding:calc(var(--ds-space-xxs) / 2); background:var(--ant-color-bg-layout); }
