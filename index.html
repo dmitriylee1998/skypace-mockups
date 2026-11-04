@@ -1327,6 +1327,10 @@
   .do-fields { background: var(--ds-fill); border-radius: var(--ds-radius-lg); padding: var(--ds-space-sm) var(--ds-space); display: flex; flex-direction: column; gap: var(--ds-space-xs); }
   .do-fields-row { display: flex; gap: var(--ds-space); }
   .do-field { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  /* inside the order steps fields always sit on a 3-column grid, so rows with 2 fields line up with rows of 3; a lone long field spans the row */
+  .do-main .do-fields-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .do-main .do-fields-row > .do-field:only-child { grid-column: 1 / -1; }
+  @media (max-width: 700px) { .do-main .do-fields-row { grid-template-columns: minmax(0, 1fr); } }
   .do-field-l { font-size: var(--ds-font-size-sm); line-height: 20px; color: var(--ds-text-secondary); }
   .do-field-v { overflow-wrap: anywhere; }
   .do-stack { display: flex; flex-direction: column; gap: var(--ds-space-xs); }
@@ -1455,6 +1459,9 @@
   .do-dp.ant-picker { width: 200px; }
   .do-cols { display: grid; grid-template-columns: minmax(0, 1fr) 350px; gap: var(--ds-space-xs); align-items: start; }
   .do-main, .do-side { display: flex; flex-direction: column; gap: var(--ds-space-xs); min-width: 0; }
+  /* side cards: same spacing between inner blocks as inside the steps */
+  .do-side .do-card { gap: var(--ds-space-sm); }
+  .do-side .do-doc-row { margin-top: 0; }
   .do-box-head { display: flex; align-items: center; gap: var(--ds-space-sm); }
   .do-box-head > div { flex: 1; }
   .do-icon-tile { width: 36px; height: 36px; flex: none; border-radius: var(--ds-radius-lg); background: var(--ds-fill); display: inline-flex; align-items: center; justify-content: center; font-size: var(--ds-font-size-lg); }
@@ -1530,7 +1537,7 @@
   #do-step-dispatch { display: flex; flex-direction: column; gap: var(--ds-space); }
   .do-prev-head b { font-size: var(--ds-font-size-xl); line-height: 28px; }
   /* yellow warning caption with a small alert icon — opens the drawer where it is fixed */
-  .do-warn-link { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: var(--ds-space-xxs); color: var(--ant-color-warning-text-active); }
+  .do-warn-link { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: var(--ds-space-xxs); color: var(--ant-color-warning-text-active); text-decoration: underline; }
   .do-warn-link .anticon { font-size: var(--ds-font-size-sm); }
   .do-warn-link:hover { color: var(--ant-gold-8); text-decoration: underline; }
   .do-warn-link:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: var(--ds-radius-sm); }
@@ -8214,18 +8221,26 @@ const doApplyPreset = (f) => {
   doSave(doAll().map((d) => (d.id === p.id ? { ...doSeedOf(p.id), ...p.patch } : d)));
   return p;
 };
-function useDispatchOrders() {
+function useDispatchOrders(withForeign = false) {
   const [list, setList] = useState(doAll);
   useEffect(() => { doSubs.add(setList); return () => doSubs.delete(setList); }, []);
-  return list;
+  return withForeign ? list : list.filter((d) => !d.foreign);
 }
 const isDispatchOrder = (id) => doAll().some((d) => d.id === id);
 
+// dispatch order number shown to users: DO-0019981 (route ids stay ID-9981)
+const doNo = (id) => `DO-${String(10000 + Number(String(id).replace(/\D/g, ''))).padStart(7, '0')}`;
 const doStatus = (d) => (!d.dispatched ? 'draft' : d.legsDone >= 3 ? 'completed' : d.legsDone > 0 || d.inLeg ? 'progress' : d.confirmed ? 'confirmed' : 'dispatched');
-const DO_STATUS_LABEL = { draft: 'Unassigned', dispatched: 'Dispatched', confirmed: 'Confirmed', progress: 'In progress', completed: 'Completed' };
+const DO_STATUS_LABEL = { draft: 'Unassigned', dispatched: 'Dispatched', confirmed: 'Confirmed', progress: 'In transit', completed: 'Gated in full' };
 // status colours as on the list in Figma: In progress blue · Unassigned orange · Completed green
 const DO_STATUS_COLOR = { draft: 'orange', dispatched: 'purple', confirmed: 'cyan', progress: 'blue', completed: 'green' };
-const DoStatusTag = ({ d, st }) => { const s = st || doStatus(d); return <Tag color={DO_STATUS_COLOR[s]} variant="outlined" className="do-stag">{DO_STATUS_LABEL[s]}</Tag>; };
+const DoStatusTag = ({ d, st, label }) => { const s = st || doStatus(d); return <Tag color={DO_STATUS_COLOR[s]} variant="outlined" className="do-stag">{label || (d ? doStatusLabel(d) : DO_STATUS_LABEL[s])}</Tag>; };
+// DO status as the carrier reports it while moving: Empty picked up (EE) → Arrived at site (AS) → Picked up at site (DS) → Gated in full (I)
+function doStatusLabel(d) {
+  const st = doStatus(d); if (st !== 'progress') return DO_STATUS_LABEL[st];
+  const rows = doLegs(d).flatMap((l) => l.rows); const act = (k) => rows.find((x) => x.k === k)?.act;
+  return act('l3-gin') ? 'Gated in full' : act('l2-full') ? 'Picked up at site' : act('l2-arr') ? 'Arrived at site' : 'Empty picked up';
+}
 const doTimes = (d) => {
   if (d.times) return d.times;
   const p = d.plan; const drop = p.drop && doDay(p.drop); const pick = p.pickup && doDay(p.pickup);
@@ -8299,7 +8314,7 @@ function DoMoreMenu({ d, msg }) {
   return (
     <Dropdown trigger={['click']} menu={{
       items: [{ key: 'pdf', icon: <I.FilePdfOutlined />, label: 'Open dispatch order (PDF)' }, { key: 'dup', icon: <I.CopyOutlined />, label: 'Duplicate' }, { type: 'divider' }, { key: 'cancel', icon: <I.StopOutlined />, label: 'Cancel dispatch order', danger: true }],
-      onClick: ({ key }) => (key === 'pdf' ? go(`${DOC_PATH}?v=export-live`) : key === 'dup' ? msg.success(`${d.id} duplicated as a new draft`) : msg.warning(`${d.id} cancelled · ${DO_CARRIERS[d.carrier]?.name || 'the carrier'} will be notified`)),
+      onClick: ({ key }) => (key === 'pdf' ? go(`${DOC_PATH}?v=export-live`) : key === 'dup' ? msg.success(`${doNo(d.id)} duplicated as a new draft`) : msg.warning(`${doNo(d.id)} cancelled · ${DO_CARRIERS[d.carrier]?.name || 'the carrier'} will be notified`)),
     }}>
       <Button icon={<I.EllipsisOutlined />} aria-label="More actions" />
     </Dropdown>
@@ -8311,7 +8326,7 @@ function DoHeader({ d, deadline, actions, msg }) {
   return (
     <div className="do-card do-head">
       <div className="do-head-main">
-        <div className="do-head-id"><Button type="text" size="small" icon={<I.ArrowLeftOutlined />} aria-label="Back to dispatches" onClick={()=>go(DISPATCH_PATH)} /><h2>{d.id}</h2><DoStatusTag d={d} /></div>
+        <div className="do-head-id"><Button type="text" size="small" icon={<I.ArrowLeftOutlined />} aria-label="Back to dispatches" onClick={()=>go(DISPATCH_PATH)} /><h2>{doNo(d.id)}</h2><DoStatusTag d={d} /></div>
         <div>Container #{d.n} · {st !== 'draft' && d.number && st === 'progress' ? `${d.number} · ` : ''}<b>{d.siteTitle} → {DO_TERMINAL}</b> · {DO_VESSEL}</div>
       </div>
       <DoDeadline {...deadline} />
@@ -8371,9 +8386,9 @@ function DoRouteDrawer({ d, close, msg }) {
 function DoCargoDrawer({ d, close, msg }) {
   const c = DO_CARRIERS[d.carrier];
   return (
-    <DoFormDrawer title={`Cargo and container · ${d.id}`} intro={`Changes apply to this dispatch order. ${c ? c.name : 'The carrier'} sees them on the dispatch order.`} onClose={close}
-      initial={{ type: d.cargo.type, desc: d.cargo.desc, weight: d.cargo.weight, hazardous: d.cargo.hazardous, imdg: d.cargo.imdg, seal: d.cargo.sealNo || '', genset: !!d.cargo.genset, temp: d.cargo.temp || '' }}
-      onSave={(v) => { doPatch(d.id, { cargo: { ...d.cargo, type: v.type, desc: v.desc, weight: v.weight || null, hazardous: v.hazardous, imdg: v.hazardous ? v.imdg || 'IMDG Class 3' : '', sealNo: v.seal, genset: v.genset, temp: v.temp } }); msg.success('Cargo and container updated'); close(); }}>
+    <DoFormDrawer title={`Cargo and container · ${doNo(d.id)}`} intro={`Changes apply to this dispatch order. ${c ? c.name : 'The carrier'} sees them on the dispatch order.`} onClose={close}
+      initial={{ type: d.cargo.type, desc: d.cargo.desc, weight: d.cargo.weight, hazardous: d.cargo.hazardous, imdg: d.cargo.imdg, number: d.number || '', seal: d.cargo.sealNo || '', genset: !!d.cargo.genset, temp: d.cargo.temp || '' }}
+      onSave={(v) => { doPatch(d.id, { number: v.number || d.number || null, cargo: { ...d.cargo, type: v.type, desc: v.desc, weight: v.weight || null, hazardous: v.hazardous, imdg: v.hazardous ? v.imdg || 'IMDG Class 3' : '', sealNo: v.seal, genset: v.genset, temp: v.temp } }); msg.success('Cargo and container updated'); close(); }}>
       {(form) => (
         <>
           <Form.Item name="type" label="Container type"><Select options={DO_CONTAINER_TYPES.map((t) => ({ value: t, label: t }))} /></Form.Item>
@@ -8383,7 +8398,10 @@ function DoCargoDrawer({ d, close, msg }) {
           </Form.Item>
           <Form.Item name="hazardous" label="Hazardous"><Radio.Group options={[{ value: false, label: 'No' }, { value: true, label: 'Yes' }]} /></Form.Item>
           {Form.useWatch('hazardous', form) && <Form.Item name="imdg" label="IMDG class"><Input placeholder="IMDG Class 3" /></Form.Item>}
-          <Form.Item name="seal" label="Seal Number"><Input placeholder="78884945" /></Form.Item>
+          <div className="grid-2 dsp-g2">
+            <Form.Item name="number" label="Container number"><Input placeholder="MSKU1234567" /></Form.Item>
+            <Form.Item name="seal" label="Seal Number"><Input placeholder="78884945" /></Form.Item>
+          </div>
           <div className="grid-2 dsp-g2">
             <Form.Item name="genset" label="Genset"><Radio.Group options={[{ value: false, label: 'No' }, { value: true, label: 'Yes' }]} /></Form.Item>
             <Form.Item name="temp" label="Temperature"><Input placeholder="e.g. 4 C" /></Form.Item>
@@ -8417,7 +8435,7 @@ function DoDatesDrawer({ d, close, msg }) {
     msg.success('Dates applied'); close();
   };
   return (
-    <Drw title={`Change dates · ${d.id}`} width={378} onClose={close} bordered className="do-drawer"
+    <Drw title={`Change dates · ${doNo(d.id)}`} width={378} onClose={close} bordered className="do-drawer"
       footer={<><Button type="text" onClick={close}>Cancel</Button><Button type="primary" className="do-dark" onClick={save}>Apply dates</Button></>}>
       <p className="do-drawer-intro">{cur.warn ? 'The current plan has a possible extra cost. Pick other dates, the impact below updates as you change them.' : 'Pick other dates, the impact below updates as you change them.'}</p>
       <Form form={form} layout="vertical" requiredMark={false}
@@ -8445,7 +8463,7 @@ function DoDatesDrawer({ d, close, msg }) {
 function DoPlaceDrawer({ d, which, close, msg }) {
   const pl = d.places[which];
   return (
-    <DoFormDrawer title={`${pl.kind} · ${d.id}`} intro="Edits apply to every dispatch order using the place." onClose={close} initial={pl}
+    <DoFormDrawer title={`${pl.kind} · ${doNo(d.id)}`} intro="Edits apply to every dispatch order using the place." onClose={close} initial={pl}
       onSave={(v) => { doPatch(d.id, { places: { ...d.places, [which]: { ...pl, ...v } } }); msg.success(`${v.name} updated`); close(); }}>
       <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Enter the name' }]}><Input /></Form.Item>
       <Form.Item name="address" label="Address" rules={[{ required: true, message: 'Enter the address' }]}><Input.TextArea autoSize={{ minRows: 2 }} /></Form.Item>
@@ -8462,7 +8480,7 @@ function DoPlaceDrawer({ d, which, close, msg }) {
 
 function DoAccessDrawer({ d, close, msg }) {
   return (
-    <DoFormDrawer title={`Loading and site access · ${d.id}`} intro={`Applies to this container only. The dates and inputs in step 3 change to match.`} onClose={close}
+    <DoFormDrawer title={`Loading and site access · ${doNo(d.id)}`} intro={`Applies to this container only. The dates and inputs in step 3 change to match.`} onClose={close}
       initial={{ loading: d.plan.loading, access: d.plan.access }}
       onSave={(v) => {
         const next = { ...d.plan, loading: v.loading, access: v.access, ...DO_PLAN_DEFAULTS[`${v.loading}-${v.access}`] };
@@ -8573,7 +8591,7 @@ function DoDraftPage({ d, open, msg }) {
     <>
       <div className="do-card do-head2">
         <div className="do-head-main">
-          <div className="do-head-id"><Button type="text" size="small" icon={<I.ArrowLeftOutlined />} aria-label="Back to dispatches" onClick={()=>go(DISPATCH_PATH)} /><h2>{d.id}</h2><DoStatusTag d={d} /></div>
+          <div className="do-head-id"><Button type="text" size="small" icon={<I.ArrowLeftOutlined />} aria-label="Back to dispatches" onClick={()=>go(DISPATCH_PATH)} /><h2>{doNo(d.id)}</h2><DoStatusTag d={d} /></div>
           <div>{d.number || 'MSCU7493112'} / <b>{d.siteTitle}</b></div>
         </div>
         <Tooltip title="Open full-screen editor with the PDF preview"><Button icon={<I.ExpandOutlined />} onClick={() => open('editor')}>Editor</Button></Tooltip>
@@ -8630,12 +8648,12 @@ function DoDraftPage({ d, open, msg }) {
         <div className="do-send">
           <div className="do-preview">
             <div className="do-paper">
-              <Tag className="do-tag">Draft</Tag><span className="do-sub">Dispatch order</span><b>{d.id}</b>
+              <Tag className="do-tag">Draft</Tag><span className="do-sub">Dispatch order</span><b>{doNo(d.id)}</b>
               {[100, 82, 100, 64, 100, 70, 90, 100, 58, 100, 76, 88].map((w, i) => <i key={i} style={{ width: `${w}%` }} />)}
             </div>
             <div className="do-preview-acts">
               <DoLink size="small" icon={<I.EyeOutlined />} onClick={() => go(`${DOC_PATH}?v=${p.loading === 'dp' ? 'export' : 'export-live'}`)}>Preview</DoLink>
-              <DoLink size="small" icon={<I.DownloadOutlined />} onClick={() => msg.success(`${d.id}.pdf downloaded`)}>PDF</DoLink>
+              <DoLink size="small" icon={<I.DownloadOutlined />} onClick={() => msg.success(`${doNo(d.id)}.pdf downloaded`)}>PDF</DoLink>
             </div>
           </div>
           <div className="do-send-main">
@@ -8696,7 +8714,7 @@ function DoModals({ d, which, close, msg }) {
   const arg = which.split(':').slice(1).join(':'); // prefilled time from the Actual picker, e.g. "pickup:07:05"
   switch (which.split(':')[0]) {
     case 'pickup': return (
-      <DoModalForm title={`Record empty pickup · ${d.id}`} okText="Record" onClose={close} initial={{ at: arg || '07:05', number: d.number || '', arrived: a.arrived || '09:30', how: 'phone' }}
+      <DoModalForm title={`Record empty pickup · ${doNo(d.id)}`} okText="Record" onClose={close} initial={{ at: arg || '07:05', number: d.number || '', arrived: a.arrived || '09:30', how: 'phone' }}
         onSave={(v) => done({ number: v.number, confirmed: true, legsDone: 1, inLeg: false, actual: { ...a, pickedUp: v.at, arrived: v.arrived, pickupReport: `Reported by ${c.short} by ${v.how} ${v.at} · entered by [Operator]` } }, 'Empty pickup recorded')}>
         <div className="grid-2 dsp-g2"><Form.Item name="at" label="Picked up at" rules={[{ required: true, message: 'Enter the time' }]}><Input placeholder="07:05" /></Form.Item><Form.Item name="arrived" label={`Arrived at the site`}><Input placeholder="09:30" /></Form.Item></div>
         <Form.Item name="number" label="Container number" normalize={(v) => (v || '').toUpperCase()} rules={[{ required: true, message: 'The carrier reports it at pickup' }, { pattern: /^[A-Z]{4}\d{7}$/, message: 'Four letters and seven digits, e.g. ONEU1051502' }]}><Input placeholder="ONEU1051502" /></Form.Item>
@@ -8704,7 +8722,7 @@ function DoModals({ d, which, close, msg }) {
       </DoModalForm>
     );
     case 'loaded': return (
-      <DoModalForm title={`Record loaded · ${d.id}`} okText="Record" onClose={close} initial={{ at: arg || '11:20', seal: DO_BOOKING_SEAL, gross: 20700, how: 'email' }}
+      <DoModalForm title={`Record loaded · ${doNo(d.id)}`} okText="Record" onClose={close} initial={{ at: arg || '11:20', seal: DO_BOOKING_SEAL, gross: 20700, how: 'email' }}
         onSave={(v) => {
           const mismatch = v.seal.trim() !== DO_BOOKING_SEAL;
           done({ legsDone: 2, inLeg: false, exception: mismatch ? { kind: 'seal', leg: 2, open: true } : d.exception, actual: { ...a, loaded: v.at, seal: v.seal.trim(), gross: `${num(v.gross)} kg`, loadReport: `Reported by ${c.short} by ${v.how} ${v.at} · entered by [Operator]` } },
@@ -8717,8 +8735,8 @@ function DoModals({ d, which, close, msg }) {
       </DoModalForm>
     );
     case 'gate': return (
-      <DoModalForm title={`Record gate-in · ${d.id}`} okText="Record" onClose={close} initial={{ at: arg || '14:10', receipt: true }}
-        onSave={(v) => done({ legsDone: 3, inLeg: false, actual: { ...a, gatedIn: v.at, receipt: v.receipt ? 'Uploaded 15:05' : 'Not uploaded', gateReport: `From ${c.short}'s gate receipt · entered by [Operator]` } }, `${d.id} gated in · dispatch order completed`)}>
+      <DoModalForm title={`Record gate-in · ${doNo(d.id)}`} okText="Record" onClose={close} initial={{ at: arg || '14:10', receipt: true }}
+        onSave={(v) => done({ legsDone: 3, inLeg: false, actual: { ...a, gatedIn: v.at, receipt: v.receipt ? 'Uploaded 15:05' : 'Not uploaded', gateReport: `From ${c.short}'s gate receipt · entered by [Operator]` } }, `${doNo(d.id)} gated in · dispatch order completed`)}>
         <Form.Item name="at" label="Gated in at" rules={[{ required: true, message: 'Enter the time' }]}><Input placeholder="14:10" /></Form.Item>
         <Form.Item name="receipt" valuePropName="checked"><Checkbox>Gate receipt received from {c.short}</Checkbox></Form.Item>
       </DoModalForm>
@@ -8731,8 +8749,8 @@ function DoModals({ d, which, close, msg }) {
       </DoModalForm>
     );
     case 'confirm': return (
-      <DoModalForm title={`Mark as confirmed · ${d.id}`} okText="Mark as confirmed" onClose={close} initial={{ by: c.contact, how: 'phone', driver: '', appt: '' }}
-        onSave={(v) => done({ confirmed: true, confirmedAt: '27 May, 16:25', confirmedBy: v.by, driver: v.driver || null, appt: v.appt ? `${v.appt} · booked by ${c.short}` : d.appt }, `Move confirmed with ${c.name}`)}>
+      <DoModalForm title={`Mark as confirmed · ${doNo(d.id)}`} okText="Mark as confirmed" onClose={close} initial={{ by: c.contact, how: 'phone', driver: '', appt: '' }}
+        onSave={(v) => done({ confirmed: true, confirmedAt: '27 May, 16:25', confirmedBy: v.by, confirmedByUser: DO_USER_EMAIL, proofs: [...(d.proofs || []), ...(v.proof || []).map((f) => ({ name: f.name, at: '27 May, 16:25' }))], driver: v.driver || null, appt: v.appt ? `${v.appt} · booked by ${c.short}` : d.appt }, `Move confirmed with ${c.name}`)}>
         <p className="do-sub">Record what {c.short} confirmed. Driver and appointment can be added later.</p>
         <div className="grid-2 dsp-g2">
           <Form.Item name="by" label="Confirmed by" rules={[{ required: true, message: 'Who confirmed it?' }]}><Input /></Form.Item>
@@ -8740,10 +8758,13 @@ function DoModals({ d, which, close, msg }) {
         </div>
         <Form.Item name="driver" label="Driver and truck (optional)"><Input placeholder="e.g. L. Ortega · truck 118 · pool chassis" /></Form.Item>
         <Form.Item name="appt" label="Gate-in appointment (optional)"><Input placeholder="Appointment number" /></Form.Item>
+        <Form.Item name="proof" label="Proof of confirmation (optional)" valuePropName="fileList" getValueFromEvent={(e) => e?.fileList}>
+          <Upload multiple beforeUpload={() => false}><Button icon={<I.UploadOutlined />}>Upload files</Button></Upload>
+        </Form.Item>
       </DoModalForm>
     );
     case 'report': return (
-      <DoModalForm title={`Report exception · ${d.id}`} okText="Report" onClose={close} initial={{ type: 'Delay', leg: Math.min(3, d.legsDone + 1) }}
+      <DoModalForm title={`Report exception · ${doNo(d.id)}`} okText="Report" onClose={close} initial={{ type: 'Delay', leg: Math.min(3, d.legsDone + 1) }}
         onSave={(v) => done({ exception: v.type === 'Seal mismatch' ? { kind: 'seal', leg: v.leg, open: true } : { kind: 'other', title: v.type, leg: v.leg, note: v.note, open: true }, actual: v.type === 'Seal mismatch' && !a.seal ? { ...a, seal: 'SL-2024-001287' } : a }, 'Exception reported · it shows on Origin overview and the Dispatch board')}>
         <Form.Item name="type" label="What happened"><Select options={['Delay', 'Seal mismatch', 'Damage', 'Wrong container', 'Other'].map((x) => ({ value: x, label: x }))} /></Form.Item>
         <Form.Item name="leg" label="Leg"><Select options={[[1, 'Empty pickup'], [2, 'Loading'], [3, 'Gate-in']].map(([value, l]) => ({ value, label: `${value} · ${l}` }))} /></Form.Item>
@@ -8751,13 +8772,13 @@ function DoModals({ d, which, close, msg }) {
       </DoModalForm>
     );
     case 'carrier': return (
-      <DoModalForm title={`Change carrier · ${d.id}`} okText="Change" onClose={close} initial={{ carrier: d.carrier }}
+      <DoModalForm title={`Change carrier · ${doNo(d.id)}`} okText="Change" onClose={close} initial={{ carrier: d.carrier }}
         onSave={(v) => done({ carrier: v.carrier, confirmed: false, confirmedAt: null, driver: null }, d.dispatched ? `${DO_CARRIERS[v.carrier].name} assigned · send the dispatch order again` : `${DO_CARRIERS[v.carrier].name} selected`)}>
         <Form.Item name="carrier" label="Drayage carrier"><Select options={Object.entries(DO_CARRIERS).map(([value, x]) => ({ value, label: x.name }))} /></Form.Item>
       </DoModalForm>
     );
     case 'invoice': return (
-      <DoModalForm title={`Add carrier invoice · ${d.id}`} okText="Add invoice" onClose={close} initial={{ amount: 215 + (d.extra === 'approved' || d.extra === 'absorbed' ? 50 : 0) }}
+      <DoModalForm title={`Add carrier invoice · ${doNo(d.id)}`} okText="Add invoice" onClose={close} initial={{ amount: 215 + (d.extra === 'approved' || d.extra === 'absorbed' ? 50 : 0) }}
         onSave={(v) => done({ invoice: v }, 'Carrier invoice added')}>
         <Form.Item name="no" label="Invoice number" rules={[{ required: true, message: 'Enter the invoice number' }]}><Input placeholder="INV-20431" /></Form.Item>
         <Form.Item name="amount" label="Amount" rules={[{ required: true, message: 'Enter the amount' }]}><InputNumber min={0} prefix="$" style={{ width: '100%' }} /></Form.Item>
@@ -8918,12 +8939,10 @@ function doByLocation(d, rows, leg) {
 }
 
 /* All events drawer (DO / All events) — every event of the part of the route the leg belongs to; "Show key events only" narrows it */
-const DO_KEY_ALL = new Set([...DO_KEY_EVENTS, 'oc-load', 'oc-dis', 'de-gout', 'de-arr', 'de-gin']);
 function DoLegDrawer({ d, legId, close, msg }) {
   const leg = doLegs(d).find((l) => l.id === legId);
   const all = doAllEvents(d);
   const part = ['Origin', 'Ocean', 'Destination'].find((g) => all[g].some((x) => (DO_LEG_EVENTS[legId] || []).includes(x.k))) || 'Origin';
-  const [keyOnly, setKeyOnly] = useState(false);
   const [vals, setVals] = useState({});
   const val = (x, f) => (x.k in vals && f in vals[x.k] ? vals[x.k][f] : x[f]);
   const set = (k, f, v) => setVals((s) => ({ ...s, [k]: { ...s[k], [f]: v } }));
@@ -8935,9 +8954,9 @@ function DoLegDrawer({ d, legId, close, msg }) {
     msg.success('Events saved'); close();
   };
   const evs = all[part].map(({ group, ...x }) => x);
-  const rows = keyOnly ? evs.filter((x) => DO_KEY_ALL.has(x.k)) : evs;
+  const rows = evs;
   return (
-    <Drw title={`All events · ${d.id} · ${d.number || 'container'}`} width={900} onClose={close} bordered className="do-drawer do-drawer-grey"
+    <Drw title={`All events · ${doNo(d.id)} · ${d.number || 'container'}`} width={900} onClose={close} bordered className="do-drawer do-drawer-grey"
       footer={<Button type="primary" className="do-dark" onClick={save}>Save</Button>}>
       <div className="do-edit do-edit-box">
         <div className="do-loc-cols"><span>Location</span><span>Event</span><span>Estimated</span><span>Actual</span></div>
@@ -8960,7 +8979,6 @@ function DoLegDrawer({ d, legId, close, msg }) {
             </div>
           ))}
         </div>
-        <div><Button type="link" className="do-edit-toggle" onClick={() => setKeyOnly(!keyOnly)}>{keyOnly ? `Show all events (${evs.length})` : 'Show key events only'}</Button></div>
       </div>
     </Drw>
   );
@@ -8973,7 +8991,7 @@ function DoDocFit({ children }) {
   useEffect(() => { const el = ref.current; if (!el) return; const ro = new ResizeObserver(() => setZ(Math.min(1, el.clientWidth / 800))); ro.observe(el); return () => ro.disconnect(); }, []);
   return <div ref={ref} className="do-docfit" style={{ '--doc-zoom': z }}>{children}</div>;
 }
-const doDocMeta = (d) => ({ ...DOC_META, number: `${SHIPMENT_ID} / ${d.id}`, addressee: [`THE TRANSPORT MANAGER ${DO_CARRIERS[d.carrier].name.toUpperCase()}`, DSP_CARRIERS[d.carrier]?.address || ''] });
+const doDocMeta = (d) => ({ ...DOC_META, number: `${SHIPMENT_ID} / ${doNo(d.id)}`, addressee: [`THE TRANSPORT MANAGER ${DO_CARRIERS[d.carrier].name.toUpperCase()}`, DSP_CARRIERS[d.carrier]?.address || ''] });
 // email the carrier receives, in the style of the Skypace transactional emails (emails/*.html)
 function DoEmailPreview({ d, to, cc, note }) {
   const c = DO_CARRIERS[d.carrier]; const p = d.plan; const dp = p.loading === 'dp';
@@ -8992,8 +9010,8 @@ function DoEmailPreview({ d, to, cc, note }) {
         <div><span>From</span>Skypace Dispatch &lt;dispatch@skypace.com&gt;</div>
         <div><span>To</span>{to || '—'}</div>
         {cc.length > 0 && <div><span>Cc</span>{cc.join(', ')}</div>}
-        <div><span>Subject</span><b>Dispatch order {d.id} · {d.number || 'container'} · {SHIPMENT_ID}</b></div>
-        <div className="do-mail-att"><I.PaperClipOutlined /> {d.id}.pdf <span>· 2 pages</span></div>
+        <div><span>Subject</span><b>Dispatch order {doNo(d.id)} · {d.number || 'container'} · {SHIPMENT_ID}</b></div>
+        <div className="do-mail-att"><I.PaperClipOutlined /> {doNo(d.id)}.pdf <span>· 2 pages</span></div>
       </div>
       <div className="do-mail-body">
         <img className="do-mail-logo" src="assets/skypace-logo-lg.svg" alt="Skypace" />
@@ -9001,9 +9019,9 @@ function DoEmailPreview({ d, to, cc, note }) {
           <h1>New dispatch order</h1>
           <hr />
           <p className="hi">Hi {c.contact.split(' ')[0]},</p>
-          <p>{note || `Dispatch order ${d.id} is attached.`}</p>
+          <p>{note || `Dispatch order ${doNo(d.id)} is attached.`}</p>
           <div className="do-mail-panel">
-            <div className="do-mail-panel-top"><span>Dispatch order {d.id}</span><b>{c.name}</b></div>
+            <div className="do-mail-panel-top"><span>Dispatch order {doNo(d.id)}</span><b>{c.name}</b></div>
             {rows.map(([k, v]) => <div className="do-mail-row" key={k}><span>{k}</span><b>{v}</b></div>)}
           </div>
           <p className="next">Please confirm the order:</p>
@@ -9015,41 +9033,54 @@ function DoEmailPreview({ d, to, cc, note }) {
     </div>
   );
 }
-function DoSendModal({ d, close, msg }) {
+function DoSendModal({ d, close, msg, edit = false, resend = false, done }) {
   const c = DO_CARRIERS[d.carrier];
   const [mode, setMode] = useState('send');
   const [view, setView] = useState('pdf');
-  const [to, setTo] = useState(d.carrierContact?.email || c.email);
-  const [cc, setCc] = useState(['ops@maxton.com', 'v.nikolaev@maxton.com']);
-  const [note, setNote] = useState(`Dispatch order ${d.id} for ${d.number || 'MSCU7493112'} is attached. Please confirm by Wed 27 May 18:00.`);
+  // resend / edit start from the last email that went out
+  const [to, setTo] = useState(d.emailed?.to?.[0] || d.carrierContact?.email || c.email);
+  const [cc, setCc] = useState(d.emailed?.cc || ['ops@maxton.com', 'v.nikolaev@maxton.com']);
+  const [note, setNote] = useState(`Dispatch order ${doNo(d.id)} for ${d.number || 'MSCU7493112'} is attached. Please confirm by Wed 27 May 18:00.`);
   const email = mode === 'send';
   const dispatch = (text) => {
-    doPatch(d.id, { dispatched: true, confirmed: false, legsDone: 0, inLeg: false, dispatchedAt: '27 May, 09:40', snoozed: [], ms: {} });
+    doPatch(d.id, { dispatched: true, confirmed: false, legsDone: 0, inLeg: false, dispatchedAt: '27 May, 09:40', dispatchedByUser: DO_USER_EMAIL, snoozed: [], ms: {},
+      emailed: email ? { to: [to], cc, note, at: '27 May, 09:40' } : null });
     msg.success(text); close(); window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   const ok = () => {
-    if (!email) { dispatch(`${d.id} marked as dispatched · no email sent`); return; }
+    if (resend) {
+      if (!/^\S+@\S+\.\S+$/.test(to)) { msg.warning('Enter the carrier email'); return; }
+      doPatch(d.id, { emailed: { to: [to], cc, note, at: '27 May, 12:30', resent: true } });
+      msg.success(`${doNo(d.id)} resent to ${to}`); close(); return;
+    }
+    if (edit) {
+      if (!email) { msg.success(`${doNo(d.id)} updated in Skypace · no email sent`); done(); return; }
+      if (!/^\S+@\S+\.\S+$/.test(to)) { msg.warning('Enter the carrier email'); return; }
+      doPatch(d.id, { emailed: { to: [to], cc, note, at: '27 May, 12:30', amended: true } });
+      msg.success(`Amended ${doNo(d.id)} sent to ${to}`); done(); return;
+    }
+    if (!email) { dispatch(`${doNo(d.id)} marked as dispatched · no email sent`); return; }
     if (!/^\S+@\S+\.\S+$/.test(to)) { msg.warning('Enter the carrier email'); return; }
-    dispatch(`${d.id} sent to ${to}${cc.length ? ` · ${cc.length} in copy` : ''} · marked as dispatched`);
+    dispatch(`${doNo(d.id)} sent to ${to}${cc.length ? ` · ${cc.length} in copy` : ''} · marked as dispatched`);
   };
   return (
-    <Modal open onCancel={close} width={1040} title={`Send dispatch order · ${d.id}`} className="do-send-modal2" destroyOnHidden
-      footer={<><Button onClick={close}>Cancel</Button><Button type="primary" className="do-dark" onClick={ok}>{email ? 'Send and mark as dispatched' : 'Mark as dispatched'}</Button></>}>
+    <Modal open onCancel={close} width={1040} title={`${resend ? 'Resend' : edit ? 'Edit' : 'Send'} dispatch order · ${doNo(d.id)}`} className="do-send-modal2" destroyOnHidden
+      footer={<><Button onClick={close}>Cancel</Button><Button type="primary" className="do-dark" onClick={ok}>{resend ? 'Resend email' : email ? 'Send email' : 'Update DO'}</Button></>}>
       <div className="do-send2-cols">
         <div className="do-send2">
-          <Segmented block className="do-seg" value={mode} onChange={(k) => { setMode(k); if (k === 'mark') setView('pdf'); }}
-            options={[{ value: 'send', label: 'Send and mark as dispatched' }, { value: 'mark', label: 'Mark as dispatched only' }]} />
+          {edit && <Segmented block className="do-seg" value={mode} onChange={(k) => { setMode(k); if (k === 'mark') setView('pdf'); }}
+            options={[{ value: 'send', label: 'Email amended version' }, { value: 'mark', label: 'Only update DO in Skypace' }]} />}
           {email ? <>
             <label className="do-input"><span>To</span><Input value={to} onChange={(e) => setTo(e.target.value)} /></label>
             <label className="do-input"><span>Copy to (CC)</span><Select mode="tags" value={cc} onChange={setCc} placeholder="Add email" tokenSeparators={[',', ' ']} open={false} /></label>
             <label className="do-input"><span>Message (optional)</span><Input.TextArea value={note} onChange={(e) => setNote(e.target.value)} autoSize={{ minRows: 4 }} /></label>
           </> : <>
-            <Alert type="info" showIcon title="No email is sent" description={`${d.id} is marked as dispatched for ${c.name}. Use it when the order already reached the carrier another way.`} />
+            <Alert type="info" showIcon title="No email is sent" description={`The changes to ${doNo(d.id)} are saved in Skypace only. ${c.name} keeps the version they already have.`} />
           </>}
         </div>
         <div className="do-send2-doc">
           <Tabs className="do-send-tabs" activeKey={view} onChange={setView}
-            items={[{ key: 'pdf', label: `${d.id}.pdf` }, { key: 'email', label: 'Email', disabled: !email }]} />
+            items={[{ key: 'pdf', label: `${doNo(d.id)}.pdf` }, { key: 'email', label: 'Email', disabled: !email }]} />
           {view === 'pdf' ? <DoDocFit><DispatchOrderDoc v={doDocFor(d)} meta={doDocMeta(d)} /></DoDocFit> : <DoEmailPreview d={d} to={to} cc={cc} note={note} />}
         </div>
       </div>
@@ -9194,7 +9225,7 @@ function DoDaysModal({ d, which, close, msg }) {
   const win = pickup ? (p.access === 'appt' ? '10:00–11:00' : 'after loaded') : DO_REC_WIN[doScen(p)];
   const use = () => { doPatch(d.id, { plan: { ...p, ...(pickup ? { pickup: sel, ...(p.access === 'appt' ? { pickupWin: win } : {}) } : { drop: sel, dropWin: win, ...(dp && p.pickup && doDayIdx(p.pickup) <= doDayIdx(sel) ? { pickup: null } : {}) }) } }); msg.success(`${pickup ? 'Full pickup' : 'Empty drop'} set to ${doDay(sel).label}`); close(); };
   return (
-    <Modal open onCancel={close} width={992} className="do-days-modal" title={<div className="do-days-title"><b>Recommended days for the {pickup ? 'full pickup' : 'empty drop'}</b><span>{d.id} · {DO_LOADING[p.loading]} · {p.access === 'appt' ? 'Appointment' : 'First come, first served'}</span></div>}
+    <Modal open onCancel={close} width={992} className="do-days-modal" title={<div className="do-days-title"><b>Recommended days for the {pickup ? 'full pickup' : 'empty drop'}</b><span>{doNo(d.id)} · {DO_LOADING[p.loading]} · {p.access === 'appt' ? 'Appointment' : 'First come, first served'}</span></div>}
       footer={<><Button onClick={close}>Cancel</Button><Button type="primary" className="do-dark" onClick={use}>Use {doShortDay(sel)}, {win}</Button></>} destroyOnHidden>
       <div className="do-days">
         <div className="do-days-head"><b>Pick a day</b><span className="do-legend"><i className="ok" />No extra cost<i className="warn" />Tight or extra cost<i className="err" />Misses the vessel</span></div>
@@ -9215,7 +9246,7 @@ function DoDaysModal({ d, which, close, msg }) {
 }
 
 /* Unassigned · full-screen editor — carrier, dispatch plan, route and cargo on the left, live PDF on the right */
-function DoEditor({ d, close, open, msg }) {
+function DoEditor({ d, close, open, msg, edit = false }) {
   const missing = doMissing(d).length;
   const patchCargo = (patch) => doPatch(d.id, { cargo: { ...d.cargo, ...patch } });
   const typeLabel = { '20 ft Standard': '20 Dry standard', '40 ft Standard': '40 Dry standard', '40 ft High Cube': '40 High cube' }[d.cargo.type] || d.cargo.type;
@@ -9226,15 +9257,15 @@ function DoEditor({ d, close, open, msg }) {
   const sendIt = () => {
     if (!d.plan.drop) { msg.warning('Enter the empty drop date first'); return; }
     if (missing) { msg.warning(`Fix ${missing} missing item${missing > 1 ? 's' : ''} first`); return; }
-    open('send');
+    open(edit ? 'editsend' : 'send');
   };
   return (
-    <div className="do-editor" role="dialog" aria-label={`Dispatch order ${d.id}`}>
+    <div className="do-editor" role="dialog" aria-label={`Dispatch order ${doNo(d.id)}`}>
       <div className="do-editor-bar">
         <Button type="text" icon={<I.CloseOutlined />} aria-label="Back to dispatches" onClick={close} />
-        <div className="do-head-main"><div className="do-head-id"><Button type="text" size="small" icon={<I.ArrowLeftOutlined />} aria-label="Back to dispatches" onClick={()=>go(DISPATCH_PATH)} /><h2>{d.id}</h2><DoStatusTag d={d} /></div></div>
+        <div className="do-head-main"><div className="do-head-id"><Button type="text" size="small" icon={<I.ArrowLeftOutlined />} aria-label="Back to dispatches" onClick={()=>go(DISPATCH_PATH)} /><h2>{doNo(d.id)}</h2><DoStatusTag d={d} /></div></div>
         <div className="do-editor-acts">
-          <Button type="text" onClick={() => { msg.success('Draft saved'); close(); }}>Save for later</Button>
+          {edit ? <Button type="text" onClick={close}>Cancel</Button> : <Button type="text" onClick={() => { msg.success('Draft saved'); close(); }}>Save for later</Button>}
           <Button type="primary" className="do-dark" onClick={sendIt}>Continue</Button>
         </div>
       </div>
@@ -9273,13 +9304,14 @@ function DoEditor({ d, close, open, msg }) {
               <b>Cargo</b>
               <div className="do-pf-row">
                 <DoPF label="Description"><DoLockedInput value={d.cargo.desc} /></DoPF>
+                <DoPF label="Load plan"><Button icon={<I.EditOutlined />} onClick={() => open('loadplan')}>{d.loadItems?.length ? `${d.loadItems.length} cargo item${d.loadItems.length > 1 ? 's' : ''}` : 'Add load plan'}</Button></DoPF>
                 <DoPF label="Estimated load weight"><Input id="do-est-weight" value={kg(d.cargo.weight)} status={d.cargo.weight ? '' : 'warning'} placeholder="kg" onChange={(e) => patchCargo({ weight: Number(e.target.value.replace(/\D/g, '')) || null })} /></DoPF>
               </div>
             </div>
           </DoSec>
         </div>
         <div className="do-editor-preview">
-          <div className="do-sendm-label do-prev-head"><b>Preview</b><DoLink size="small" onClick={() => msg.success(`${d.id}.pdf downloaded`)}>PDF</DoLink></div>
+          <div className="do-sendm-label do-prev-head"><b>Preview</b><DoLink size="small" onClick={() => msg.success(`${doNo(d.id)}.pdf downloaded`)}>PDF</DoLink></div>
           <div className="do-sendm-pdf"><DoDocFit><DispatchOrderDoc first v={doDocFor(d)} meta={doDocMeta(d)} /></DoDocFit></div>
         </div>
       </div>
@@ -9322,6 +9354,92 @@ function DoStepCard({ id, done, current, title, note, open, onToggle, children }
   );
 }
 // gray block: optional title / place line with an edit button, then rows of fields
+// "Dispatched to carrier": who and when, the document, and the email that went with it
+// Edit container load plan: pick the shipment's cargo items that go into this container and how much of each
+const DO_CARGO_ITEMS = [
+  { id: 'c1', name: 'Tanning extracts of vegetable origin (excl. quebracho extract and wattle extract)', pcs: 23, kg: 23, cbm: 32 },
+  { id: 'c2', name: 'Polyethylene granules in bags', pcs: 40, kg: 12000, cbm: 18 },
+  { id: 'c3', name: 'Industrial adhesives, drums', pcs: 12, kg: 3600, cbm: 6 },
+];
+function DoLoadPlanDrawer({ d, close, msg }) {
+  const { token } = antd.theme.useToken(); const { Text, Title } = Typography;
+  const [rows, setRows] = useState(() => Object.fromEntries((d.loadItems || []).map((x) => [x.id, x])));
+  const toggle = (it, on) => setRows((r) => { const n = { ...r }; if (on) n[it.id] = { id: it.id, pcs: it.pcs, kg: it.kg, cbm: it.cbm, value: null }; else delete n[it.id]; return n; });
+  const set = (id, k, v) => setRows((r) => ({ ...r, [id]: { ...r[id], [k]: v } }));
+  const picked = Object.values(rows); const sum = (k) => picked.reduce((t, x) => t + (x[k] || 0), 0);
+  const fmt = (v) => Number(v || 0).toLocaleString('en-US');
+  const save = () => { doPatch(d.id, { loadPlan: picked.length > 0, loadItems: picked, cargo: { ...d.cargo, weight: sum('kg') || d.cargo.weight } }); msg.success('Load plan updated'); close(); };
+  const box = { padding: `${token.paddingSM}px ${token.padding}px`, background: token.colorFillQuaternary, borderRadius: token.borderRadiusLG };
+  const total = (k) => DO_CARGO_ITEMS.reduce((t, x) => t + x[k], 0);
+  const field = (it, k, label, unit) => (
+    <antd.Col span={6} key={k}>
+      <Flex vertical gap={token.marginXXS}>
+        <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>{label}</Text>
+        <InputNumber min={0} max={unit === 'USD' ? undefined : it[k]} disabled={!rows[it.id]} value={rows[it.id]?.[k]} onChange={(v) => set(it.id, k, v)} suffix={unit} style={{ width: '100%' }} />
+        {unit !== 'USD' && <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>of {fmt(it[k])} {unit}</Text>}
+      </Flex>
+    </antd.Col>
+  );
+  return (
+    <Drw title="Edit container load plan" width={720} onClose={close}
+      footer={<><Button onClick={close}>Cancel</Button><Button type="primary" className="do-dark" disabled={!picked.length && !d.loadItems?.length} onClick={save}>Update container</Button></>}>
+      <Flex vertical gap={token.margin}>
+        <Text type="secondary">Pick the shipment's cargo items that go into {d.number || 'this container'} and how much of each.</Text>
+        <antd.Row gutter={[token.marginXS, token.marginXS]}>
+          {[['Pieces', 'pcs', 'pcs'], ['Weight', 'kg', 'kg'], ['Volume', 'cbm', 'cbm']].map(([l, k, u]) => (
+            <antd.Col span={8} key={k}><Flex vertical style={box}>
+              <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>{l} in container</Text>
+              <Text strong>{fmt(sum(k))} <Text type="secondary">of {fmt(total(k))} {u}</Text></Text>
+            </Flex></antd.Col>
+          ))}
+        </antd.Row>
+        <Text strong>Cargo items</Text>
+        <Flex vertical gap={token.marginXS}>
+          {DO_CARGO_ITEMS.map((it) => (
+            <Flex key={it.id} vertical gap={token.marginSM} style={{ ...box, outline: rows[it.id] ? `${token.lineWidth}px solid ${token.colorPrimaryBorder}` : 'none' }}>
+              <Checkbox checked={!!rows[it.id]} onChange={(e) => toggle(it, e.target.checked)}>
+                <Flex vertical>
+                  <Text strong>{it.name}</Text>
+                  <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>In shipment: {fmt(it.pcs)} pcs · {fmt(it.kg)} kg · {fmt(it.cbm)} cbm</Text>
+                </Flex>
+              </Checkbox>
+              <antd.Row gutter={[token.marginSM, token.marginSM]}>
+                {field(it, 'pcs', 'Units', 'pcs')}{field(it, 'kg', 'Weight', 'kg')}{field(it, 'cbm', 'Volume', 'cbm')}{field(it, 'value', 'Goods value', 'USD')}
+              </antd.Row>
+            </Flex>
+          ))}
+        </Flex>
+      </Flex>
+    </Drw>
+  );
+}
+// one file / email line, same row as in Documents: dot + name, time under it, action on the right
+function DoItem({ main, sub, time = true, action, missing }) {
+  const { token } = antd.theme.useToken();
+  return (
+    <div className="do-doc-row" style={{ marginTop: 0 }}>
+      <div>
+        <span className="do-doc-name"><i className="do-doc-dot" style={missing ? { background: token.colorWarning } : undefined} />{main}</span>
+        {sub && <span className="do-sub">{time && <I.ClockCircleOutlined />} {sub}</span>}
+      </div>
+      {action && <Flex gap={token.marginXS} style={{ flex: 'none', flexDirection: 'row' }}>{action}</Flex>}
+    </div>
+  );
+}
+function DoDispatchedInfo({ d, c, openDoc, open }) {
+  const { token } = antd.theme.useToken(); const { Text } = Typography;
+  // seeded orders were sent to the carrier contact with the ops team in copy
+  const em = d.emailed !== undefined ? d.emailed : { to: [c.email], cc: ['ops@maxton.com'], at: d.dispatchedAt };
+  
+  return (
+    <Flex vertical gap={token.marginXS}>
+      <DoItem main="Dispatch Order" sub={`${d.dispatchedAt} · dispatched by ${d.dispatchedByUser || DO_USER_EMAIL}`} action={<Flex gap={token.marginXS}><Button icon={<I.SendOutlined />} onClick={() => open('resend')}>Resend</Button><Button icon={<I.DownloadOutlined />} onClick={openDoc}>Download</Button></Flex>} />
+      {em
+        ? <DoItem main={`${em.amended ? 'Amended version emailed' : em.resent ? 'Resent' : 'Emailed'} to ${em.to.join(', ')}`} sub={`${em.at}${em.cc.length ? ` · cc ${em.cc.join(', ')}` : ''}`} action={<Button icon={<I.MailOutlined />} onClick={() => open('mail')}>View email</Button>} />
+        : <DoItem missing main="Not emailed" time={false} sub="Marked as dispatched only · the carrier got the order another way" />}
+    </Flex>
+  );
+}
 function DoStepBox({ title, sub, onEdit, editLabel, rows = [], children }) {
   const { Text } = Typography;
   return (
@@ -9357,6 +9475,8 @@ function DoMsTable({ leg, nextK, onEdit }) {
   );
 }
 const DO_OPERATOR = 'Bridget Moore';
+const DO_USER_EMAIL = 'bridget.moore@skypace.com';
+const DO_CONFIRM_BY = '27 May, 17:00'; // due to confirm a dispatched order (same rule as task #56)
 const DO_DRIVER_NOTE = 'Call the site 30 min before arrival · send the seal number and scale ticket after loading';
 
 function DoDetailPage({ d, open, msg }) {
@@ -9383,6 +9503,7 @@ function DoDetailPage({ d, open, msg }) {
   const { token } = antd.theme.useToken(); const { Text, Link } = Typography;
   const [openSteps, setOpenSteps] = useState({});
   const openDoc = () => go(`${DOC_PATH}?v=${d.plan.loading === 'dp' ? 'export' : 'export-live'}`);
+  const lp = d.loadPlan ?? d.legsDone >= 3; // load plan: cargo items linked to the container
   const sealVal = d.legsDone >= 2 ? (sealBad ? `${a.seal} · doesn't match booking` : a.seal) : d.cargo.sealNo || 'After loading';
   const [l1, l2, l3] = main; const yard = legs.find((l) => l.yard); const p = d.plan; const dp = p.loading === 'dp';
   const row = (leg, k) => leg.rows.find((x) => x.k === k) || {};
@@ -9394,27 +9515,53 @@ function DoDetailPage({ d, open, msg }) {
   };
   const legBody = (leg, place, rows, extra) => (
     <>
-      <DoStepBox title={place.name} sub={place.address} onEdit={() => open(`leg:${leg.id}`)} rows={rows} />
+      <DoStepBox title={place.name} sub={place.address} onEdit={() => open('editor')} rows={rows} />
       {extra}
       <DoMsTable leg={leg} nextK={nextRow?.k} onEdit={() => open(`leg:${leg.id}`)} />
     </>
   );
   const totalProfit = d.charges.reduce((s, x) => s + profit(x), 0);
   const steps = [
-    { key: 'dispatched', title: 'Dispatched to carrier', done: d.dispatched, note: `Dispatched ${d.dispatchedAt} · ${c.short}`,
-      body: <DoStepBox rows={[[['Dispatched by', d.dispatchedBy || DO_OPERATOR], ['Date', d.dispatchedAt], ['Document', <Link onClick={openDoc}><I.FileTextOutlined /> dispatch order.pdf</Link>]]]} /> },
-    { key: 'confirmed', title: 'Confirmed by carrier', done: d.confirmed, note: d.confirmed ? `Confirmed ${d.confirmedAt || '—'} · ${d.confirmedBy || c.contact}` : `Next: confirm with ${c.short} by ${dropAt}`,
-      body: (
-        <DoStepBox rows={[[['Confirmed by', d.confirmed ? d.confirmedBy || c.contact : '—'], ['Date', d.confirmedAt || '—'], ['Document', <Link onClick={openDoc}><I.FileTextOutlined /> dispatch order.pdf</Link>]]]}>
-          {!d.confirmed && <div><DoLink size="small" icon={<I.CheckOutlined />} onClick={() => open('m:confirm')}>Mark as confirmed</DoLink></div>}
-        </DoStepBox>
-      ) },
+    { key: 'dispatched', title: 'Dispatched to carrier', done: !!d.dispatchedAt, note: `Dispatched ${d.dispatchedAt} · ${c.short}`,
+      body: <DoDispatchedInfo d={d} c={c} openDoc={openDoc} open={open} /> },
+    { key: 'confirmed', title: 'Confirmed with carrier', done: d.confirmed, note: d.confirmed ? `Confirmed ${d.confirmedAt || '—'} · ${d.confirmedBy || c.contact}` : `Confirm with ${c.short} by ${DO_CONFIRM_BY}`,
+      body: (() => {
+        const proofs = d.proofs || (d.confirmed ? [{ name: 'Proof of confirmation.pdf', at: d.confirmedAt || '—' }] : []);
+        const late = dayjs(`2026-05-${DO_CONFIRM_BY.slice(0, 2)}T${DO_CONFIRM_BY.slice(-5)}`).isBefore(DOG_NOW.add(4, 'hour'));
+        const upload = (
+          <Upload multiple showUploadList={false} beforeUpload={(f) => { doPatch(d.id, (o) => ({ proofs: [...(o.proofs || proofs), { name: f.name, at: '27 May, 12:30' }] })); msg.success(`${f.name} uploaded`); return false; }}>
+            <Button icon={<I.UploadOutlined />}>Upload proof</Button>
+          </Upload>
+        );
+        const files = proofs.length ? proofs.map((f) => <div key={f.name}><Link onClick={() => msg.success(`${f.name} downloaded`)}><I.FileTextOutlined /> {f.name}</Link></div>) : '—';
+        if (!d.confirmed) return (
+          <DoStepBox>
+            {late && <DoWarn>Due in less than 4 hours · confirm with {c.short} now</DoWarn>}
+            <Text type="secondary">Call or email {c.contact} at {c.name} to make sure they accept the dispatch order and the dates, then mark it confirmed. Attach the reply or a screenshot as proof.</Text>
+            <Flex gap={token.marginXS} wrap><Button size="small" type="primary" className="do-dark" icon={<I.CheckOutlined />} onClick={() => open('m:confirm')}>Mark as confirmed</Button></Flex>
+          </DoStepBox>
+        );
+        return (
+          <Flex vertical gap={token.marginXS}>
+            <DoStepBox rows={[[['Confirmed by', `${d.confirmedBy || c.contact} (${c.short})`], ['Date', d.confirmedAt || '—'], ['Marked by', d.confirmedByUser || DO_USER_EMAIL]]]} />
+            {proofs.map((f) => <DoItem key={f.name} main={f.name} sub={f.at}
+              action={<>
+                {/* Reload replaces this proof with a new file */}
+                <Upload showUploadList={false} beforeUpload={(nf) => { doPatch(d.id, (o) => ({ proofs: (o.proofs || proofs).map((x) => (x.name === f.name ? { name: nf.name, at: '27 May, 12:30' } : x)) })); msg.success(`${f.name} replaced with ${nf.name}`); return false; }}>
+                  <Button icon={<I.ReloadOutlined />}>Reload</Button>
+                </Upload>
+                <Button icon={<I.DownloadOutlined />} onClick={() => msg.success(`${f.name} downloaded`)}>Download</Button>
+              </>} />)}
+            {!proofs.length ? <DoItem missing main="No proof of confirmation" time={false} sub="Add the carrier's reply or a screenshot" action={upload} /> : null}
+          </Flex>
+        );
+      })() },
     { key: 'picked', title: 'Empty picked up', done: !!row(l1, 'l1-gout').act, note: legNote(l1, 'l1-gout'), body: legBody(l1, d.places.cy, [l1.fixed]) },
     { key: 'loaded', title: 'Loaded at site', done: !!row(l2, 'l2-full').act, note: legNote(l2, 'l2-full'),
       body: legBody(l2, load, [[['Contact person', load.contact || 'Missing', load.contact ? null : 'warn'], ['Email / Phone', [load.email, load.phone].filter(Boolean).join(' / ') || '—']]], (
         <>
-          <DoStepBox title="Loading instructions" rows={[[['Cargo ready', l2.fixed[0][1]], ['Facility access', p.access === 'appt' ? 'Appointment' : 'First come, first served'], ['Loading method', DO_LOADING[p.loading]]], [['Driver instructions', d.notes || DO_DRIVER_NOTE]]]} />
-          <DoStepBox title="Planned dates" onEdit={() => open('leg:l2')} editLabel="Edit planned dates"
+          <DoStepBox title="Loading instructions" onEdit={() => open('editor')} editLabel="Edit loading instructions" rows={[[['Cargo ready', l2.fixed[0][1]], ['Facility access', p.access === 'appt' ? 'Appointment' : 'First come, first served'], ['Loading method', DO_LOADING[p.loading]]], ...(p.loading === 'live' ? [[['Loading time', p.loadTime ?? '2 h free']]] : []), [['Driver instructions', d.notes || DO_DRIVER_NOTE]]]} />
+          <DoStepBox title="Planned dates" onEdit={() => open('editor')} editLabel="Edit planned dates"
             rows={dp ? [[['Planned empty drop', p.drop ? doDay(p.drop).label : '—'], ['Time window', p.dropWin || '—'], ['Drop reference', p.dropRef || '—']],
               [['Planned full pickup', p.pickup ? doDay(p.pickup).label : '—'], ['Time window', p.pickupWin || '—'], ['Pickup reference', p.pickupRef || '—']]]
               : [[['Planned arrival', p.drop ? doDay(p.drop).label : '—'], [p.access === 'appt' ? 'Appointment window' : 'Time window', p.dropWin || '—'], ['Appointment reference', d.appt || p.apptRef || '—']]]} />
@@ -9426,10 +9573,19 @@ function DoDetailPage({ d, open, msg }) {
         <DoStepBox title="Detention free time">
           <Text>used {dd} of 15 free days (calendar)</Text>
           <Progress percent={(dd / 15) * 100} showInfo={false} size="small" strokeColor={token.colorPrimary} />
+          <div className="do-fields-row"><DoField label="Last free day" value="01 Jun, 17:00" /><DoField label="Free days left" value={`${15 - dd}`} /></div>
         </DoStepBox>
       )) },
-    { key: 'vgm', title: 'VGM and container data', done: !!d.vgm, note: d.vgm ? `Submitted · ${a.gross || 'scale ticket'}` : 'Next: VGM cutoff Tue 2 Jun, 12:00',
-      body: <DoStepBox rows={[[['VGM', d.vgm ? `${a.gross} · scale ticket` : 'Not submitted', d.vgm ? null : 'warn'], ['Seal number', sealVal, sealBad ? 'warn' : null], ['VGM cutoff', 'Tue 2 Jun, 12:00']]]} /> },
+    { key: 'vgm', title: 'Container information provided', done: !!d.number && d.legsDone >= 2 && lp,
+      // due = FT doc cutoff (Mon 1 Jun, 12:00) − 4 h
+      note: !d.number || d.legsDone < 2 || !lp ? 'Next: provide by Mon 1 Jun, 08:00' : `${d.number} · seal ${a.seal}`,
+      body: (() => {
+        const provide = (onClick) => <Link underline onClick={onClick}>Provide</Link>;
+        return <DoStepBox rows={[[
+          ['Container number', d.number || provide(() => open('cargo'))],
+          ['Seal number', d.legsDone >= 2 ? sealVal : provide(() => open('cargo')), sealBad ? 'warn' : null],
+          ['Load plan', lp ? <Link underline onClick={() => open('loadplan')}>View</Link> : provide(() => open('loadplan'))]]]} />;
+      })() },
     { key: 'cost', title: 'Cost review', done: !!d.invoice, note: `${d.charges.length} charges · profit ${totalProfit < 0 ? '-' : ''}$${num(Math.abs(totalProfit))}${d.invoice ? ' · invoice added' : ''}`,
       body: (
         <>
@@ -9452,16 +9608,16 @@ function DoDetailPage({ d, open, msg }) {
           <div><DoLink icon={<I.PlusOutlined />} onClick={() => open('m:charge')}>Add charge</DoLink></div>
         </>
       ) },
-  ];
+  ].filter((s) => s.key !== 'cost'); // cost review is hidden for now
   const current = steps.find((s) => !s.done)?.key;
   const isOpen = (s) => openSteps[d.id + s.key] ?? !s.done;
   return (
     <>
       <div className="do-card do-head2">
         <div className="do-head-main">
-          <div className="do-head-id"><Button type="text" size="small" icon={<I.ArrowLeftOutlined />} aria-label="Back to dispatches" onClick={()=>go(DISPATCH_PATH)} /><h2>{d.id}</h2><DoStatusTag d={d} />
+          <div className="do-head-id"><Button type="text" size="small" icon={<I.ArrowLeftOutlined />} aria-label="Back to dispatches" onClick={()=>go(DISPATCH_PATH)} /><h2>{doNo(d.id)}</h2><DoStatusTag d={d} />
             <Dropdown trigger={['click']} menu={{ items: [{ key: 'report', icon: <I.WarningOutlined />, label: 'Report exception' }, { key: 'charge', icon: <I.PlusOutlined />, label: 'Add extra charge' }, st === 'completed' && !d.invoice && { key: 'invoice', icon: <I.FileTextOutlined />, label: 'Add carrier invoice' }, { type: 'divider' }, { key: 'cancel', icon: <I.StopOutlined />, label: 'Cancel dispatch order', danger: true }].filter(Boolean),
-              onClick: ({ key }) => (key === 'cancel' ? msg.warning(`${d.id} cancelled · ${c.name} will be notified`) : open(`m:${key}`)) }}>
+              onClick: ({ key }) => (key === 'cancel' ? msg.warning(`${doNo(d.id)} cancelled · ${c.name} will be notified`) : open(`m:${key}`)) }}>
               <Button size="small" type="text" icon={<I.EllipsisOutlined />} aria-label="More actions" />
             </Dropdown>
           </div>
@@ -9486,23 +9642,30 @@ function DoDetailPage({ d, open, msg }) {
         <div className="do-side">
           {sealBad && <DoWarn action="Review" onAction={() => open('m:resolve')}>Seal number doesn't match the booking · gate-in today 15:00</DoWarn>}
           <section className="do-card">
-            <div className="do-box-head"><b className="do-grow">Container</b><Button type="text" size="small" className="do-icon-edit" icon={<I.EditOutlined />} aria-label="Edit container" onClick={() => open('cargo')} /></div>
+            <div className="do-box-head"><b className="do-grow">Container</b><Button type="text" size="small" className="do-icon-edit" icon={<I.EditOutlined />} aria-label="Edit container" onClick={() => open('editor')} /></div>
             <DoFields rows={[[['Container', <span className="do-inline">{d.number || 'At empty pickup'}<Tag className="do-tag">{sizeTag}</Tag></span>], ['Seal Number', sealVal, sealBad ? 'warn' : null]]]} />
             <DoFields rows={[[['Cargo', d.cargo.desc], d.legsDone >= 2 ? ['Gross weight', `${a.gross} · scale ticket`] : ['Cargo weight', d.cargo.weight ? `${num(d.cargo.weight)} kg (est.)` : 'Missing', d.cargo.weight ? null : 'warn']]]} />
             <DoFields rows={[[['Temperature', d.cargo.temp || '—'], ['Genset', d.cargo.genset ? 'Yes' : 'No']]]} />
+            {lp && <DoFields rows={[[['Load plan', <Link underline onClick={() => open('loadplan')}>{d.loadItems?.length ? `${d.loadItems.length} cargo item${d.loadItems.length > 1 ? 's' : ''}` : 'View'}</Link>]]]} />}
             <div className="do-fields"><DoField label="References" value={<span className="do-inline">{DO_REFS.slice(0, 2).map((r) => <Tag key={r} className="do-tag">{r}</Tag>)}<Tag className="do-tag">+{DO_REFS.length - 2}</Tag></span>} /></div>
           </section>
           <section className="do-card">
-            <div className="do-box-head"><b className="do-grow">Carrier</b><Button type="text" size="small" className="do-icon-edit" icon={<I.EditOutlined />} aria-label="Edit carrier" onClick={() => open('m:carrier')} /></div>
+            <div className="do-box-head"><b className="do-grow">Carrier</b><Button type="text" size="small" className="do-icon-edit" icon={<I.EditOutlined />} aria-label="Edit carrier" onClick={() => open('editor')} /></div>
             <DoFields rows={[[['Carrier', c.name]]]} />
-            <DoFields rows={[[['Contact', <span>{c.contact}<br />{c.phone}</span>]]]} />
+            <DoFields rows={[[['Contact', <span>{c.contact}<br />{c.phone}<br />{c.email}</span>]]]} />
           </section>
           <section className="do-card">
             <b>Documents</b>
             <div className="do-doc-row">
               <div><span className="do-doc-name"><i className="do-doc-dot" />Dispatch Order</span><span className="do-sub"><I.ClockCircleOutlined /> {d.dispatchedAt}</span></div>
-              <Button icon={<I.DownloadOutlined />} onClick={openDoc}>Download</Button>
+              <Flex gap={token.marginXS} style={{ flex: 'none', flexDirection: 'row' }}><Tooltip title="Resend"><Button icon={<I.SendOutlined />} aria-label="Resend dispatch order" onClick={() => open('resend')} /></Tooltip><Tooltip title="Download"><Button icon={<I.DownloadOutlined />} aria-label="Download dispatch order" onClick={openDoc} /></Tooltip></Flex>
             </div>
+            {[...(d.proofs || (d.confirmed ? [{ name: 'Proof of confirmation.pdf', at: d.confirmedAt || '—' }] : [])), ...(d.files || [])].map((f) => (
+              <div key={f.name} className="do-doc-row">
+                <div><span className="do-doc-name"><i className="do-doc-dot" />{f.name}</span><span className="do-sub"><I.ClockCircleOutlined /> {f.at}</span></div>
+                <Tooltip title="Download"><Button icon={<I.DownloadOutlined />} aria-label={`Download ${f.name}`} onClick={() => msg.success(`${f.name} downloaded`)} /></Tooltip>
+              </div>
+            ))}
           </section>
         </div>
       </div>
@@ -9512,7 +9675,7 @@ function DoDetailPage({ d, open, msg }) {
 
 /* Route entry: draft or status page for one dispatch order; ?f= recreates a Figma frame */
 function DispatchOrderPage({ id, f }) {
-  const list = useDispatchOrders();
+  const list = useDispatchOrders(true);
   const [drawer, setDrawer] = useState(() => { const x = doPendingDrawer; doPendingDrawer = null; return x; });
   const [msgApi, msgCtx] = message.useMessage();
   useEffect(() => {
@@ -9524,12 +9687,16 @@ function DispatchOrderPage({ id, f }) {
   const d = list.find((x) => x.id === id);
   if (!d) return <div className="do-card"><Result status="404" title="Dispatch order not found" extra={<Button type="primary" onClick={() => go(DISPATCH_PATH)}>Back to dispatches</Button>} /></div>;
   const close = () => setDrawer(null);
+  const [lp, setLp] = useState(false);
+  const openX = (k) => (k === 'loadplan' ? setLp(true) : setDrawer(k));
   const [kind, arg] = (drawer || '').split(/:(.*)/);
   return (
     <ShipmentShell selected="ip-dispatches" back={() => go(DISPATCH_PATH)}>
       {msgCtx}
       <div className="do-page">
-        {doStatus(d) === 'draft' ? <DoEditor d={d} close={() => go(DISPATCH_PATH)} open={setDrawer} msg={msgApi} /> : <DoDetailPage d={d} open={setDrawer} msg={msgApi} />}
+        {doStatus(d) === 'draft' ? <DoEditor d={d} close={() => go(DISPATCH_PATH)} open={openX} msg={msgApi} />
+          : kind === 'editor' || kind === 'editsend' ? <DoEditor edit d={d} close={close} open={openX} msg={msgApi} /> : <DoDetailPage d={d} open={openX} msg={msgApi} />}
+      {lp && <DoLoadPlanDrawer d={d} close={() => setLp(false)} msg={msgApi} />}
       </div>
       {kind === 'cargo' && <DoCargoDrawer d={d} close={close} msg={msgApi} />}
       {kind === 'dates' && <DoDatesDrawer d={d} close={close} msg={msgApi} />}
@@ -9539,6 +9706,12 @@ function DispatchOrderPage({ id, f }) {
       {kind === 'leg' && <DoLegDrawer d={d} legId={arg} close={close} msg={msgApi} />}
       {kind === 'days' && <DoDaysModal d={d} which={arg} close={close} msg={msgApi} />}
       {kind === 'send' && <DoSendModal d={d} close={close} msg={msgApi} />}
+      {kind === 'resend' && <DoSendModal resend d={d} close={close} msg={msgApi} />}
+      {kind === 'editsend' && <DoSendModal edit d={d} close={() => setDrawer('editor')} done={close} msg={msgApi} />}
+      {kind === 'mail' && (() => { const c = DO_CARRIERS[d.carrier]; const em = d.emailed || { to: [c.email], cc: ['ops@maxton.com'], at: d.dispatchedAt }; return (
+        <Modal open onCancel={close} width={720} title={`Email sent ${em.at} · ${doNo(d.id)}`} footer={<Button onClick={close}>Close</Button>} destroyOnHidden>
+          <DoEmailPreview d={d} to={em.to.join(', ')} cc={em.cc} note={em.note} />
+        </Modal>); })()}
       {kind === 'm' && arg === 'extra' && <DoExtraModal d={d} close={close} msg={msgApi} />}
       {kind === 'm' && arg !== 'extra' && <DoModals d={d} which={arg} close={close} msg={msgApi} />}
     </ShipmentShell>
@@ -9553,24 +9726,26 @@ function doRow(d) {
   const r = { d, id: d.id, st, container: d.number || 'Not assigned', bold: !!d.number, containerSub: "20'ST", carrier: '—', weight: d.cargo.weight || null };
   if (st === 'draft') {
     const by = { 'Dispatch by today 16:00': '27 May, 16:00', 'Dispatch by Thu 16:00': '28 May, 16:00', 'Dispatch by Fri 16:00': '29 May, 16:00' }[d.deadline.title] || d.deadline.title.replace(/^Dispatch by /, '');
-    r.next = dropAt ? `Empty drop: ${dropAt}` : 'Not planned yet';
-    r.sub = { text: `Dispatch by: ${by}`, kind: 'link', open: null };
+    r.next = 'Not planned yet'; r.nextLink = true;
+    r.sub = { text: `Dispatch by: ${by}`, kind: 'due' };
   } else {
     r.carrier = c.name;
+    const rows = doLegs(d).flatMap((l) => l.rows); const ev = (k) => rows.find((x) => x.k === k); const at = (x) => x.est.format('D MMM, HH:mm');
+    const as = ev('l2-arr'), ds = ev('l2-full'), gi = ev('l3-gin');
     if (st === 'dispatched') { r.next = `Empty drop: ${dropAt}`; r.sub = { text: 'Confirm with carrier by 27 May, 17:00', kind: 'warn-link', open: 'm:confirm' }; }
-    if (st === 'confirmed') { r.next = `Empty pickup: ${doTimes(d).pickup.replace(/^\w+ /, '')}`; r.sub = { text: `Confirmed ${d.confirmedAt}`, kind: 'muted' }; }
-    if (st === 'progress') {
-      const lg = doLegs(d); const nx = lg.flatMap((l) => doKeyRows(l)).find((x) => !x.act);
-      const nm = nx && ({ 'l2-arr': 'Empty drop' }[nx.k] || nx.label);
-      r.next = nx ? `${nm}: ${nx.est.format('D MMM, HH:mm')}` : 'All legs done';
-      r.sub = nx?.missing ? { text: `${nm} event missing`, kind: 'missing', open: `leg:${lg.find((l) => l.rows.includes(nx)).id}` } : { text: 'Port cutoff 02 Jun, 18:00', kind: 'muted' };
-    }
-    if (st === 'completed') { r.next = d.invoice ? 'Invoice added' : '—'; r.sub = { text: `Gated in 28 May, ${a.gatedIn || '14:10'}`, kind: 'muted' }; }
+    else if (st === 'confirmed' || !as.act) { r.next = `Empty drop: ${as ? at(as) : dropAt}`; r.sub = as?.missing ? { text: 'Empty drop event missing', kind: 'missing', open: 'leg:l2' } : null; }
+    else if (!ds.act) { r.next = `Full pickup: ${at(ds)}`; r.sub = ds.missing ? { text: 'Full pickup event missing', kind: 'missing', open: 'leg:l2' } : { text: 'Port cutoff: 02 Jun, 18:00', kind: 'muted' }; }
+    else if (!gi.act) { r.next = `Gate in: ${at(gi)}`; r.sub = gi.missing ? { text: 'Gate in event missing', kind: 'missing', open: 'leg:l3' } : { text: 'Port cutoff: 02 Jun, 18:00', kind: 'muted' }; }
+    else { r.next = '—'; r.sub = { text: `Gated in on 28 May, ${a.gatedIn || '14:10'}`, kind: 'muted' }; }
   }
+  r.stLabel = doStatusLabel(d);
+  r.as = p.drop ? dayjs(`${doDay(p.drop).iso}T${((p.dropWin || '').match(/\d\d:\d\d/) || ['08:00'])[0]}`) : null;
+  // date conflicts and cost risks of a dispatched plan, shown as an exception under Next action (drafts show them in the editor)
+  const evl = st === 'draft' ? {} : doEval(d); r.conflict = evl.warn ? { title: evl.warn, points: evl.points.filter((x) => x.warn) } : null;
   r.attention = doNeedsAttention(d);
   return r;
 }
-const DO_TABS = [['all', 'All'], ['attention', 'Needs attention'], ['draft', 'Unassigned'], ['dispatched', 'Dispatched'], ['confirmed', 'Confirmed'], ['progress', 'In progress'], ['completed', 'Completed']];
+const DO_TABS = [['all', 'All'], ['attention', 'Needs attention'], ['draft', 'Unassigned'], ['dispatched', 'Dispatched'], ['confirmed', 'Confirmed'], ['progress', 'In transit'], ['completed', 'Completed']];
 
 function DispatchOrdersPage({f}) {
   useEffect(()=>{if(f!=null){doApplyPreset(f);history.replaceState(null,'',`#${DISPATCH_PATH}`);}},[f]);
@@ -9605,13 +9780,13 @@ function LegacyDispatchOrdersPage({ f }) {
     { title: 'Drayage carrier', key: 'car', width: 156, render: (_, r) => <div className="do-cell"><span>{r.carrier}</span></div> },
     { title: 'Cargo weight', key: 'w', width: 176, sorter: (x, y) => (x.weight || 0) - (y.weight || 0), render: (_, r) => <div className="do-cell">{r.weight ? <span>{num(r.weight).replace(/,/g, ' ')} kg</span> : <span className="warn">Missing</span>}</div> },
     { title: 'Status', key: 'st', width: 103, render: (_, r) => <DoStatusTag d={r.d} /> },
-    { key: 'go', width: 56, render: (_, r) => <Button size="small" className="arrow-btn" icon={<ChevronIcon />} aria-label={`Open ${r.id}`} onClick={(e) => { e.stopPropagation(); open(r.id); }} /> },
+    { key: 'go', width: 56, render: (_, r) => <Button size="small" className="arrow-btn" icon={<ChevronIcon />} aria-label={`Open ${doNo(r.id)}`} onClick={(e) => { e.stopPropagation(); open(r.id); }} /> },
   ];
   const recContent = (
     <div className="do-rec-pop">
       {drafts.length ? drafts.map((r) => (
         <div key={r.id} className="do-rec-row">
-          <div className="do-cell"><b>{r.id} · {r.d.siteTitle}</b><span className={'do-sub' + (r.d.rec === 'tue2' ? ' warn' : '')}>Recommended: {doDay(r.d.rec).label}{r.d.rec === 'tue2' ? ' · tight' : ''}</span></div>
+          <div className="do-cell"><b>{doNo(r.id)} · {r.d.siteTitle}</b><span className={'do-sub' + (r.d.rec === 'tue2' ? ' warn' : '')}>Recommended: {doDay(r.d.rec).label}{r.d.rec === 'tue2' ? ' · tight' : ''}</span></div>
           <Button size="small" disabled={r.d.plan.drop === r.d.rec} onClick={() => { doPatch(r.id, { plan: { ...r.d.plan, drop: r.d.rec, ...(r.d.plan.loading === 'dp' && !r.d.plan.pickup ? { pickup: doNextDay(r.d.rec).key } : {}) } }); msgApi.success(`${r.id} planned for ${doDay(r.d.rec).label}`); }}>{r.d.plan.drop === r.d.rec ? 'Used' : 'Use'}</Button>
         </div>
       )) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No unassigned orders" />}
@@ -9656,7 +9831,7 @@ function LegacyDispatchOrdersPage({ f }) {
         <DoModalForm title={`Dispatch ${selDrafts.length} orders together`} okText="Mark as dispatched" onClose={() => setTogether(false)} initial={{ carrier: 'fast' }}
           onSave={(v) => {
             doSave(doAll().map((d) => (selDrafts.includes(d.id) ? { ...d, carrier: v.carrier, dispatched: true, dispatchedAt: '27 May, 09:40', plan: d.plan.drop ? d.plan : { ...d.plan, drop: d.rec, ...(d.plan.loading === 'dp' ? { pickup: doNextDay(d.rec).key } : {}) } } : d)));
-            msgApi.success(`${selDrafts.join(', ')} dispatched to ${DO_CARRIERS[v.carrier].name}`); setTogether(false); setSel([]);
+            msgApi.success(`${selDrafts.map(doNo).join(', ')} dispatched to ${DO_CARRIERS[v.carrier].name}`); setTogether(false); setSel([]);
           }}>
           <p className="do-sub">One email goes to the carrier with all {selDrafts.length} dispatch orders. Orders without dates use their recommended day.</p>
           <Form.Item name="carrier" label="Drayage carrier"><Select options={Object.entries(DO_CARRIERS).map(([value, x]) => ({ value, label: x.name }))} /></Form.Item>
@@ -9710,6 +9885,96 @@ function dogDueSub(rows, empty) {
   return overdue ? [{ text: `${overdue} overdue`, tone: 'err' }] : [];
 }
 
+
+// stage order: All / Unassigned by DO ID, Dispatched / Confirmed by the empty drop (AS) date
+const DOG_SORT = { dispatched: 'as', confirmed: 'as' };
+const dogAt = (txt) => { const m = (txt || '').match(/(\d+) (\w{3}), (\d\d:\d\d)/); return m ? dayjs(`${m[1]} ${m[2]} 2026 ${m[3]}`, 'D MMM YYYY HH:mm') : null; };
+
+// orders of other shipments get a real order record (from the closest seed order) the first time they are opened
+const DOG_FOREIGN_BASE = { draft: 'ID-9982', dispatched: 'ID-9984', confirmed: 'ID-9984', progress: 'ID-9981', completed: 'ID-9980' };
+function doEnsureForeign(r) {
+  if (doAll().some((d) => d.id === r.id)) return;
+  const missing = /event missing$/.test(r.sub?.text || '');
+  const base = doSeedOf(missing && !/Gate-in/i.test(r.sub.text) ? 'ID-9985' : DOG_FOREIGN_BASE[r.st]);
+  const carrier = Object.entries(DO_CARRIERS).find(([, c]) => c.name === r.carrier)?.[0] || base.carrier || 'swift';
+  const plan = base.plan.drop ? base.plan : { ...base.plan, drop: base.rec || 'thu28' };
+  const st = { draft: { dispatched: false }, dispatched: { dispatched: true, confirmed: false, legsDone: 0, inLeg: false, plan }, confirmed: { dispatched: true, confirmed: true, confirmedAt: '26 May, 11:05', legsDone: 0, inLeg: false, plan } }[r.st] || {};
+  doSave([...doAll(), { ...base, ...st, id: r.id, foreign: r.shipment, number: r.bold ? r.container : null, carrier, siteTitle: r.load.split(',')[0],
+    ...(/Gate-in event missing/i.test(r.sub?.text || '') ? { legsDone: 2, inLeg: true, missing: ['l3-gin'] } : {}),
+    ...(/^Seal/.test(r.sub?.text || '') ? { exception: { kind: 'seal', leg: 3, open: true } } : {}) }]);
+}
+
+// exception popover: the two dates in conflict and the way to fix them
+function DoConflict({ r, open }) {
+  const { token } = antd.theme.useToken(); const { Text } = Typography;
+  const c = r.conflict;
+  return (
+    <Popover trigger="click" placement="bottomLeft" title={`Cost warning · ${c.title}`} content={
+      <Flex vertical gap={token.marginXS} style={{ maxWidth: token.controlHeight * 10 }}>
+        {c.points.map((x) => <Flex key={x.title} vertical><Text strong>{x.title}</Text><Text type="secondary">{x.time} · {x.note}</Text></Flex>)}
+        <Flex gap={token.marginXS} wrap>
+          <Button size="small" onClick={() => open(r, 'dates')}>Change dates</Button>
+          <Button size="small" type="text" onClick={() => open(r, 'access')}>Loading method</Button>
+        </Flex>
+      </Flex>}>
+      <a className="do-row-link warn" onClick={(e) => e.stopPropagation()}>{c.title}</a>
+    </Popover>
+  );
+}
+
+// bulk update (spec 1.5): every filled field overwrites the selected dispatch orders
+function DoBulkDrawer({ ids, close, msg }) {
+  const [form] = Form.useForm();
+  const days = DO_DAYS.map((x) => ({ value: x.key, label: x.label }));
+  const save = () => {
+    const v = Object.fromEntries(Object.entries(form.getFieldsValue()).filter(([, x]) => x != null && x !== ''));
+    if (!Object.keys(v).length) { close(); return; }
+    doSave(doAll().map((d) => {
+      if (!ids.includes(d.id)) return d;
+      const cy = v.cy && DO_SAVED_PLACES.find((x) => x.name === v.cy);
+      return { ...d, ...(v.carrier ? { carrier: v.carrier } : {}), ...(cy ? { places: { ...d.places, cy: { ...d.places.cy, ...cy, kind: d.places.cy.kind } } } : {}),
+        cargo: v.weight ? { ...d.cargo, weight: v.weight } : d.cargo,
+        plan: { ...d.plan, ...(v.loading ? { loading: v.loading } : {}), ...(v.access ? { access: v.access } : {}), ...(v.drop ? { drop: v.drop } : {}), ...(v.pickup ? { pickup: v.pickup } : {}) } };
+    }));
+    msg.success(`${ids.length} dispatch order${ids.length > 1 ? 's' : ''} updated`); close();
+  };
+  return (
+    <Drw title={`Edit ${ids.length} dispatch order${ids.length > 1 ? 's' : ''}`} width={440} onClose={close}
+      footer={<><Button onClick={close}>Cancel</Button><Button type="primary" className="do-dark" onClick={save}>Apply to {ids.length}</Button></>}>
+      <Typography.Paragraph type="secondary">Only filled fields change. They overwrite the value in every selected order.</Typography.Paragraph>
+      <Form form={form} layout="vertical" requiredMark={false}>
+        <Form.Item name="cy" label="Empty pickup CY"><Select allowClear placeholder="Keep current" options={DO_SAVED_PLACES.filter((x) => x.kind === DO_PLACE_CY.kind || x.kind === DO_PLACE_RET.kind).map((x) => ({ value: x.name, label: x.name }))} /></Form.Item>
+        <Form.Item name="weight" label="Estimated cargo load weight"><InputNumber min={1} addonAfter="kg" placeholder="Keep current" style={{ width: '100%' }} /></Form.Item>
+        <Form.Item name="carrier" label="Drayage carrier"><Select allowClear placeholder="Keep current" options={Object.entries(DO_CARRIERS).map(([value, x]) => ({ value, label: x.name }))} /></Form.Item>
+        <Form.Item name="drop" label="Empty arrival / drop date (AS)"><Select allowClear placeholder="Keep current" options={days} /></Form.Item>
+        <Form.Item name="pickup" label="Full pickup date (DS)"><Select allowClear placeholder="Keep current" options={days} /></Form.Item>
+        <Form.Item name="loading" label="Loading method"><Select allowClear placeholder="Keep current" options={Object.entries(DO_LOADING).map(([value, label]) => ({ value, label }))} /></Form.Item>
+        <Form.Item name="access" label="Receiving method"><Select allowClear placeholder="Keep current" options={[{ value: 'appt', label: 'Appointment' }, { value: 'fcfs', label: 'First come, first served' }]} /></Form.Item>
+      </Form>
+    </Drw>
+  );
+}
+
+// quick view under a row (spec 1.5): container & cargo, dispatch & loading instructions
+function DoQuickView({ r }) {
+  const { token } = antd.theme.useToken(); const { Text } = Typography;
+  if (!r.own) return <DoFields rows={[[['Assigned to', r.assignee], ['Last free day', dayjs(r.lfd).format('D MMM YYYY')], ['Moving', r.move ? dayjs(r.move).format('D MMM YYYY') : '—']]]} />;
+  const d = r.d; const p = d.plan; const dp = p.loading === 'dp';
+  const day = (k, w) => (k ? `${doDay(k).label}${w ? `, ${w}` : ''}` : 'Not planned');
+  const box = (title, items) => (
+    <Flex vertical gap={token.marginXS} style={{ flex: '1 1 320px' }}>
+      <Text strong>{title}</Text>
+      <antd.Row gutter={[token.margin, token.marginXS]}>{items.map(([k, v]) => <antd.Col key={k} span={12}><Flex vertical><Text type="secondary">{k}</Text><Text>{v || '—'}</Text></Flex></antd.Col>)}</antd.Row>
+    </Flex>
+  );
+  return (
+    <Flex gap={token.marginXL} wrap>
+      {box('Container and cargo', [['Container', d.number || 'Not assigned'], ['Container type', "20' Dry standard"], ['Seal number', d.cargo.sealNo || '—'], ['Cargo', d.cargo.desc || 'General cargo'], ['Cargo load weight', d.cargo.weight ? `${d.cargo.weight.toLocaleString('en-US')} kg` : 'Missing']])}
+      {box('Dispatch and loading instructions', [[dp ? 'Empty drop date' : 'Empty arrival date', day(p.drop, p.dropWin)], ...(dp ? [['Full pickup date', day(p.pickup, p.pickupWin)]] : []), ['Loading method', DO_LOADING[p.loading]], ['Receiving method', p.access === 'appt' ? 'Appointment' : 'First come, first served'], ['Driver instructions', d.notes || 'No extra instructions']])}
+    </Flex>
+  );
+}
+
 function DispatchesAllPage({shipment=false,movement}) {
   const list = useDispatchOrders();
   const [tab, setTab] = useState('all');
@@ -9718,8 +9983,11 @@ function DispatchesAllPage({shipment=false,movement}) {
   const { Text, Title } = Typography; const { Row, Col } = antd;
   const [q, setQ] = useState('');
   const [sel, setSel] = useState([]);
+  const [bulk, setBulk] = useState(false);
+  const [together, setTogether] = useState(false);
   const [msgApi, msgCtx] = message.useMessage();
-  const rows = dogRows(list).filter(r=>!shipment||r.own).map(r=>movement==='import'?{...r,type:'Import'}:r);
+  const rows = dogRows(list).filter(r=>!shipment||r.own).map(r=>movement==='import'?{...r,type:'Import'}:r)
+    .map((r, i) => ({ ...r, doId: doNo(r.id), stLabel: r.stLabel || (r.st === 'progress' ? 'Picked up at site' : DO_STATUS_LABEL[r.st]), weight: r.own ? r.weight : 12000 + (i % 5) * 1750, as: r.as || dogAt(r.next) }));
   const today = DOG_NOW.format('YYYY-MM-DD');
   const active = (r) => r.st !== 'completed';
   const KPIS = [
@@ -9731,31 +9999,46 @@ function DispatchesAllPage({shipment=false,movement}) {
   ];
   const kpiTest = KPIS.find((k) => k.key === kpi)?.test || (() => true);
   const inTab = (r, k) => k === 'all' || (k === 'attention' ? r.attention : r.st === k);
-  const shown = rows.filter((r) => inTab(r, tab) && kpiTest(r) && includesQ(q, r.id, r.shipment, r.container, r.carrier, r.customer, r.load));
+  const byStage = DOG_SORT[tab] === 'as' ? (a, b) => (a.as ? a.as.valueOf() : Infinity) - (b.as ? b.as.valueOf() : Infinity) : (a, b) => a.doId.localeCompare(b.doId);
+  const shown = rows.filter((r) => inTab(r, tab) && kpiTest(r) && includesQ(q, r.doId, r.container, r.carrier, ...(shipment ? [] : [r.shipment, r.customer, r.load]))).sort(byStage);
   const open = (r, drawer) => {
-    if (!r.own) { msgApi.info(`${r.id} belongs to ${r.shipment} · not part of this prototype`); return; }
+    if (!r.own) {
+      // orders of other shipments open the same order page; the row's action picks the drawer
+      doEnsureForeign(r); const t = r.sub?.text || '';
+      drawer = drawer || (/^Confirm with carrier/.test(t) ? 'm:confirm' : /Gate-in event missing/i.test(t) ? 'leg:l3' : /event missing$/.test(t) ? 'leg:l2' : /^Seal/.test(t) ? 'm:resolve' : null);
+    }
     if (drawer) doPendingDrawer = drawer;
     go(`${DISPATCH_PATH}/${r.id}`);
   };
+  const late = (r) => r.due && dayjs(r.due).isBefore(DOG_NOW.add(4, 'hour'));
   const sub = (r) => {
     const x = r.sub; if (!x) return null;
     if (x.kind === 'missing') return <DoWarnLink onClick={() => open(r, x.open)}>{x.text}</DoWarnLink>;
-    if (x.kind === 'muted') return <span className="do-sub">{x.text}</span>;
+    if (x.kind === 'muted' || (x.kind === 'due' && !late(r))) return <span className="do-sub">{x.text}</span>;
+    if (x.kind === 'due') return <a className="do-row-link warn" onClick={(e) => { e.stopPropagation(); open(r); }}>{x.text}</a>;
     return <a className={'do-row-link' + (x.kind === 'warn-link' ? ' warn' : '')} onClick={(e) => { e.stopPropagation(); open(r, x.open); }}>{x.text}</a>;
   };
+  const kg = (v) => (v ? `${Number(v).toLocaleString('en-US')} kg` : null);
   const cols = [
-    { title: 'DO ID', dataIndex: 'id', render: (v, r) => <div className="do-cell"><a onClick={(e) => { e.stopPropagation(); open(r); }}>{v}</a></div> },
-    { title: 'Shipment', dataIndex: 'shipment', render: (v, r) => <div className="do-cell">{r.own ? <a href={href(SHIPMENT_PATH)} onClick={(e) => e.stopPropagation()}>{v}</a> : <span>{v}</span>}</div> },
-    { title: 'Container', key: 'c', render: (_, r) => <div className="do-cell"><span className={r.bold ? undefined : 'muted'}>{r.container}</span><span className="do-sub">{r.containerSub}</span></div> },
-    { title: 'Load/Unload', dataIndex: 'load', render: (v) => <div className="do-cell"><span>{v}</span></div> },
-    { title: 'Type', dataIndex: 'type' },
-    { title: 'Next action', key: 'n', render: (_, r) => <div className="do-cell"><span>{r.next}</span>{sub(r)}</div> },
-    { title: 'Customer', dataIndex: 'customer', width: 110 },
-    { title: 'Carrier', dataIndex: 'carrier', width: 124 },
-    { title: 'Status', key: 'st', filterKey: 'st', filterText: (v) => DO_STATUS_LABEL[v], render: (_, r) => <DoStatusTag st={r.st} /> },
-    { key: 'go', width: 44, render: (_, r) => <Button size="small" className="arrow-btn" icon={<ChevronIcon />} aria-label={`Open ${r.id}`} onClick={(e) => { e.stopPropagation(); open(r); }} /> },
+    { title: 'DO ID', dataIndex: 'doId', sorter: (a, b) => a.doId.localeCompare(b.doId), render: (v, r) => <div className="do-cell"><a onClick={(e) => { e.stopPropagation(); open(r); }}>{v}</a></div> },
+    { title: 'Shipment', dataIndex: 'shipment', sorter: (a, b) => a.shipment.localeCompare(b.shipment), render: (v, r) => <div className="do-cell">{r.own ? <a href={href(SHIPMENT_PATH)} onClick={(e) => e.stopPropagation()}>{v}</a> : <span>{v}</span>}</div> },
+    { title: 'Container', key: 'c', sorter: (a, b) => a.container.localeCompare(b.container), render: (_, r) => <div className="do-cell"><span className={r.bold ? undefined : 'muted'}>{r.container}</span><span className="do-sub">{r.containerSub}</span></div> },
+    { title: 'Load/Unload', dataIndex: 'load', sorter: (a, b) => a.load.localeCompare(b.load), render: (v) => <div className="do-cell"><span>{v}</span></div> },
+    { title: 'Type', dataIndex: 'type', sorter: (a, b) => a.type.localeCompare(b.type) },
+    { title: 'Next action', key: 'n', sorter: (a, b) => (a.as ? a.as.valueOf() : Infinity) - (b.as ? b.as.valueOf() : Infinity), render: (_, r) => <div className="do-cell">
+      {r.nextLink ? <a onClick={(e) => { e.stopPropagation(); open(r); }}>{r.next}</a> : <span>{r.next}</span>}{sub(r)}{r.conflict && <DoConflict r={r} open={open} />}</div> },
+    { title: 'Customer', dataIndex: 'customer', width: 110, sorter: (a, b) => a.customer.localeCompare(b.customer) },
+    { title: 'Carrier', dataIndex: 'carrier', width: 140, sorter: (a, b) => a.carrier.localeCompare(b.carrier) },
+    { title: 'Cargo weight', dataIndex: 'weight', width: 120, sorter: (a, b) => (a.weight || 0) - (b.weight || 0), render: (v) => (v ? kg(v) : <Text type="warning">Missing</Text>) },
+    { title: 'Status', key: 'st', filterKey: 'stLabel', width: 120, sorter: (a, b) => a.stLabel.localeCompare(b.stLabel), render: (_, r) => <DoStatusTag st={r.st} label={r.stLabel} /> },
+    { key: 'go', width: 44, render: (_, r) => <Button size="small" className="arrow-btn" icon={<ChevronIcon />} aria-label={`Open ${doNo(r.id)}`} onClick={(e) => { e.stopPropagation(); open(r); }} /> },
   ];
-  const cf = useColumnFilters(shipment ? cols.filter((c) => c.dataIndex !== 'shipment') : cols, shown);
+  // the shipment's own list (spec 1.1): DO ID · Container · Next action · Carrier · Cargo weight · Status
+  const shown_cols = shipment ? cols.filter((c) => !['shipment', 'load', 'type', 'customer'].includes(c.dataIndex)) : cols;
+  const cf = useColumnFilters(shown_cols.filter((c) => !shipment || c.dataIndex === 'carrier' || c.key === 'st'), shown);
+  const selOwn = sel.filter((id) => rows.some((r) => r.id === id && r.own));
+  const selDrafts = selOwn.filter((id) => rows.some((r) => r.id === id && r.st === 'draft'));
+  const tabs = DO_TABS.map(([k, l]) => [k, l, rows.filter((r) => inTab(r, k) && kpiTest(r)).length]).filter(([k, , n]) => k === 'all' || n > 0);
   return (
     <div className="page-stack">
       {msgCtx}
@@ -9781,29 +10064,44 @@ function DispatchesAllPage({shipment=false,movement}) {
         </Row>
       </Card>
       <div className="card-flat tabs-card do-tabs">
-        <Tabs activeKey={tab} onChange={(k) => { setTab(k); setSel([]); }} items={DO_TABS.map(([k, l]) => {
-          const n = rows.filter((r) => inTab(r, k) && kpiTest(r)).length;
-          return { key: k, label: <span className="do-tab">{l}<span className={'do-tab-count' + (k === 'attention' && n ? ' warn' : k === tab ? ' on' : '')}>{n}</span></span> };
-        })} />
+        <Tabs activeKey={tabs.some(([k]) => k === tab) ? tab : 'all'} onChange={(k) => { setTab(k); setSel([]); }} items={tabs.map(([k, l, n]) => (
+          { key: k, label: <span className="do-tab">{l}<span className={'do-tab-count' + (k === 'attention' && n ? ' warn' : k === tab ? ' on' : '')}>{n}</span></span> }))} />
       </div>
       <section className="card-flat do-list">
         <div className="do-list-head">
-          <Input allowClear className="do-search" placeholder={shipment?'Container, dispatch ID, customer':'Container, dispatch ID, shipment, customer'} value={q} onChange={(e) => setQ(e.target.value)} prefix={<I.SearchOutlined className="muted" />} />
+          <Input allowClear className="do-search" placeholder={shipment?'Dispatch ID, container or carrier':'Dispatch ID, container, carrier, shipment'} value={q} onChange={(e) => setQ(e.target.value)} prefix={<I.SearchOutlined className="muted" />} />
           <Popover trigger="click" placement="bottomRight" title="Filters" content={<FilterFields>{cf.filters}</FilterFields>}>
             <Button icon={<I.FilterOutlined />} className={cf.count ? 'filter-on' : ''}>Filter{cf.count ? ` · ${cf.count}` : ''}</Button>
           </Popover>
           {kpi && <Tag closable onClose={() => setKpi(null)}>{KPIS.find((k) => k.key === kpi).title}</Tag>}
+          {selOwn.length > 0 && <div className="list-actions">
+            <Text type="secondary">{selOwn.length} selected</Text>
+            <Button icon={<I.EditOutlined />} onClick={() => setBulk(true)}>Edit</Button>
+            <Button type="primary" className="do-dark" icon={<I.SendOutlined />} disabled={!selDrafts.length} onClick={() => setTogether(true)}>Dispatch{selDrafts.length ? ` · ${selDrafts.length}` : ''}</Button>
+            <Button type="text" icon={<I.CloseOutlined />} aria-label="Clear selection" onClick={() => setSel([])} />
+          </div>}
         </div>
-        <DataTable rowKey="id" className="dog-table" columns={shipment?cols.filter(c=>c.dataIndex!=='shipment'):cols} dataSource={cf.shown} pagination={false} scroll={{ x: shipment?1050:1150 }}
+        <DataTable rowKey="id" className="dog-table" columns={shown_cols} dataSource={cf.shown} pagination={false} scroll={{ x: shipment?1000:1250 }}
           rowSelection={{ selectedRowKeys: sel, onChange: setSel, columnWidth: 40 }}
           onRow={(r) => ({ onClick: () => open(r), style: { cursor: 'pointer' } })}
           expandable={{
             columnWidth: 40,
             expandIcon: ({ expanded: ex, onExpand, record }) => <Button size="small" type="text" icon={<ExpandArrow open={ex} />} aria-label={ex ? 'Collapse' : 'Expand'} onClick={(e) => { e.stopPropagation(); onExpand(record, e); }} />,
-            expandedRowRender: (r) => <DoFields rows={[[['Assigned to', r.assignee], ['Last free day', dayjs(r.lfd).format('D MMM YYYY')], ['Moving', r.move ? dayjs(r.move).format('D MMM YYYY') : '—']]]} />,
+            expandedRowRender: (r) => <DoQuickView r={r} />,
           }}
           locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No dispatch orders here" /> }} />
       </section>
+      {bulk && <DoBulkDrawer ids={selOwn} close={() => { setBulk(false); setSel([]); }} msg={msgApi} />}
+      {together && (
+        <DoModalForm title={`Dispatch ${selDrafts.length} order${selDrafts.length > 1 ? 's' : ''}`} okText="Mark as dispatched" onClose={() => setTogether(false)} initial={{ carrier: 'fast' }}
+          onSave={(v) => {
+            doSave(doAll().map((d) => (selDrafts.includes(d.id) ? { ...d, carrier: v.carrier, dispatched: true, dispatchedAt: '27 May, 09:40', plan: d.plan.drop ? d.plan : { ...d.plan, drop: d.rec, ...(d.plan.loading === 'dp' ? { pickup: doNextDay(d.rec).key } : {}) } } : d)));
+            msgApi.success(`${selDrafts.map(doNo).join(', ')} dispatched to ${DO_CARRIERS[v.carrier].name}`); setTogether(false); setSel([]);
+          }}>
+          <Typography.Paragraph type="secondary">One email goes to the carrier with all {selDrafts.length} dispatch orders. Orders without dates use their recommended day.</Typography.Paragraph>
+          <Form.Item name="carrier" label="Drayage carrier"><Select options={Object.entries(DO_CARRIERS).map(([value, x]) => ({ value, label: x.name }))} /></Form.Item>
+        </DoModalForm>
+      )}
     </div>
   );
 }
