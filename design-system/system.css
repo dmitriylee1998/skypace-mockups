@@ -223,9 +223,6 @@ table, .ant-table-wrapper, .ant-table, .ant-table-container, .ant-table-content,
   font-size:var(--ds-font-size);
 }
 
-.task-filter-fields { display:flex; flex-direction:column; gap:var(--ds-space-xs); }
-.task-filter-fields .ant-select { width:240px; max-width:100%; }
-.task-filter-fields > .ant-btn { align-self:flex-start; padding-inline:0; }
 .task-kind-switch .ant-segmented-item-selected,
 .task-kind-switch .ant-segmented-item-selected:hover,
 .task-kind-switch .ant-segmented-thumb {
@@ -313,10 +310,6 @@ table, .ant-table-wrapper, .ant-table, .ant-table-container, .ant-table-content,
   min-height:calc(var(--ds-control-height) + 2 * var(--ds-space-xs));
 }
 
-.list-filter-popover:has(> .contracts-filter-fields) { display:block; width:260px; }
-.contracts-filter-fields { display:flex; flex-direction:column; gap:var(--ds-space-sm); }
-.contracts-filter-fields .ant-select { width:100%; }
-.contracts-filter-fields > .ant-btn { align-self:flex-start; padding-inline:0; }
 
 /* Flat surfaces throughout Skypace; keyboard focus remains an outline. */
 *, *::before, *::after {
@@ -345,9 +338,6 @@ table, .ant-table-wrapper, .ant-table, .ant-table-container, .ant-table-content,
 .sw-party-grid .ant-card-head { padding-inline:var(--ds-space); }
 .sw-party-details { display:flex; flex-direction:column; gap:var(--ds-space-xs); overflow-wrap:anywhere; }
 .sw-party-details .ant-divider { margin-block:var(--ds-space-xs); }
-.sw-filter-fields { display:flex; flex-direction:column; gap:var(--ds-space-sm); width:240px; }
-.sw-filter-fields .ant-select { width:100%; }
-.list-filter-popover:has(.sw-filter-fields) { display:block; }
 .sw-form-footer { display:flex; justify-content:flex-end; gap:var(--ds-space-xs); }
 .sw-total { display:flex; align-items:center; justify-content:flex-end; gap:var(--ds-space-lg); padding:var(--ds-space); border-top:1px solid var(--ds-split); }
 .sw-transport-tabs { padding-inline:var(--ds-space); }
@@ -519,8 +509,8 @@ html { scrollbar-gutter:stable; }
 .sw-party-fields > div:last-child { grid-column:1 / -1; }
 
 /* Edit actions follow the shared link color. */
-.ant-btn:has(.anticon-edit),.anticon-edit { color:var(--ds-link); }
-.ant-btn:has(.anticon-edit):hover { color:var(--ds-primary-hover); }
+.ant-btn:not(.ant-btn-primary):has(.anticon-edit),.ant-btn:not(.ant-btn-primary) .anticon-edit { color:var(--ds-link); }
+.ant-btn:not(.ant-btn-primary):has(.anticon-edit):hover { color:var(--ds-primary-hover); }
 
 /* Form controls use the exported Ant Design input geometry everywhere. */
 .ant-input-outlined,.ant-input-affix-wrapper-outlined,.ant-input-affix-wrapper.ant-input-outlined,.ant-input-number-outlined,.ant-picker-outlined { border-radius:var(--ds-radius); font-family:inherit; }

@@ -689,7 +689,6 @@
   .stat-btn.on { border-color: var(--primary); background: var(--primary-bg); }
   .stat-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
   .filters-row { display: flex; gap: var(--ds-space-xs); padding: var(--ds-space-sm); flex-wrap: wrap; align-items: center; }
-  .filter-select { width: 200px; }
   .dark-seg.ant-segmented { margin-left: auto; }
   .dark-seg .ant-segmented-item-selected { background: var(--text); color: var(--ds-surface); }
   .tabs-card { padding: 0 var(--ds-space-sm); }
@@ -813,7 +812,6 @@
     .toolbar-search { width: 100%; }
     .toolbar-actions { margin-left: 0; width: 100%; }
     .toolbar-actions > .ant-btn-primary { margin-left: auto; }
-    .filter-select { flex: 1 1 140px; width: auto; }
     .dark-seg.ant-segmented { margin-left: 0; }
     .tabs-card { padding: 0 var(--ds-space-sm); }
     .stat-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -1492,6 +1490,8 @@
   .do-strong { font-weight: 600; }
   .dog-table .ant-table-tbody > tr > td, .dog-table .ant-table-thead > tr > th { white-space: nowrap; }
   .dog-table .ant-table-tbody > tr > td, .dog-table .ant-table-thead > tr > th { padding-inline: var(--ds-space-sm); }
+  /* Dispatches and Shipments lists share one row height (two text lines + cell padding) */
+  .dog-table .ant-table-tbody > tr > td { height: calc(var(--ds-space-sm) * 3 + var(--ds-control-height)); }
   .do-list { padding-bottom: var(--ds-space-sm); }
   .do-list-head { display: flex; align-items: center; gap: var(--ds-space-xs); padding: var(--ds-space); }
   .do-list-head > b { flex: 1; font-weight: 600; }
@@ -1969,14 +1969,10 @@
   table, .ant-table-wrapper, .ant-table, .ant-table-container, .ant-table-content,
   .ant-table-header, .ant-table-body, .ant-table-thead > tr > th,
   .ant-table-tbody > tr > td { border-radius:0 !important; }
-  .list-filter-popover { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--ds-space-sm); width:440px; max-width:calc(100vw - 56px); padding-block:var(--ds-space-xxs); }
-  .list-filter-popover .ant-select { width:100%; min-width:0; }
-  .list-filter-popover > .ant-btn { grid-column:1/-1; justify-self:start; padding-inline:0; }
-  @media(max-width:540px) { .list-filter-popover { width:280px; grid-template-columns:1fr; } }
 
 </style>
 <script src="design-system/theme.js"></script>
-<link rel="stylesheet" href="design-system/system.css?v=20261103-list1" />
+<link rel="stylesheet" href="design-system/system.css?v=20261104-filt1" />
 </head>
 <body>
 <div id="root"></div>
@@ -2002,8 +1998,8 @@ const theme = DS;
 const Ic = ({ n, size = 16, color, style }) => (
   <span className="anticon ic" style={{ width: size, height: size, color, ...style }} dangerouslySetInnerHTML={{ __html: window.ICONS[n] }} />
 );
-const STATUS = { done: ['Completed', 'st-done'], prog: ['In Progress', 'st-prog'], ns: ['Not started', 'st-ns'], transit: ['In transit', 'st-prog'] };
-const StatusTag = ({ s }) => <Tag variant="filled" className={'st-tag ' + STATUS[s][1]}>{STATUS[s][0]}</Tag>;
+const STATUS = { done: ['Completed', 'green'], prog: ['In Progress', 'blue'], ns: ['Not started', 'default'], transit: ['In transit', 'blue'] };
+const StatusTag = ({ s }) => <Tag color={STATUS[s][1]} variant="outlined" className="do-stag">{STATUS[s][0]}</Tag>;
 const PlainTag = ({ children }) => <Tag variant="filled" className="st-tag st-ns">{children}</Tag>;
 const Managed = ({ name }) => <span className="managed"><I.UserOutlined />{name}</span>;
 const LinkBtn = ({ icon, children, onClick }) => (
@@ -3227,21 +3223,21 @@ const hashStr = (str) => [...str].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>
 const money = (n) => '$ ' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const includesQ = (q, ...vals) => !q || vals.some((v) => String(v ?? '').toLowerCase().includes(q.toLowerCase()));
 const uniq = (arr) => [...new Set(arr)];
-const filtersOf = (rows, key) => uniq(rows.map((r) => r[key])).map((v) => ({ text: v, value: v }));
 const byKey = (key) => (a, b) => String(a[key]).localeCompare(String(b[key]), undefined, { numeric: true });
 
 const Dot = ({ color }) => <span className="dot" style={{ background: color }} />;
-const DotStatus = ({ color, children }) => <span className="dot-status"><Dot color={color} />{children}</span>;
+// status chip shared by every list (same look as the dispatch status tag)
+const StateTag = ({ color, children }) => <Tag color={color} variant="outlined" className="do-stag">{children}</Tag>;
 const ArrowBtn = ({ onClick }) => <Button size="small" className="arrow-btn" icon={<ChevronIcon />} onClick={onClick} aria-label="Open" />;
 const PageLink = ({ to, children }) => <a href={href(to)} onClick={(e) => e.stopPropagation()}>{children}</a>;
 const Img = ({ src, size = 16, alt = '', style }) => <img src={src} width={size} height={size} alt={alt} style={{ display: 'block', ...style }} />;
 
-function Toolbar({ search, onSearch, placeholder = 'Search', children }) {
+function Toolbar({ search, onSearch, placeholder = 'Search', sort, children }) {
   return (
     <div className="toolbar card-flat">
       <Input allowClear prefix={<I.SearchOutlined style={{ color: TOKEN.colorTextQuaternary }} />} placeholder={placeholder}
         value={search} onChange={(e) => onSearch(e.target.value)} className="toolbar-search" />
-      <div className="toolbar-actions">{children}</div>
+      {sort}{children && <div className="toolbar-actions">{children}</div>}
     </div>
   );
 }
@@ -3252,9 +3248,27 @@ function SortBtn({ options, value, onChange, label = 'Sort by' }) {
     </Dropdown>
   );
 }
+// Filter popover body: one column of full-width antd fields, "Reset filters" link at the bottom
+const FilterFields = ({ children }) => <Flex vertical gap={TOKEN.marginSM} style={{ width: TOKEN.controlHeight * 8, maxWidth: '100%' }}>{children}</Flex>;
+const ResetFilters = ({ onClick }) => <Button type="link" style={{ alignSelf: 'flex-start', paddingInline: 0 }} onClick={onClick}>Reset filters</Button>;
+// a filter value is a list of picked options; empty list = no filter
+const fpick = (sel, v) => !sel || !sel.length || sel.includes(v);
+function FilterSelect({ label, value, onChange, options }) {
+  const [q, setQ] = useState('');
+  const opts = options.map((o) => (typeof o === 'object' ? o : { value: o, label: o }));
+  const sel = value || [];
+  return <Select mode="multiple" allowClear aria-label={label} placeholder={label} value={sel} showSearch={false} maxTagCount="responsive" virtual={false} menuItemSelectedIcon={null}
+    onChange={(v) => onChange(v.length ? v : undefined)} onOpenChange={(o) => !o && setQ('')}
+    options={opts.map((o) => ({ ...o, style: String(o.label).toLowerCase().includes(q.toLowerCase()) ? undefined : { display: 'none' } }))}
+    optionRender={(o) => <Checkbox checked={sel.includes(o.value)} style={{ pointerEvents: 'none' }}>{o.label}</Checkbox>}
+    popupRender={(menu) => <Flex vertical gap={TOKEN.marginXXS}>
+      <Input allowClear placeholder="Search" prefix={<I.SearchOutlined style={{ color: TOKEN.colorTextQuaternary }} />} value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => e.stopPropagation()} />
+      {menu}
+    </Flex>} />;
+}
 function FilterBtn({ active, content }) {
   return (
-    <Popover trigger="click" placement="bottomRight" content={<div style={{ minWidth: 220 }}>{content}</div>} title="Filter">
+    <Popover trigger="click" placement="bottomRight" content={<FilterFields>{content}</FilterFields>} title="Filters">
       <Button icon={<I.FilterOutlined />} className={active ? 'filter-on' : ''}>Filter{active ? ` · ${active}` : ''}</Button>
     </Popover>
   );
@@ -3305,14 +3319,35 @@ function ListTabs({ items, active, onChange }) {
   return <div className="card-flat tabs-card do-tabs"><Tabs activeKey={active} onChange={onChange}
     items={items.map((m) => ({ key: m.key, label: <span className="do-tab">{m.label}{m.count != null && <span className={'do-tab-count' + (active != null && active === m.key ? ' on' : '')}>{m.count}</span>}</span> }))} /></div>;
 }
-function ListPanel({ title, search, onSearch, placeholder = 'Search', actions, filters, filterCount = 0, children, count }) {
+// Filter fields mirror the table: one select per column that has a short list of distinct values
+function useColumnFilters(cols, rows) {
+  const [f, setF] = useState({});
+  const fields = cols.map((c) => {
+    const k = c.filterKey || (typeof c.dataIndex === 'string' && c.dataIndex); if (!k || c.filter === false) return null;
+    const vals = uniq(rows.map((r) => r[k])).filter((v) => typeof v === 'string' && v !== '');
+    // skip ids, amounts and free text: every row unique or too many values to pick from
+    return vals.length > 1 && vals.length <= 15 && vals.length < rows.length ? { k, label: typeof c.title === 'string' ? c.title : k, vals, text: c.filterText || String } : null;
+  }).filter(Boolean);
+  const on = fields.filter((x) => f[x.k]?.length);
+  const shown = rows.filter((r) => on.every((x) => f[x.k].includes(r[x.k])));
+  const filters = fields.length ? <>{fields.map((x) => <FilterSelect key={x.k} label={x.label} value={f[x.k]} onChange={(v) => setF({ ...f, [x.k]: v })}
+    options={x.vals.map((v) => ({ value: v, label: x.text(v) }))} />)}{on.length > 0 && <ResetFilters onClick={() => setF({})} />}</> : null;
+  return { shown, filters, count: on.length };
+}
+function ListPanel({ title, search, onSearch, placeholder = 'Search', actions, filters, filterCount = 0, sort, children, count }) {
+  // without explicit filters, build them from the panel's table columns
+  const table = React.Children.toArray(children).find((c) => c?.props?.columns && c.props.dataSource);
+  const auto = useColumnFilters(onSearch && !filters && table ? table.props.columns : [], table ? table.props.dataSource : []);
+  if (onSearch && !filters && auto.filters) { filters = auto.filters; filterCount = auto.count; children = React.Children.map(children, (c) => c === table || (c?.props?.columns && c.props.dataSource === table.props.dataSource) ? React.cloneElement(c, { dataSource: auto.shown }) : c); }
   return <section className="card-flat do-list list-panel">
     {/* a searchable list is the only table on its page: search and filter replace the title, actions stay on the right */}
     <div className="do-list-head">{!onSearch && <b>{title}{count != null && <span className="list-count">{count}</span>}</b>}
       <div className={'list-controls' + (onSearch ? ' list-controls-fill' : '')}>{onSearch && <Input allowClear className="do-search" aria-label={`Search ${typeof title === 'string' ? title : 'list'}`} placeholder={placeholder}
-        value={search} onChange={(e) => onSearch(e.target.value)} prefix={<I.SearchOutlined className="muted" />} />}{filters && <Popover trigger="click" placement="bottomRight" title="Filters" content={<div className="list-filter-popover">{filters}</div>}>
+        value={search} onChange={(e) => onSearch(e.target.value)} prefix={<I.SearchOutlined className="muted" />} />}{filters && <Popover trigger="click" placement="bottomRight" title="Filters" content={<FilterFields>{filters}</FilterFields>}>
         <Button icon={<I.FilterOutlined />} className={filterCount ? 'filter-on' : ''}>Filter{filterCount ? ` · ${filterCount}` : ''}</Button>
-      </Popover>}{actions && <div className="list-actions">{actions}</div>}</div>
+      </Popover>}{onSearch && !filters && <Popover trigger="click" placement="bottomRight" title="Filters" content={<FilterFields><Typography.Text type="secondary">No filters for this list yet</Typography.Text></FilterFields>}>
+        <Button icon={<I.FilterOutlined />}>Filter</Button>
+      </Popover>}{sort}{actions && <div className="list-actions">{actions}</div>}</div>
     </div>{children}
   </section>;
 }
@@ -3422,11 +3457,37 @@ function OverviewTable({ title, dateLabel, seed, to, destination = false, approv
     </section>
   );
 }
+// Quick access panel on top of Overview: shortcuts to the most common actions, can be hidden
+const QUICK_ACCESS = [
+  ['Quote shipment', <I.FileSearchOutlined />, 'colorPrimaryBg', 'colorPrimary', '/quote-shipments'],
+  ['View shipment', <I.EyeOutlined />, 'purple1', 'purple6', '/shipments'],
+  ['Invite colleagues', <I.UserAddOutlined />, 'colorSuccessBg', 'colorSuccess', null],
+  ['Guides and FAQs', <I.ReadOutlined />, 'blue1', 'blue6', null],
+  ['Get help', <I.CustomerServiceOutlined />, 'orange1', 'orange6', null],
+];
+function QuickAccess({ onHide, onSoon }) {
+  const { token } = antd.theme.useToken();
+  return <Card size="small" style={{ order: -2 }} title={<Flex gap={token.marginXS} align="center"><I.ThunderboltOutlined style={{ color: token.colorPrimary }} /><Typography.Text strong>Quick access</Typography.Text></Flex>}
+    extra={<Button size="small" type="text" icon={<I.CloseOutlined />} onClick={onHide}>Hide panel</Button>}>
+    <antd.Row gutter={[token.marginXS, token.marginXS]}>
+      {QUICK_ACCESS.map(([label, icon, bg, fg, to]) => <antd.Col key={label} flex="1 1 160px">
+        <Card hoverable size="small" onClick={() => to ? go(to) : onSoon(label)} styles={{ body: { padding: token.padding } }}>
+          <Flex vertical align="center" gap={token.marginSM}>
+            <Avatar shape="square" size={token.controlHeightLG} icon={icon} style={{ background: token[bg], color: token[fg] }} />
+            <Typography.Text strong>{label}</Typography.Text>
+          </Flex>
+        </Card>
+      </antd.Col>)}
+    </antd.Row>
+  </Card>;
+}
 function OverviewPage() {
   const [msgApi,msgCtx]=message.useMessage();
   const track=q=>{ const v=q.trim().toUpperCase(); if(!v)return; if(v.startsWith('SP-')||/^[A-Z]{4}\d{6,7}$/.test(v)||/^\d{6,}$/.test(v))go(SHIPMENT_PATH); else msgApi.warning(`Nothing found for “${q}”. Try a container, shipment or cargo reference number.`); };
   const tiles=(items,to)=><div className="mini-tiles">{items.map(([value,label])=><button key={label} className="stat-btn" type="button" onClick={()=>go(to)}><span>{label}</span><b>{value}</b></button>)}</div>;
+  const [quick,setQuick]=useState(()=>!store.get('skypace.quickAccessHidden',false));
   return <div className="overview-dashboard">{msgCtx}
+    {quick&&<QuickAccess onHide={()=>{setQuick(false);store.set('skypace.quickAccessHidden',true);msgApi.info('Quick access hidden');}} onSoon={(l)=>msgApi.info(`${l} · coming soon`)}/>}
     <div className="overview-summary">
       <section className="card"><div className="card-head"><span className="title">Tasks</span><LinkBtn icon={<I.EyeOutlined/>} onClick={()=>go('/action-center/tasks')}>View details</LinkBtn></div>
         {tiles([[TASK_COUNTS.soon,'Due soon'],[TASK_COUNTS.today,'Today'],[TASK_COUNTS.overdue,'Overdue']],'/action-center/tasks')}
@@ -3483,9 +3544,9 @@ function TasksPage({shipment=false}) {
   const [f, setF] = useState({});
   const source = (shipment ? TASKS.slice(0, 8).map(t => ({...t, object:SHIPMENT_ID})) : TASKS).map(t=>({...t,...taskUpdates.find(u=>u.key===t.key)}));
   const base = source.filter((t,i) => scope === 'mine' ? t.mine : scope === 'participants' ? i % 3 === 0 : true);
-  const filtered = base.filter((t) => !f.assignee || t.assignees.includes(f.assignee))
-    .filter((t) => !f.module || t.module === f.module)
-    .filter((t) => !f.status || t.status === f.status)
+  const filtered = base.filter((t) => !f.assignee || t.assignees.some((a) => f.assignee.includes(a)))
+    .filter((t) => fpick(f.module, t.module))
+    .filter((t) => fpick(f.status, t.status))
     .filter((t) => !quick || quick === 'all' || (quick === 'soon' ? isSoon(t) : quick === 'today' ? isToday(t) : isOverdue(t)));
   const rows = filtered.filter((t) => (kind === 'exceptions') === t.exception);
   const kindCount = (key) => filtered.filter((t) => (key === 'exceptions') === t.exception).length;
@@ -3495,7 +3556,7 @@ function TasksPage({shipment=false}) {
       <span className="due">{isOverdue(t) ? <I.ExclamationCircleOutlined style={{ color: TOKEN.colorError }} /> : <I.ClockCircleOutlined style={{ color: isSoon(t) ? TOKEN.orange6 : TOKEN.colorTextQuaternary }} />}{d.format('D MMM, HH:mm')}</span>
     ) },
     { title: 'Object', dataIndex: 'object', width: 160, render: (v) => <PageLink to={SHIPMENT_PATH}>{v}</PageLink> },
-    { title: 'Module', dataIndex: 'module', width: 160, filters: MODULES.map((m) => ({ text: m, value: m })), onFilter: (v, r) => r.module === v },
+    { title: 'Module', dataIndex: 'module', width: 160 },
     { title: 'Assignee', dataIndex: 'assignees', width: 130, render: (a) => <People names={a} /> },
     { key: 'go', width: 60, render: (_,t) => <ArrowBtn onClick={() => setTaskDetail(t)} /> },
   ];
@@ -3507,7 +3568,7 @@ function TasksPage({shipment=false}) {
     </section>
   );
   const sel = (key, ph, options) => (
-    <Select allowClear placeholder={ph} value={f[key]} onChange={(v) => setF({ ...f, [key]: v })} options={options.map((o) => ({ value: o, label: o }))} className="filter-select" />
+    <FilterSelect label={ph} value={f[key]} onChange={(v) => setF({ ...f, [key]: v })} options={options} />
   );
   return (
     <div className="page-stack">
@@ -3530,10 +3591,10 @@ function TasksPage({shipment=false}) {
           { key: 'regular', label: <span className="task-tab-label"><span>Regular</span><span className="task-tab-count">{kindCount('regular')}</span></span> },
           { key: 'exceptions', label: <span className="task-tab-label"><span>Exceptions</span><span className="task-tab-count">{kindCount('exceptions')}</span></span> },
         ]} />
-        <FilterBtn active={Object.values(f).filter(Boolean).length} content={<div className="task-filter-fields">
+        <FilterBtn active={Object.values(f).filter(Boolean).length} content={<>
           {sel('assignee', 'Assignee', PEOPLE)}{sel('module', 'Module', MODULES)}{sel('status', 'Status', TASK_STATUS)}
-          {Object.values(f).some(Boolean) && <Button type="link" onClick={() => setF({})}>Reset filters</Button>}
-        </div>} />
+          {Object.values(f).some(Boolean) && <ResetFilters onClick={() => setF({})} />}
+        </>} />
       </div>
       {group('Overdue', rows.filter(isOverdue))}
       {group('Later', rows.filter((t) => !isOverdue(t)))}
@@ -3556,9 +3617,9 @@ function NotificationsPage({shipment=false}) {
   const [f, setF] = useState({});
   const rows = items
     .filter((n) => !quick || (quick === 'important' ? n.important : quick === 'regular' ? !n.important : n.unread))
-    .filter((n) => !f.priority || (f.priority === 'Important') === n.important)
-    .filter((n) => !f.module || n.module === f.module)
-    .filter((n) => !f.date || n.received.isAfter(NOW.subtract({ today: 1, week: 7, month: 30 }[f.date], 'day')));
+    .filter((n) => fpick(f.priority, n.important ? 'Important' : 'Regular'))
+    .filter((n) => fpick(f.module, n.module))
+    .filter((n) => !f.date || f.date.some((d) => n.received.isAfter(NOW.subtract({ today: 1, week: 7, month: 30 }[d], 'day'))));
   const markRead = (key, unread = false) => setItems(items.map((n) => (n.key === key ? { ...n, unread } : n)));
   const cols = [
     { title: 'Name', dataIndex: 'name', sorter: byKey('name'), render: (v) => <span>{v}</span> },
@@ -3566,10 +3627,10 @@ function NotificationsPage({shipment=false}) {
       <span className="due">{n.important ? <I.ExclamationCircleOutlined style={{ color: TOKEN.colorError }} /> : <I.BellOutlined style={{ color: TOKEN.colorTextQuaternary }} />}{d.format('D MMM, HH:mm')}</span>
     ) },
     { title: 'Object', dataIndex: 'object', width: 160, render: (v) => <PageLink to={SHIPMENT_PATH}>{v}</PageLink> },
-    { title: 'Module', dataIndex: 'module', width: 160, filters: MODULES.map((m) => ({ text: m, value: m })), onFilter: (v, r) => r.module === v },
+    { title: 'Module', dataIndex: 'module', width: 160 },
     { key: 'go', width: 60, render: (_, n) => <ArrowBtn onClick={() => { markRead(n.key); go(SHIPMENT_PATH); }} /> },
   ];
-  const sel = (key, ph, options) => <Select allowClear placeholder={ph} value={f[key]} onChange={(v) => setF({ ...f, [key]: v })} options={options} className="filter-select" />;
+  const sel = (key, ph, options) => <FilterSelect label={ph} value={f[key]} onChange={(v) => setF({ ...f, [key]: v })} options={options} />;
   return (
     <div className="page-stack">
       <StatTiles variant="dispatch" active={quick} onPick={setQuick} items={[
@@ -3580,12 +3641,12 @@ function NotificationsPage({shipment=false}) {
       <section className="card-flat table-card notifications-panel">
       <div className="do-list-head notifications-table-head">
         <div className="list-controls list-controls-fill">
-        <FilterBtn active={Object.values(f).filter(Boolean).length} content={<div className="task-filter-fields">
+        <FilterBtn active={Object.values(f).filter(Boolean).length} content={<>
         {sel('priority', 'Priority', [{ value: 'Important', label: 'Important' }, { value: 'Regular', label: 'Regular' }])}
         {sel('date', 'Received date', [{ value: 'today', label: 'Last 24 hours' }, { value: 'week', label: 'Last 7 days' }, { value: 'month', label: 'Last 30 days' }])}
         {sel('module', 'Module', MODULES.map((m) => ({ value: m, label: m })))}
-        {Object.values(f).some(Boolean) && <Button type="link" onClick={() => setF({})}>Reset filters</Button>}
-        </div>} />
+        {Object.values(f).some(Boolean) && <ResetFilters onClick={() => setF({})} />}
+        </>} />
         <div className="list-actions"><Button icon={<I.CheckOutlined />} disabled={!items.some(n => n.unread)} onClick={() => setItems(items.map((n) => ({ ...n, unread: false })))}>Mark all as read</Button></div>
         </div>
       </div>
@@ -3618,10 +3679,9 @@ const QUOTES = range(14, (i) => ({
 function QuoteRequestsPage() {
   const [items, setItems] = useLocalRows('quote-requests', QUOTES);
   const [q, setQ] = useState(''); const [tab, setTab] = useState('all'); const [detail, setDetail] = useState(null);
-  const [f, setF] = useState({});
   const saved = items.filter((r) => r.saved).length;
   const rows = items.filter((r) => includesQ(q, r.origin, r.dest, r.cargo, r.by, r.equipment))
-    .filter((r) => tab !== 'saved' || r.saved).filter((r) => (!f.origin || r.origin === f.origin) && (!f.dest || r.dest === f.dest) && (!f.by || r.by === f.by) && (!f.originCountry || r.origin.endsWith(f.originCountry)) && (!f.destCountry || r.dest.endsWith(f.destCountry)) && (!f.created || dayjs(r.created).isAfter(NOW.subtract(Number(f.created),'day'))));
+    .filter((r) => tab !== 'saved' || r.saved);
   const bookmark = (r) => setItems((prev) => prev.map((x) => x.key === r.key ? {...x, saved: !x.saved} : x));
   const cols = [
     { key: 'saved', width: 48, render: (_, r) => <Button type="text" size="small" aria-label={r.saved ? 'Remove favorite' : 'Save favorite'} aria-pressed={r.saved} icon={<BookmarkIcon filled={r.saved} />} onClick={(e) => {e.stopPropagation(); bookmark(r);}} /> },
@@ -3636,8 +3696,7 @@ function QuoteRequestsPage() {
   return <div className="page-stack">
     <ListTabs active={tab} onChange={setTab} items={[{key:'all',label:'All requests',count:items.length},{key:'saved',label:'Favorites',count:saved}]}/>
     <ListPanel title="Requests" count={rows.length} search={q} onSearch={setQ} placeholder="Origin, destination, commodity or creator"
-      actions={<Button type="primary" icon={<I.PlusOutlined/>} onClick={()=>go('/quote-shipments')}>New request</Button>}
-      filterCount={Object.values(f).filter(Boolean).length} filters={<>{[['origin','Origin city'],['originCountry','Origin country'],['dest','Destination city'],['destCountry','Destination country'],['by','Created by']].map(([key,label])=><Select key={key} allowClear placeholder={label} aria-label={label} value={f[key]} onChange={(v)=>setF({...f,[key]:v})} options={uniq(items.map(r=>key==='originCountry'?r.origin.split(', ').pop():key==='destCountry'?r.dest.split(', ').pop():r[key])).map(v=>({value:v,label:v}))}/>)}<Select allowClear placeholder="Created date" aria-label="Created date" value={f.created} onChange={v=>setF({...f,created:v})} options={[{value:'1',label:'Last 24 hours'},{value:'7',label:'Last 7 days'},{value:'30',label:'Last 30 days'}]}/>{Object.values(f).some(Boolean) && <Button type="link" onClick={()=>setF({})}>Reset filters</Button>}</>}>
+      actions={<Button type="primary" icon={<I.PlusOutlined/>} onClick={()=>go('/quote-shipments')}>New request</Button>}>
       <DataTable columns={cols} dataSource={rows} minWidth={1240} onRow={(r)=>({onClick:()=>setDetail(r),className:'clickable-row'})}/>
     </ListPanel>
     <TableDetails title="Quote request" record={detail} onClose={()=>setDetail(null)} fields={detail ? [['Origin',detail.origin],['Destination',detail.dest],['Containers',detail.equipment],['Commodity',detail.cargo],['Created by',detail.by],['Quotes received',detail.offers]]:[]}/>
@@ -3659,7 +3718,7 @@ function GuestBookingsPage() {
     {title:'Request',dataIndex:'id',width:115,render:(v,r)=><Button type="link" onClick={()=>setDetail(r)}>{v}</Button>},
     {title:'Customer name',dataIndex:'name',width:180,sorter:byKey('name')},
     {title:'Organization',dataIndex:'org',width:180,sorter:byKey('org')},
-    {title:'Country',dataIndex:'country',width:95,filters:filtersOf(items,'country'),onFilter:(v,r)=>r.country===v},
+    {title:'Country',dataIndex:'country',width:95},
     {title:'Contact',key:'contact',width:240,render:(_,r)=><TableCell primary={r.email} secondary={r.phone}/>},
     {title:'Additional information',key:'info',width:170,render:(_,r)=><Button size="small" type="text" icon={<I.InfoCircleOutlined/>} onClick={()=>setDetail(r)}>View details</Button>},
     {title:'Created',dataIndex:'created',width:140,sorter:(a,b)=>dayjs(a.created)-dayjs(b.created),render:v=>dayjs(v).format('D MMM YYYY')},
@@ -3673,7 +3732,7 @@ function GuestBookingsPage() {
 }
 
 /* ---------- 6. Dispatches ---------- */
-const DISPATCH_STATUS = { Dispatched: 'success', Pending: 'default', 'In transit': 'processing', Upcoming: 'warning', 'Gated In': 'cyan' };
+const DISPATCH_STATUS = { Dispatched: 'purple', Pending: 'orange', 'In transit': 'blue', Upcoming: 'cyan', 'Gated In': 'green' };
 const DISPATCH_TABS = [['attention', 'Needs attention'], ['Pending', 'Pending'], ['Dispatched', 'Dispatched'], ['In transit', 'In motion'], ['Gated In', 'Gated In'], ['all', 'All']];
 const DISPATCHES = range(42, (i) => ({
   key: 'd' + i, id: `ID-${9981 + Math.floor(i / 3)}/0${(i % 3) + 1}`, container: pick(['HAMU1481029', 'NWRU3517440', 'ONEU1051502', 'FXLU2152499', 'BMOU5003200', 'AFFU2404470'], i),
@@ -3696,12 +3755,12 @@ function DispatchesPage() {
     { title: 'Dispatch ID', dataIndex: 'id', width: 140, sorter: byKey('id'), render: (v, r) => (
       <span className="due"><a>{v}</a>{r.attention && <Tooltip title="Gate-in date is missing"><I.ExclamationCircleOutlined style={{ color: TOKEN.colorWarning }} /></Tooltip>}</span>
     ) },
-    { title: 'Container', dataIndex: 'container', width: 200, filters: filtersOf(DISPATCHES, 'size').map((x) => ({ ...x })), onFilter: (v, r) => r.size === v,
+    { title: 'Container', dataIndex: 'container', width: 200,
       render: (v, r) => <span className="due">{v}<Tag className="ref-tag">{r.size}</Tag></span> },
     { title: 'Empty Drop', dataIndex: 'drop', width: 160 },
-    { title: 'Drayage carrier', dataIndex: 'carrier', width: 250, filters: filtersOf(DISPATCHES, 'carrier'), onFilter: (v, r) => r.carrier === v },
+    { title: 'Drayage carrier', dataIndex: 'carrier', width: 250 },
     { title: 'Cargo Weight', dataIndex: 'weight', width: 150, sorter: (a, b) => a.weight - b.weight, render: (w) => `${w} kg` },
-    { title: 'Status', dataIndex: 'status', width: 120, render: (s) => <Tag color={DISPATCH_STATUS[s]} className="status-tag">{s}</Tag> },
+    { title: 'Status', dataIndex: 'status', width: 120, render: (s) => <StateTag color={DISPATCH_STATUS[s]}>{s}</StateTag> },
     { key: 'go', width: 60, render: () => <ArrowBtn /> },
   ];
   const applyBulk = () => {
@@ -3711,9 +3770,8 @@ function DispatchesPage() {
   return (
     <div className="page-stack">
       {msgCtx}
-      <Toolbar search={q} onSearch={setQ} placeholder="Search by dispatch ID, container or carrier">
-        <SortBtn value={sort} onChange={setSort} options={[['id', 'Dispatch ID'], ['container', 'Container'], ['carrier', 'Carrier'], ['weight', 'Heaviest first']]} />
-      </Toolbar>
+      <Toolbar search={q} onSearch={setQ} placeholder="Search by dispatch ID, container or carrier"
+        sort={<SortBtn value={sort} onChange={setSort} options={[['id', 'Dispatch ID'], ['container', 'Container'], ['carrier', 'Carrier'], ['weight', 'Heaviest first']]} />} />
       <div className="card-flat tabs-card">
         <Tabs activeKey={tab} onChange={(k) => { setTab(k); setSelected([]); }} items={DISPATCH_TABS.map(([k, l]) => ({ key: k, label: <span>{l} <span className="count-badge">{items.filter((r) => inTab(r, k)).length}</span></span> }))} />
       </div>
@@ -3758,7 +3816,7 @@ const SHIPMENTS = [
   { id: 'SP-005540', bn: '5540', logo: 'logo-hapag', origin: 'Vancouver, CA', dep: ['ATD', '26 Oct, 00:00'], dest: 'Mundra, IN', arr: ['ETA', '20 Dec, 00:00'], customer: 'Pacific Timber Co', ops: SHIP_OPS, status: 'In Transit', tracker: 'Container(s) Outgated (full)', tasks: 0, alerts: 2 },
 ].map((s) => ({ ...s, key: s.id, state: s.status === 'Pending Confirmation' ? 'unverified' : 'active' }));
 // layout of Dispatches · All (Figma 8102:321): KPI cards + tabs + table, with the shipments' data
-const SHIP_STATUS_COLOR = { Confirmed: 'green', 'In Transit': 'green', 'Pending Confirmation': 'purple' };
+const SHIP_STATUS_COLOR = { Confirmed: 'cyan', 'In Transit': 'blue', 'Pending Confirmation': 'orange' };
 function ShipmentsPage() {
   const { token } = antd.theme.useToken();
   const { Text, Title } = Typography; const { Row, Col } = antd;
@@ -3778,7 +3836,7 @@ function ShipmentsPage() {
   ];
   const kpiTest = KPIS.find((k) => k.key === kpi)?.test || (() => true);
   const inTab = (s, k) => k === 'all' || s.state === k;
-  const shown = SHIPMENTS.filter((s) => inTab(s, tab) && kpiTest(s) && FILTERS.every(([k]) => !fl[k] || s[k] === fl[k]) && includesQ(q, s.id, s.bn, s.origin, s.dest, s.customer, s.ops));
+  const shown = SHIPMENTS.filter((s) => inTab(s, tab) && kpiTest(s) && FILTERS.every(([k]) => fpick(fl[k], s[k])) && includesQ(q, s.id, s.bn, s.origin, s.dest, s.customer, s.ops));
   // TBD dates go last
   const at = (d) => { if (!d) return Infinity; const [, day, mon, hh, mm] = d[1].match(/(\d+) (\w+), (\d+):(\d+)/); return new Date(2026, 'JanFebMarAprMayJunJulAugSepOctNovDec'.indexOf(mon) / 3, +day, +hh, +mm).valueOf(); };
   const SORTS = { newest: (a, b) => b.id.localeCompare(a.id), etd: (a, b) => at(a.dep) - at(b.dep), eta: (a, b) => at(a.arr) - at(b.arr), status: (a, b) => a.status.localeCompare(b.status), customer: (a, b) => a.customer.localeCompare(b.customer) };
@@ -3798,7 +3856,7 @@ function ShipmentsPage() {
     { title: 'Destination', key: 'd', width: 190, render: (_, s) => place('port', s.dest, when(s.arr, 'ETA')) },
     { title: 'Customer/Ops', key: 'c', render: (_, s) => two(s.customer, `Ops: ${s.ops}`) },
     { title: 'Status', key: 'st', width: 220,
-      render: (_, s) => <Flex vertical><Badge color={SHIP_STATUS_COLOR[s.status]} text={s.status} />{s.tracker && <Text type="secondary" style={small}>{s.tracker}</Text>}</Flex> },
+      render: (_, s) => <Flex vertical align="start"><StateTag color={SHIP_STATUS_COLOR[s.status]}>{s.status}</StateTag>{s.tracker && <Text type="secondary" style={small}>{s.tracker}</Text>}</Flex> },
     { title: 'Actions', key: 'a', width: 140, render: (_, s) => (
       <Flex gap={token.marginXS}>
         <Tooltip title={`${s.tasks} open tasks`}><Button size="small" icon={<I.CheckCircleOutlined />} onClick={(e) => e.stopPropagation()}>{s.tasks}</Button></Tooltip>
@@ -3838,11 +3896,11 @@ function ShipmentsPage() {
       <section className="card-flat do-list">
         <div className="do-list-head">
           <Input allowClear className="do-search" placeholder="Shipment, booking, port, customer" value={q} onChange={(e) => setQ(e.target.value)} prefix={<I.SearchOutlined className="muted" />} />
-          <FilterBtn active={Object.values(fl).filter(Boolean).length} content={<Flex vertical gap={token.marginXS}>
-            {FILTERS.map(([k, l]) => <Select key={k} allowClear aria-label={l} placeholder={l} value={fl[k]} onChange={(v) => setFl({ ...fl, [k]: v })}
+          <FilterBtn active={Object.values(fl).filter(Boolean).length} content={<>
+            {FILTERS.map(([k, l]) => <FilterSelect key={k} label={l} value={fl[k]} onChange={(v) => setFl({ ...fl, [k]: v })}
               options={[...new Set(SHIPMENTS.map((x) => x[k]).filter(Boolean))].map((v) => ({ value: v, label: v }))} />)}
-            {Object.values(fl).some(Boolean) && <Button type="link" onClick={() => setFl({})}>Reset filters</Button>}
-          </Flex>} />
+            {Object.values(fl).some(Boolean) && <ResetFilters onClick={() => setFl({})} />}
+          </>} />
           <SortBtn value={sort} onChange={setSort} options={[['newest', 'Newest first'], ['etd', 'ETD'], ['eta', 'ETA'], ['status', 'Status'], ['customer', 'Customer A–Z']]} />
           {kpi && <Tag closable onClose={() => setKpi(null)}>{KPIS.find((k) => k.key === kpi).title}</Tag>}
         </div>
@@ -3861,8 +3919,8 @@ function ShipmentsPage() {
 }
 
 /* ---------- 8–9. Finances ---------- */
-const INVOICE_STATUS = { Paid: TOKEN.colorSuccess, Unpaid: TOKEN.yellow6, Overdue: TOKEN.colorError, Void: TOKEN.colorBorder };
-const PAYMENT_STATUS = { Applied: TOKEN.colorSuccess, 'Partially Applied': TOKEN.yellow6, Unapplied: TOKEN.colorBorder };
+const INVOICE_STATUS = { Paid: 'green', Unpaid: 'orange', Overdue: 'red', Void: 'default' };
+const PAYMENT_STATUS = { Applied: 'green', 'Partially Applied': 'orange', Unapplied: 'default' };
 const invoices = (payable) => range(85, (i) => {
   const total = 1200 + ((i * 731) % 4200) + 0.5 * (i % 2);
   const status = i % 19 === 3 ? 'Void' : i % 10 === 8 ? 'Unpaid' : i % 17 === 5 ? 'Overdue' : 'Paid';
@@ -3898,11 +3956,11 @@ function BillingPage({ payable }) {
   const cols = [
     { key: 'ic', width: 48, render: () => <I.FilePdfOutlined style={{ color: TOKEN.colorTextTertiary }} /> },
     { title: 'ID', dataIndex: 'id', width: 80 + 0, sorter: byKey('id'), render: (v) => <a>{v}</a> },
-    { title: party, dataIndex: 'party', width: 150, sorter: byKey('party'), filters: filtersOf(rows, 'party'), onFilter: (v, r) => r.party === v },
+    { title: party, dataIndex: 'party', width: 150, sorter: byKey('party') },
     { title: 'Shipment', dataIndex: 'shipment', width: 150, sorter: byKey('shipment'), render: (v) => <PageLink to={SHIPMENT_PATH}>{v}</PageLink> },
     { title: 'Created', dataIndex: 'created', width: 119, sorter: (a, b) => a.created - b.created, render: (d) => d.format('D MMM, HH:mm') },
     { title: 'Due Date', dataIndex: 'due', width: 119, sorter: (a, b) => a.due - b.due, render: (d) => d.format('D MMM, HH:mm') },
-    { title: 'Status', dataIndex: 'status', width: 150, filters: Object.keys(INVOICE_STATUS).map((s) => ({ text: s, value: s })), onFilter: (v, r) => r.status === v, render: (s) => <DotStatus color={INVOICE_STATUS[s]}>{s}</DotStatus> },
+    { title: 'Status', dataIndex: 'status', width: 150, render: (s) => <StateTag color={INVOICE_STATUS[s]}>{s}</StateTag> },
     { title: 'Total', dataIndex: 'total', width: 139, sorter: (a, b) => a.total - b.total, render: money },
     { title: 'Balance', dataIndex: 'balance', width: 130, sorter: (a, b) => a.balance - b.balance, render: money },
     { key: 'go', width: 60, render: () => <ArrowBtn /> },
@@ -3914,8 +3972,8 @@ function TransactionsPage({ payable }) {
   const cols = [
     { title: 'ID', dataIndex: 'id', width: 107, sorter: byKey('id'), render: (v) => <a>{v}</a> },
     { title: 'Posted Date', dataIndex: 'posted', width: 119, sorter: (a, b) => a.posted - b.posted, render: (d) => d.format('D MMM, HH:mm') },
-    { title: payable ? 'Creditor Name' : 'Debtor Name', dataIndex: 'party', width: 288, sorter: byKey('party'), filters: filtersOf(rows, 'party'), onFilter: (v, r) => r.party === v },
-    { title: 'Status', dataIndex: 'status', width: 288, filters: Object.keys(PAYMENT_STATUS).map((s) => ({ text: s, value: s })), onFilter: (v, r) => r.status === v, render: (s) => <DotStatus color={PAYMENT_STATUS[s]}>{s}</DotStatus> },
+    { title: payable ? 'Creditor Name' : 'Debtor Name', dataIndex: 'party', width: 288, sorter: byKey('party') },
+    { title: 'Status', dataIndex: 'status', width: 288, render: (s) => <StateTag color={PAYMENT_STATUS[s]}>{s}</StateTag> },
     { title: 'Total', dataIndex: 'total', width: 139, sorter: (a, b) => a.total - b.total, render: money },
     { title: 'Balance', dataIndex: 'balance', width: 130, sorter: (a, b) => a.balance - b.balance, render: money },
     { key: 'go', width: 60, render: () => <ArrowBtn /> },
@@ -4107,9 +4165,9 @@ function ContactsPage() {
   const rows = items.filter((r) => includesQ(q, r.company, r.city, r.country, r.contact)).sort(sort === 'new' ? () => 0 : byKey(sort));
   const cols = [
     { title: 'Company', dataIndex: 'company', width: 187, sorter: byKey('company') },
-    { title: 'Country', dataIndex: 'country', width: 199, filters: filtersOf(CONTACTS, 'country'), onFilter: (v, r) => r.country === v },
+    { title: 'Country', dataIndex: 'country', width: 199 },
     { title: 'City', dataIndex: 'city', sorter: byKey('city') },
-    { title: 'Contact Person', dataIndex: 'contact', width: 199, filters: PEOPLE.map((p) => ({ text: p, value: p })), onFilter: (v, r) => r.contact === v, render: (p) => <Flex gap={TOKEN.marginXS} align="center"><People names={[p]} /><Typography.Text>{p}</Typography.Text></Flex> },
+    { title: 'Contact Person', dataIndex: 'contact', width: 199, render: (p) => <Flex gap={TOKEN.marginXS} align="center"><People names={[p]} /><Typography.Text>{p}</Typography.Text></Flex> },
     { key: 'go', width: 44, render: (_,r) => <ArrowBtn onClick={()=>go('/contacts/'+r.key)}/> },
   ];
   const save = async () => {
@@ -4121,10 +4179,9 @@ function ContactsPage() {
   return (
     <div className="page-stack">
       {msgCtx}
-      <ListPanel title="Companies" count={rows.length} search={q} onSearch={setQ} placeholder="Company, city or contact" actions={<>
-        <SortBtn value={sort} onChange={setSort} options={[['company', 'Company A–Z'], ['city', 'City A–Z'], ['country', 'Country']]} />
-        <Button type="primary" icon={<I.PlusOutlined />} onClick={() => setOpen(true)}>Add company</Button>
-      </>}><DataTable columns={cols} dataSource={rows} minWidth={900} onRow={r=>({onClick:()=>go('/contacts/'+r.key),className:'clickable-row'})}/></ListPanel>
+      <ListPanel title="Companies" count={rows.length} search={q} onSearch={setQ} placeholder="Company, city or contact"
+        sort={<SortBtn value={sort} onChange={setSort} options={[['company', 'Company A–Z'], ['city', 'City A–Z'], ['country', 'Country']]} />}
+        actions={<Button type="primary" icon={<I.PlusOutlined />} onClick={() => setOpen(true)}>Add company</Button>}><DataTable columns={cols} dataSource={rows} minWidth={900} onRow={r=>({onClick:()=>go('/contacts/'+r.key),className:'clickable-row'})}/></ListPanel>
       {open && (
         <Drw title="Add company" width={480} onClose={() => setOpen(false)} footer={<><Button onClick={() => setOpen(false)}>Cancel</Button><Button type="primary" onClick={save}>Add</Button></>}>
           <Form form={form} layout="vertical" requiredMark={false}>
@@ -4183,8 +4240,8 @@ function ContractsPage({ scope = 'contracts' }) {
   const [detail, setDetail] = useState(null);
   const [form] = Form.useForm();
   const rows = items.filter(r => includesQ(q, r.number))
-    .filter(r => !f.category || r.category === f.category)
-    .filter(r => !f.carrier || r.carrier === f.carrier);
+    .filter(r => fpick(f.category, r.category))
+    .filter(r => fpick(f.carrier, r.carrier));
   const edit = (record = {}) => {
     form.resetFields();
     form.setFieldsValue({ category: 'A', ...record });
@@ -4209,11 +4266,11 @@ function ContractsPage({ scope = 'contracts' }) {
   return <div className="page-stack">
     <ListPanel title="Carrier contracts" count={rows.length} search={q} onSearch={setQ} placeholder="Search by contract name or number"
       filterCount={Object.values(f).filter(Boolean).length}
-      filters={<div className="contracts-filter-fields">
-        <Select allowClear aria-label="Category" placeholder="Category" value={f.category} onChange={v => setF({ ...f, category: v })} options={uniq(items.map(r => r.category)).map(v => ({value:v,label:v}))} />
-        <Select allowClear aria-label="Carriers" placeholder="Carriers" value={f.carrier} onChange={v => setF({ ...f, carrier: v })} options={uniq(items.map(r => r.carrier)).map(v => ({value:v,label:v}))} />
-        {Object.values(f).some(Boolean) && <Button type="link" onClick={() => setF({})}>Reset filters</Button>}
-      </div>}
+      filters={<>
+        <FilterSelect label="Category" value={f.category} onChange={v => setF({ ...f, category: v })} options={uniq(items.map(r => r.category))} />
+        <FilterSelect label="Carrier" value={f.carrier} onChange={v => setF({ ...f, carrier: v })} options={uniq(items.map(r => r.carrier))} />
+        {Object.values(f).some(Boolean) && <ResetFilters onClick={() => setF({})} />}
+      </>}
       actions={<Button type="primary" icon={<I.PlusOutlined />} onClick={() => edit()}>Add Contract</Button>}>
       <DataTable columns={cols} dataSource={rows} minWidth={650} />
     </ListPanel>
@@ -4240,12 +4297,12 @@ function RateTablePage({ slug }) {
   const rows = items.filter((r) => includesQ(q, r.id, r.origin, r.dest, r.carrier, r.contract)).sort(sort === 'price' ? (a, b) => a.price - b.price : byKey(sort));
   const cols = [
     { title: 'ID', dataIndex: 'id', width: 80, sorter: byKey('id'), render: (v,r) => <Button type="link" onClick={()=>setDetail(r)}>{v}</Button> },
-    { title: 'Origin', dataIndex: 'origin', width: 160, filters: filtersOf(RATE_ROWS, 'origin'), onFilter: (v, r) => r.origin === v },
-    { title: 'Destination', dataIndex: 'dest', width: 160, filters: filtersOf(RATE_ROWS, 'dest'), onFilter: (v, r) => r.dest === v },
-    { title: 'Via', dataIndex: 'via', width: 146, filters: filtersOf(RATE_ROWS, 'via'), onFilter: (v, r) => r.via === v },
-    { title: 'Carrier', dataIndex: 'carrier', width: 146, filters: filtersOf(RATE_ROWS, 'carrier'), onFilter: (v, r) => r.carrier === v },
-    { title: 'Type', dataIndex: 'type', width: 100, filters: filtersOf(RATE_ROWS, 'type'), onFilter: (v, r) => r.type === v },
-    { title: 'Contract', dataIndex: 'contract', width: 120, filters: filtersOf(RATE_ROWS, 'contract'), onFilter: (v, r) => r.contract === v },
+    { title: 'Origin', dataIndex: 'origin', width: 160 },
+    { title: 'Destination', dataIndex: 'dest', width: 160 },
+    { title: 'Via', dataIndex: 'via', width: 146 },
+    { title: 'Carrier', dataIndex: 'carrier', width: 146 },
+    { title: 'Type', dataIndex: 'type', width: 100 },
+    { title: 'Contract', dataIndex: 'contract', width: 120 },
     { title: 'Price', dataIndex: 'price', width: 140, sorter: (a, b) => a.price - b.price, render: (p) => `${p.toLocaleString('en-US')} USD` },
     { title:'Container',key:'equipment',width:120,render:(_,r)=>['20’ ST','40’ HC'][Number(r.id)%2] },
     { title:'Valid from',key:'validFrom',width:140,render:()=>NOW.startOf('month').format('D MMM YYYY') },
@@ -4271,9 +4328,9 @@ function RateTablePage({ slug }) {
   return (
     <div className="page-stack">
       {msgCtx}
-      <ListPanel title={RATE_TITLES[slug]} count={rows.length} search={q} onSearch={setQ} placeholder="ID, port, carrier or contract" actions={<>
+      <ListPanel title={RATE_TITLES[slug]} count={rows.length} search={q} onSearch={setQ} placeholder="ID, port, carrier or contract"
+        sort={<SortBtn value={sort} onChange={setSort} options={[['id', 'ID'], ['price', 'Lowest price'], ['carrier', 'Carrier']]} />} actions={<>
         <Button icon={<I.DownloadOutlined />} onClick={exportCsv}>Export CSV</Button>
-        <SortBtn value={sort} onChange={setSort} options={[['id', 'ID'], ['price', 'Lowest price'], ['carrier', 'Carrier']]} />
         <Button type="primary" icon={<I.PlusOutlined />} onClick={() => setOpen(true)}>Add rate</Button>
       </>}>
         <DataTable columns={cols} dataSource={rows} pagination={PAGINATION} minWidth={1700} expandable={{expandedRowRender:r=><div className="record-details"><div><span className="lbl">Origin charges</span><div>{money(180)}</div></div><div><span className="lbl">Freight charges</span><div>{money(r.price)}</div></div><div><span className="lbl">Destination charges</span><div>{money(240)}</div></div><div><span className="lbl">Book validity</span><div>{NOW.endOf('month').format('D MMM YYYY')}</div></div></div>}} rowSelection={{ selectedRowKeys: selected, onChange: setSelected }} />
@@ -4465,8 +4522,109 @@ const MoreTags = ({ items, shown = 2 }) => (
   <span className="tags">{items.slice(0, shown).map((t) => <Tag key={t} className="ref-tag">{t}</Tag>)}
     {items.length > shown && <Tooltip title={items.slice(shown).join(', ')}><Tag className="ref-tag">+{items.length - shown}</Tag></Tooltip>}</span>
 );
+// Organization profile: header (logo, name, type) + address, legal and contact details in two columns
+const ProfileItem = ({ icon, label, children }) => {
+  const { token } = antd.theme.useToken();
+  return <Flex gap={token.marginSM} align="start">
+    <Avatar shape="square" size={token.controlHeightLG} icon={icon}
+      style={{ flex: 'none', background: token.colorFillTertiary, color: token.colorTextSecondary }} />
+    <Flex vertical style={{ minWidth: 0 }}>
+      <Typography.Text type="secondary">{label}</Typography.Text>
+      {children ? <Typography.Text style={{ overflowWrap: 'anywhere' }}>{children}</Typography.Text> : <Typography.Text type="secondary">No data</Typography.Text>}
+    </Flex>
+  </Flex>;
+};
+function OrgProfile({ company, logo, onLogo, onEdit }) {
+  const { token } = antd.theme.useToken(); const { Title, Text } = Typography;
+  const sec = (title, items) => <Flex vertical gap={token.margin}>
+    <Title level={5} style={{ margin: 0 }}>{title}</Title>
+    <Flex gap={token.margin} wrap>{items.map((it, i) => <div key={i} style={{ flex: '1 1 180px', minWidth: 0 }}>{it}</div>)}</Flex>
+  </Flex>;
+  return <Card>
+    <Flex gap={token.marginLG} align="center" wrap>
+      <Upload accept="image/*" showUploadList={false} beforeUpload={(f) => { onLogo(f); return false; }}>
+        <button type="button" className="logo-drop" aria-label="Upload company logo">
+          {logo ? <img src={logo} alt="Company logo" /> : <><I.PlusOutlined /><span>Upload logo</span></>}
+        </button>
+      </Upload>
+      <Flex vertical gap={token.marginXXS} style={{ flex: '1 1 200px' }}>
+        <div><StateTag color="green">Active</StateTag></div>
+        <Title level={4} style={{ margin: 0 }}>{company.name}</Title>
+        <Text type="secondary">ID: 2</Text>
+      </Flex>
+      <Flex gap={token.marginLG} align="center" style={{ marginInlineStart: 'auto' }}>
+        <ProfileItem icon={<I.TagOutlined />} label="Type / Industry">FF / N/A</ProfileItem>
+        <Button type="primary" className="do-dark" icon={<I.EditOutlined />} onClick={onEdit}>Edit profile</Button>
+      </Flex>
+    </Flex>
+    <Divider />
+    <Flex gap={token.marginXL} wrap>
+      <Flex vertical gap={token.marginXL} style={{ flex: '1 1 320px', minWidth: 0 }}>
+        {sec('Address', [<ProfileItem icon={<I.EnvironmentOutlined />} label="Address #1">{company.address}</ProfileItem>])}
+        {sec('Financial & legal information', [<ProfileItem icon={<I.BankOutlined />} label="Tax ID">667844666</ProfileItem>, <ProfileItem icon={<I.NumberOutlined />} label="EIN number">46-2646777</ProfileItem>])}
+        <Flex vertical gap={token.margin}>
+          <Title level={5} style={{ margin: 0 }}>Coverage area</Title>
+          <Flex gap={token.marginXS} wrap>{['United States', 'Canada'].map((c) => <Tag key={c} bordered={false} style={{ margin: 0 }}>{c}</Tag>)}</Flex>
+        </Flex>
+      </Flex>
+      <Flex vertical gap={token.marginXL} style={{ flex: '1 1 320px', minWidth: 0 }}>
+        {sec('Primary contact', [<ProfileItem icon={<I.UserOutlined />} label="Name">Org 2 Partner</ProfileItem>, <ProfileItem icon={<I.MailOutlined />} label="Email">org2admin@mailto.plus</ProfileItem>,
+          <ProfileItem icon={<I.PhoneOutlined />} label="Phone">+375(44)123-456-789</ProfileItem>])}
+        {sec('Contact information', [<ProfileItem icon={<I.PhoneOutlined />} label="Phone">{company.phone}</ProfileItem>, <ProfileItem icon={<I.PhoneOutlined />} label="Additional phone">6354-444-55385</ProfileItem>,
+          <ProfileItem icon={<I.MailOutlined />} label="Email">{company.email}</ProfileItem>, <ProfileItem icon={<I.MailOutlined />} label="Additional email" />,
+          <ProfileItem icon={<I.GlobalOutlined />} label="Website">{company.website}</ProfileItem>])}
+      </Flex>
+    </Flex>
+  </Card>;
+}
+// My account: inner menu on the left (as on qa), the selected section on the right
+const PROFILE_MENU = [
+  { key: 'profile', icon: <I.UserOutlined />, label: 'Profile' },
+  { key: 'org-group', icon: <I.TeamOutlined />, label: 'My organization', children: [
+    { key: 'org', label: 'Organization profile' }, { key: 'documents', label: 'Documents' }, { key: 'users', label: 'User management' },
+    { key: 'departments', label: 'Departments' }, { key: 'teams', label: 'Teams' },
+  ] },
+  { key: 'customers', icon: <I.IdcardOutlined />, label: 'Customers' },
+];
+// My account · Customers: status tabs + searchable list (as on qa /account/customers)
+const CUSTOMER_STATUS = [['Active', 'green'], ['Not verified', 'orange'], ['Draft', 'default'], ['Rejected', 'red']];
+const ACCOUNT_CUSTOMERS = range(24, (i) => ({
+  key: 'cu' + i, company: pick(['Adamant Logistics', 'Blue Harbor Trading', 'Northwind Polymers', 'Tesla Inc', 'Baltic Amber Trade', 'Maxton Shipping', 'Pacific Rim Foods', 'Atlas Freight'], i),
+  city: pick(['Houston, TX', 'New York, NY', 'Warsaw', 'Auckland', 'Chicago, IL', 'Baku'], i), country: pick(['United States', 'United States', 'Poland', 'New Zealand', 'United States', 'Azerbaijan'], i),
+  type: pick(['BCO', 'NVOCC', 'FF'], i), status: CUSTOMER_STATUS[i < 14 ? 0 : i < 18 ? 1 : i < 22 ? 2 : 3][0],
+}));
+function CustomersSection() {
+  const [rows, setRows] = useLocalRows('customers', ACCOUNT_CUSTOMERS);
+  const [tab, setTab] = useState('Active'); const [q, setQ] = useState(''); const [open, setOpen] = useState(false);
+  const [form] = Form.useForm(); const [msgApi, msgCtx] = message.useMessage();
+  const shown = rows.filter((r) => r.status === tab && (!q || r.company.toLowerCase().includes(q.toLowerCase())));
+  const cols = [
+    { title: 'Company', dataIndex: 'company', sorter: byKey('company'), render: (v) => <Typography.Link>{v}</Typography.Link> },
+    { title: 'City', dataIndex: 'city' }, { title: 'Country', dataIndex: 'country', sorter: byKey('country') }, { title: 'Type', dataIndex: 'type', width: 100 },
+    { title: 'Status', dataIndex: 'status', width: 140, render: (v) => <StateTag color={Object.fromEntries(CUSTOMER_STATUS)[v]}>{v}</StateTag> },
+  ];
+  const save = async () => {
+    const v = await form.validateFields().catch(() => null); if (!v) return;
+    setRows([{ key: 'cu' + Date.now(), ...v, status: 'Draft' }, ...rows]); setOpen(false); form.resetFields(); setTab('Draft'); msgApi.success(`${v.company} added as a draft`);
+  };
+  return <>{msgCtx}
+    <ListTabs active={tab} onChange={setTab} items={CUSTOMER_STATUS.map(([k]) => ({ key: k, label: k, count: rows.filter((r) => r.status === k).length }))} />
+    <ListPanel title="Customers" search={q} onSearch={setQ} placeholder="Search by name"
+      actions={<Button type="primary" icon={<I.PlusOutlined />} onClick={() => setOpen(true)}>Add customer</Button>}>
+      <DataTable columns={cols} dataSource={shown} minWidth={700} />
+    </ListPanel>
+    {open && <Drw title="Add customer" width={480} onClose={() => setOpen(false)} footer={<><Button onClick={() => setOpen(false)}>Cancel</Button><Button type="primary" onClick={save}>Add</Button></>}>
+      <Form form={form} layout="vertical" requiredMark={false}>
+        <Form.Item name="company" label="Company name" rules={[{ required: true, whitespace: true, message: 'Enter the company name' }]}><Input /></Form.Item>
+        <Form.Item name="city" label="City"><Input /></Form.Item>
+        <Form.Item name="country" label="Country"><Input /></Form.Item>
+        <Form.Item name="type" label="Type" initialValue="BCO"><Select options={['BCO', 'NVOCC', 'FF'].map((v) => ({ value: v, label: v }))} /></Form.Item>
+      </Form>
+    </Drw>}
+  </>;
+}
 function ProfilePage({ initialTab }) {
-  const [tab, setTab] = useState(initialTab || 'documents');
+  const [tab, setTab] = useState(initialTab || 'org');
   const [me, setMe] = useState({ name: 'Bridget Tran', role: 'Branch Manager - USA', email: 'joghndoue@skypace.com', phone: '+375(44)123-456-789' });
   const [company, setCompany] = useState({ name: 'Maxton Shipping', address: '88889999111222, 8008qqq, Alabama, TX, 70077, US', website: 'www.skypace.com', email: 'info@skypace.com', phone: '+437444-4343-3333' });
   const [logo, setLogo] = useState(null);
@@ -4492,8 +4650,8 @@ function ProfilePage({ initialTab }) {
   const userCols = [
     { title: 'Name', dataIndex: 'name', sorter: byKey('name'), render: (v) => <a>{v}</a> },
     { title: 'Email', dataIndex: 'email', sorter: byKey('email') },
-    { title: 'Status', dataIndex: 'status', filters: [{ text: 'Active', value: 'Active' }, { text: 'Invited', value: 'Invited' }], onFilter: (v, r) => r.status === v, render: (s) => <DotStatus color={s === 'Active' ? TOKEN.colorSuccess : TOKEN.blue6}>{s}</DotStatus> },
-    { title: 'Role', dataIndex: 'role', filters: ['Administrator', 'Operator', 'Viewer'].map((r) => ({ text: r, value: r })), onFilter: (v, r) => r.role === v },
+    { title: 'Status', dataIndex: 'status', render: (s) => <StateTag color={s === 'Active' ? 'green' : 'orange'}>{s}</StateTag> },
+    { title: 'Role', dataIndex: 'role' },
     { key: 'ed', width: 60, render: (_, u) => <Button size="small" icon={<I.EditOutlined />} aria-label="Edit user" onClick={() => { setModal({ user: u }); form.setFieldsValue(u); }} /> },
   ];
   const deptCols = [
@@ -4508,58 +4666,56 @@ function ProfilePage({ initialTab }) {
   return (
     <div className="page-stack">
       {msgCtx}
-      <section className="card prof-head">
-        <div className="ph-row">
-          <Avatar size={60} src="assets/avatar-bridget.png" alt={me.name} />
-          <div style={{ flex: 1, minWidth: 0 }}><div className="prof-name">{me.name}</div><div>{me.role}</div></div>
-          <div className="prof-actions">
-            <Button icon={<I.LockOutlined />} onClick={() => setModal('password')}>Change password</Button>
-            <Button type="primary" icon={<I.EditOutlined />} onClick={() => { setModal('profile'); form.setFieldsValue(me); }}>Edit profile</Button>
-          </div>
-        </div>
-        <div className="gray-box grid-3 kv-grid">{kv('Email', me.email)}{kv('Phone', me.phone)}{kv('Departments', <MoreTags items={['Account Management', 'Booking OPS', 'Customs']} />)}</div>
-      </section>
-      <section className="card">
-        <div className="card-head"><span className="title">Company information</span><LinkBtn icon={<I.EditOutlined />} onClick={() => { setModal('company'); form.setFieldsValue(company); }}>Edit</LinkBtn></div>
-        <div className="gray-box company-box">
-          <Upload accept="image/*" showUploadList={false} beforeUpload={(f) => { setLogo(URL.createObjectURL(f)); msgApi.success('Logo uploaded'); return false; }}>
-            <button type="button" className="logo-drop" aria-label="Upload company logo">
-              {logo ? <img src={logo} alt="Company logo" /> : <><I.PlusOutlined /><span>Upload</span></>}
-            </button>
-          </Upload>
-          <div className="cb-main"><div className="cb-name">{company.name} <Tag color="success" variant="filled" className="st-tag">Active</Tag></div><div>{company.address}</div><div>ID: 2</div></div>
-          <div className="cb-type">{kv('Type / Industry', 'FF / N/A')}</div>
-        </div>
-        <div className="gray-box grid-3 kv-grid">{kv('Tax ID', '667844666')}{kv('EIN Number', '46-2646777')}{kv('Coverage Area', <MoreTags items={['Canada', 'United States', 'Mexico']} />)}</div>
-        <div className="gray-box grid-3 kv-grid">{kv('Website', company.website)}{kv('Email', company.email)}{kv('Phone', company.phone)}</div>
-      </section>
-      <div className="card-flat tabs-card prof-tabs">
-        <Tabs activeKey={tab} onChange={setTab} items={[['documents', 'Documents'], ['users', 'User Management'], ['departments', 'Departments'], ['teams', 'Teams']].map(([k, l]) => ({ key: k, label: l }))} />
-      </div>
-      {tab === 'documents' && (
-        <section className="card">
-          {DOCS.map((name) => {
-            const f = files[name];
-            return (
-              <div key={name} className="doc-row">
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="doc-name"><Dot color={f ? TOKEN.colorSuccess : TOKEN.colorWarning} />{name}</div>
-                  <div className="lbl doc-file"><I.FileOutlined />{f ? <>{f.name} · {(f.size / 1024).toFixed(0)} KB <a onClick={() => setFiles({ ...files, [name]: null })}>Remove</a></> : 'No file — click Upload'}</div>
-                </div>
-                <div className="doc-actions">
-                  <Button type="link" icon={<I.DownloadOutlined />} onClick={() => downloadTemplate(name)}>Download template</Button>
-                  <Upload showUploadList={false} beforeUpload={(file) => { setFiles({ ...files, [name]: file }); msgApi.success(`${file.name} uploaded`); return false; }}>
-                    <Button icon={<I.UploadOutlined />}>{f ? 'Replace' : 'Upload'}</Button>
-                  </Upload>
-                </div>
-              </div>
-            );
-          })}
-        </section>
-      )}
-      {tab === 'users' && <section className="card-flat table-card"><DataTable columns={userCols} dataSource={users} pagination={false} minWidth={760} /></section>}
-      {tab === 'departments' && <section className="card-flat table-card"><DataTable columns={deptCols} dataSource={DEPARTMENTS} pagination={false} minWidth={700} /></section>}
-      {tab === 'teams' && <section className="card-flat table-card"><DataTable columns={teamCols} dataSource={TEAMS} pagination={false} minWidth={600} /></section>}
+      <Card size="small"><Typography.Title level={4} style={{ margin: 0 }}>My account</Typography.Title></Card>
+      <Flex gap={TOKEN.margin} align="start" wrap>
+        <Card size="small" style={{ flex: '0 0 240px' }} styles={{ body: { padding: TOKEN.paddingXS } }}>
+          <Menu mode="inline" selectedKeys={[tab]} defaultOpenKeys={['org-group']} onClick={({ key }) => setTab(key)} style={{ borderInlineEnd: 0 }}
+            expandIcon={({ isOpen }) => <ExpandArrow open={isOpen} />} items={PROFILE_MENU} />
+        </Card>
+        <Flex vertical gap={TOKEN.margin} style={{ flex: '1 1 480px', minWidth: 0 }}>
+          {tab === 'profile' && <Card>
+            <Flex gap={TOKEN.margin} align="center" wrap>
+              <Avatar size={60} src="assets/avatar-bridget.png" alt={me.name} />
+              <Flex vertical style={{ flex: 1, minWidth: 0 }}><Typography.Title level={5} style={{ margin: 0 }}>{me.name}</Typography.Title><Typography.Text type="secondary">{me.role}</Typography.Text></Flex>
+              <Button icon={<I.LockOutlined />} onClick={() => setModal('password')}>Change password</Button>
+              <Button type="primary" className="do-dark" icon={<I.EditOutlined />} onClick={() => { setModal('profile'); form.setFieldsValue(me); }}>Edit profile</Button>
+            </Flex>
+            <Divider />
+            <antd.Row gutter={[TOKEN.margin, TOKEN.margin]}>
+              <antd.Col xs={24} sm={12}><ProfileItem icon={<I.MailOutlined />} label="Email">{me.email}</ProfileItem></antd.Col>
+              <antd.Col xs={24} sm={12}><ProfileItem icon={<I.PhoneOutlined />} label="Phone">{me.phone}</ProfileItem></antd.Col>
+              <antd.Col xs={24}><ProfileItem icon={<I.TeamOutlined />} label="Departments">Account Management, Booking OPS, Customs</ProfileItem></antd.Col>
+            </antd.Row>
+          </Card>}
+          {tab === 'org' && <OrgProfile company={company} logo={logo} onLogo={(f) => { setLogo(URL.createObjectURL(f)); msgApi.success('Logo uploaded'); }}
+            onEdit={() => { setModal('company'); form.setFieldsValue(company); }} />}
+          {tab === 'documents' && (
+            <section className="card">
+              {DOCS.map((name) => {
+                const f = files[name];
+                return (
+                  <div key={name} className="doc-row">
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div className="doc-name"><Dot color={f ? TOKEN.colorSuccess : TOKEN.colorWarning} />{name}</div>
+                      <div className="lbl doc-file"><I.FileOutlined />{f ? <>{f.name} · {(f.size / 1024).toFixed(0)} KB <a onClick={() => setFiles({ ...files, [name]: null })}>Remove</a></> : 'No file — click Upload'}</div>
+                    </div>
+                    <div className="doc-actions">
+                      <Button type="link" icon={<I.DownloadOutlined />} onClick={() => downloadTemplate(name)}>Download template</Button>
+                      <Upload showUploadList={false} beforeUpload={(file) => { setFiles({ ...files, [name]: file }); msgApi.success(`${file.name} uploaded`); return false; }}>
+                        <Button icon={<I.UploadOutlined />}>{f ? 'Replace' : 'Upload'}</Button>
+                      </Upload>
+                    </div>
+                  </div>
+                );
+              })}
+            </section>
+          )}
+          {tab === 'users' && <section className="card-flat table-card"><DataTable columns={userCols} dataSource={users} pagination={false} minWidth={760} /></section>}
+          {tab === 'departments' && <section className="card-flat table-card"><DataTable columns={deptCols} dataSource={DEPARTMENTS} pagination={false} minWidth={700} /></section>}
+          {tab === 'teams' && <section className="card-flat table-card"><DataTable columns={teamCols} dataSource={TEAMS} pagination={false} minWidth={600} /></section>}
+          {tab === 'customers' && <CustomersSection />}
+        </Flex>
+      </Flex>
 
       <Modal open={!!modal} onCancel={close} onOk={submit} okText="Save" destroyOnHidden
         title={modal === 'password' ? 'Change password' : modal === 'profile' ? 'Edit profile' : modal === 'company' ? 'Edit company' : 'Edit user'}>
@@ -8069,7 +8225,7 @@ const doStatus = (d) => (!d.dispatched ? 'draft' : d.legsDone >= 3 ? 'completed'
 const DO_STATUS_LABEL = { draft: 'Unassigned', dispatched: 'Dispatched', confirmed: 'Confirmed', progress: 'In progress', completed: 'Completed' };
 // status colours as on the list in Figma: In progress blue · Unassigned orange · Completed green
 const DO_STATUS_COLOR = { draft: 'orange', dispatched: 'purple', confirmed: 'cyan', progress: 'blue', completed: 'green' };
-const DoStatusTag = ({ d, st }) => { const s = st || doStatus(d); return <Tag color={DO_STATUS_COLOR[s]} bordered={false} className="do-stag">{DO_STATUS_LABEL[s]}</Tag>; };
+const DoStatusTag = ({ d, st }) => { const s = st || doStatus(d); return <Tag color={DO_STATUS_COLOR[s]} variant="outlined" className="do-stag">{DO_STATUS_LABEL[s]}</Tag>; };
 const doTimes = (d) => {
   if (d.times) return d.times;
   const p = d.plan; const drop = p.drop && doDay(p.drop); const pick = p.pickup && doDay(p.pickup);
@@ -9592,13 +9748,14 @@ function DispatchesAllPage({shipment=false,movement}) {
     { title: 'Shipment', dataIndex: 'shipment', render: (v, r) => <div className="do-cell">{r.own ? <a href={href(SHIPMENT_PATH)} onClick={(e) => e.stopPropagation()}>{v}</a> : <span>{v}</span>}</div> },
     { title: 'Container', key: 'c', render: (_, r) => <div className="do-cell"><span className={r.bold ? undefined : 'muted'}>{r.container}</span><span className="do-sub">{r.containerSub}</span></div> },
     { title: 'Load/Unload', dataIndex: 'load', render: (v) => <div className="do-cell"><span>{v}</span></div> },
-    { title: 'Type', dataIndex: 'type', filters: [{ text: 'Export', value: 'Export' }, { text: 'Import', value: 'Import' }], onFilter: (v, r) => r.type === v },
+    { title: 'Type', dataIndex: 'type' },
     { title: 'Next action', key: 'n', render: (_, r) => <div className="do-cell"><span>{r.next}</span>{sub(r)}</div> },
     { title: 'Customer', dataIndex: 'customer', width: 110 },
     { title: 'Carrier', dataIndex: 'carrier', width: 124 },
-    { title: 'Status', key: 'st', render: (_, r) => <DoStatusTag st={r.st} /> },
+    { title: 'Status', key: 'st', filterKey: 'st', filterText: (v) => DO_STATUS_LABEL[v], render: (_, r) => <DoStatusTag st={r.st} /> },
     { key: 'go', width: 44, render: (_, r) => <Button size="small" className="arrow-btn" icon={<ChevronIcon />} aria-label={`Open ${r.id}`} onClick={(e) => { e.stopPropagation(); open(r); }} /> },
   ];
+  const cf = useColumnFilters(shipment ? cols.filter((c) => c.dataIndex !== 'shipment') : cols, shown);
   return (
     <div className="page-stack">
       {msgCtx}
@@ -9632,9 +9789,12 @@ function DispatchesAllPage({shipment=false,movement}) {
       <section className="card-flat do-list">
         <div className="do-list-head">
           <Input allowClear className="do-search" placeholder={shipment?'Container, dispatch ID, customer':'Container, dispatch ID, shipment, customer'} value={q} onChange={(e) => setQ(e.target.value)} prefix={<I.SearchOutlined className="muted" />} />
+          <Popover trigger="click" placement="bottomRight" title="Filters" content={<FilterFields>{cf.filters}</FilterFields>}>
+            <Button icon={<I.FilterOutlined />} className={cf.count ? 'filter-on' : ''}>Filter{cf.count ? ` · ${cf.count}` : ''}</Button>
+          </Popover>
           {kpi && <Tag closable onClose={() => setKpi(null)}>{KPIS.find((k) => k.key === kpi).title}</Tag>}
         </div>
-        <DataTable rowKey="id" className="dog-table" columns={shipment?cols.filter(c=>c.dataIndex!=='shipment'):cols} dataSource={shown} pagination={false} scroll={{ x: shipment?1050:1150 }}
+        <DataTable rowKey="id" className="dog-table" columns={shipment?cols.filter(c=>c.dataIndex!=='shipment'):cols} dataSource={cf.shown} pagination={false} scroll={{ x: shipment?1050:1150 }}
           rowSelection={{ selectedRowKeys: sel, onChange: setSel, columnWidth: 40 }}
           onRow={(r) => ({ onClick: () => open(r), style: { cursor: 'pointer' } })}
           expandable={{
@@ -10316,13 +10476,13 @@ function ShipmentCollection({kind}) {
   const cfg=SW_COLLECTIONS[kind]; const [items,setItems]=useLocalRows('shipment-'+SHIPMENT_ID+'-'+kind,cfg.rows);
   const [q,setQ]=useState(''); const [filter,setFilter]=useState({}); const [editing,setEditing]=useState(null);
   const filterFields=cfg.fields.filter(f=>Array.isArray(f[2]));
-  const rows=items.filter(r=>!q||Object.values(r).some(v=>String(v).toLowerCase().includes(q.toLowerCase()))).filter(r=>Object.entries(filter).every(([k,v])=>!v||r[k]===v));
+  const rows=items.filter(r=>!q||Object.values(r).some(v=>String(v).toLowerCase().includes(q.toLowerCase()))).filter(r=>Object.entries(filter).every(([k,v])=>fpick(v,r[k])));
   const save=v=>{setItems(prev=>editing.key?prev.map(r=>r.key===editing.key?{...r,...v}:r):[...prev,{...v,key:kind+'-'+Date.now()}]);setEditing(null);message.success('Saved locally');};
-  const columns=cfg.fields.map(([key,label,type],i)=>({title:label,dataIndex:key,ellipsis:true,width:i===0?undefined:type==='number'?90:type==='money'?110:key==='status'?100:140,sorter:(a,b)=>type==='number'||type==='money'?(Number(a[key])||0)-(Number(b[key])||0):String(a[key]||'').localeCompare(String(b[key]||'')),render:v=>type==='money'?money(Number(v)||0):key==='status'?<Tag color={['Approved','Confirmed','Paid','Released','Completed'].includes(v)?'success':undefined}>{v||'Draft'}</Tag>:v??'—'}));
+  const columns=cfg.fields.map(([key,label,type],i)=>({title:label,dataIndex:key,ellipsis:true,width:i===0?undefined:type==='number'?90:type==='money'?110:key==='status'?100:140,sorter:(a,b)=>type==='number'||type==='money'?(Number(a[key])||0)-(Number(b[key])||0):String(a[key]||'').localeCompare(String(b[key]||'')),render:v=>type==='money'?money(Number(v)||0):key==='status'?<StateTag color={['Approved','Confirmed','Paid','Released','Completed'].includes(v)?'green':'default'}>{v||'Draft'}</StateTag>:v??'—'}));
   if(kind==='charges')columns.splice(columns.length-1,0,{title:'Amount, USD',width:120,render:(_,r)=>money((r.quantity||0)*(r.rate||0))});
   columns.push({title:'Actions',key:'actions',width:64,align:'center',fixed:'right',render:(_,r)=><Dropdown menu={{items:[{key:'edit',label:'Edit'},{key:'delete',label:'Delete',danger:true}],onClick:({key})=>key==='edit'?setEditing(r):Modal.confirm({title:'Delete this record?',okText:'Delete',okButtonProps:{danger:true},onOk:()=>setItems(prev=>prev.filter(x=>x.key!==r.key))})}} trigger={['click']}><Button type="text" aria-label={'Actions for '+(r[cfg.fields[0][0]]||'record')} icon={<I.MoreOutlined/>}/></Dropdown>});
   return <>
-    <ListPanel title={cfg.title} count={rows.length} search={q} onSearch={setQ} placeholder={'Search '+cfg.title.toLowerCase()} actions={<Button type="primary" icon={kind==='documents'?<I.UploadOutlined/>:<I.PlusOutlined/>} onClick={()=>setEditing({})}>{cfg.action}</Button>} filterCount={Object.values(filter).filter(Boolean).length} filters={filterFields.length?<div className="sw-filter-fields">{filterFields.map(([key,label,opts])=><Select key={key} allowClear aria-label={label} placeholder={label} value={filter[key]} onChange={v=>setFilter({...filter,[key]:v})} options={opts.map(v=>({value:v,label:v}))}/>)}<Button type="link" onClick={()=>setFilter({})}>Reset filters</Button></div>:undefined}>
+    <ListPanel title={cfg.title} count={rows.length} search={q} onSearch={setQ} placeholder={'Search '+cfg.title.toLowerCase()} actions={<Button type="primary" icon={kind==='documents'?<I.UploadOutlined/>:<I.PlusOutlined/>} onClick={()=>setEditing({})}>{cfg.action}</Button>} filterCount={Object.values(filter).filter(Boolean).length} filters={filterFields.length?<>{filterFields.map(([key,label,opts])=><FilterSelect key={key} label={label} value={filter[key]} onChange={v=>setFilter({...filter,[key]:v})} options={opts}/>)}{Object.values(filter).some(Boolean)&&<ResetFilters onClick={()=>setFilter({})}/>}</>:undefined}>
       <DataTable columns={columns} dataSource={rows} minWidth={columns.reduce((sum,c)=>sum+(c.width||140),0)} pagination={items.length>10?PAGINATION:false} locale={{emptyText:<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={'No '+cfg.title.toLowerCase()+' yet'}/>}} />
       {kind==='charges'&&<div className="sw-total"><span>Total cost</span><b>{money(rows.reduce((s,r)=>s+(r.quantity||0)*(r.rate||0),0))} USD</b></div>}
       {['receivables','payables'].includes(kind)&&<div className="sw-total"><span>Total / Balance</span><b>{money(rows.reduce((s,r)=>s+(r.total||0),0))} / {money(rows.reduce((s,r)=>s+(r.balance||0),0))} USD</b></div>}
@@ -10762,7 +10922,7 @@ function resolvePage(path, query) {
     return { navKey: path, crumbs: [HOME, crumb('Quote shipments', searched ? '/quote-shipments' : undefined), ...(searched ? [crumb('New request')] : [])],
       el: <QuoteShipmentsPage key={JSON.stringify(query)} query={query} /> };
   }
-  if (path === '/profile') return { navKey: '', crumbs: [HOME, crumb('Profile')], el: <ProfilePage key={query.tab || 'documents'} initialTab={query.tab} /> };
+  if (path === '/profile') return { navKey: '', crumbs: [HOME, crumb('Profile')], el: <ProfilePage key={query.tab || 'org'} initialTab={query.tab} /> };
   if (path === DISPATCH_PATH) {
     return { navKey: '/shipments', collapsed: true, crumbs: [crumb('Shipments', '/shipments'), crumb(SHIPMENT_ID, SHIPMENT_PATH), crumb('Inland Pickup · Dispatches')], el: <DispatchOrdersPage key={query.f || 'list'} f={query.f} /> };
   }
