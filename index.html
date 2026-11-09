@@ -28,7 +28,7 @@
     --muted: var(--ds-muted);
     --bg: var(--ds-bg);
     --card: var(--ds-surface);
-    --gray-1: var(--ds-fill);
+    --gray-1: var(--ds-gray-1);
     --split: var(--ds-split);
     --primary: var(--ds-primary);
     --primary-7: var(--ant-color-info-active);
@@ -57,7 +57,7 @@
   .topbar-actions .ant-btn { width: 48px; }
 
   .page-header { background: var(--ds-surface); border-radius: var(--ds-radius-lg); padding: var(--ds-space-sm); box-shadow: inset 0 -1px 0 var(--ds-bg); display: flex; gap: var(--ds-space-xl); min-height: 76px; }
-  .ph-left { width: 198px; flex: none; display: flex; gap: var(--ds-space); align-items: center; }
+  .ph-left { min-width: 198px; flex: none; display: flex; gap: var(--ds-space); align-items: center; }
   .ph-title { font-size: var(--ds-font-size-xl); line-height: 28px; font-weight: 500; }
   .po-tag { display: inline-flex; align-items: center; gap: var(--ds-space-xxs); background: var(--ds-bg); border: 1px dashed var(--ds-border-secondary); border-radius: var(--ds-radius-xs); padding: 1px var(--ds-space-xs); font-size: var(--ds-font-size-sm); line-height: 20px; cursor: pointer; }
   .ph-right { flex: 1; display: flex; align-items: center; gap: var(--ds-space); }
@@ -72,8 +72,8 @@
   .columns { display: flex; gap: var(--ds-space-xs); margin-top: var(--ds-space-xs); flex: 1; }
   .side { width: 256px; flex: none; background: var(--ds-surface); border-radius: var(--ds-radius-lg) var(--ds-radius-lg) 0 0; padding-top: var(--ds-space-xxs); }
   .side .ant-menu { border-inline-end: none !important; background: transparent; }
-  .side .ant-menu-sub .ant-menu-item { padding-left: var(--ds-space-lg) !important; }
   .side .ant-menu-submenu-selected > .ant-menu-submenu-title { color: var(--text); }
+  .side .ant-menu-sub.ant-menu-inline { background: var(--ant-color-bg-container) !important; }
   .content { flex: 1; display: flex; gap: var(--ds-space-xs); align-items: flex-start; min-width: 0; padding-bottom: var(--ds-space-lg); }
   /* Planning columns: legs 480–880px, side cards 300–400px; they stack when the area is narrower than both minimums. */
   .content-wrap { container: plan / inline-size; }
@@ -395,9 +395,10 @@
   .dsp-list-head { padding: var(--ds-space) var(--ds-space) var(--ds-space-sm); }
   .dsp-bulkbar { display: flex; align-items: center; gap: var(--ds-space); padding: 10px var(--ds-space); background: var(--gray-1); border-top: 1px solid var(--split); flex-wrap: wrap; }
   .dsp-bulk-txt { flex: 1; min-width: 180px; }
-  .dsp-table .ant-table-thead > tr > th { font-weight: 600; background: var(--gray-1); }
+  .dsp-table .ant-table-thead > tr > th { font-weight: 600; background: var(--ds-table-header-bg); }
   .dsp-table .ant-table-thead > tr > th::before { display: none; }
   .dsp-table .ant-table-tbody > tr > td, .dsp-table .ant-table-thead > tr > th { padding-top: 10px; padding-bottom: 10px; }
+  .cargo-table .ant-table-expanded-row > td { background: var(--ant-color-bg-container) !important; }
   .dsp-table .ant-table-expanded-row > td { background: var(--gray-1) !important; padding: var(--ds-space-sm) var(--ds-space) !important; }
   .dsp-tag.ant-tag { margin: 0; font-size: var(--ds-font-size-sm); line-height: 20px; border-radius: var(--ds-radius-sm); }
   .dsp-st-ok { color: var(--ds-success); border-color: var(--ant-color-success-border); background: var(--ds-success-bg); }
@@ -444,7 +445,7 @@
   .dsp-freebox { display: flex; flex-direction: column; gap: var(--ds-space-sm); padding: var(--ds-space-sm) var(--ds-space); }
   .dsp-free-bar { display: flex; align-items: center; gap: var(--ds-space-xs); }
   .dsp-free-bar .ant-progress { flex: 1; margin: 0; }
-  .dsp-charges .ant-table-thead > tr > th { font-weight: 600; background: var(--gray-1); }
+  .dsp-charges .ant-table-thead > tr > th { font-weight: 600; background: var(--ds-table-header-bg); }
   .dsp-charges .ant-table-thead > tr > th::before { display: none; }
   .dsp-charges .pos { color: var(--ds-success); } .dsp-charges .neg { color: var(--ds-error); }
   .dsp-total td { font-weight: 600; background: var(--ant-color-fill-quaternary); }
@@ -506,7 +507,6 @@
   .rt-ev { display: grid; grid-template-columns: 1fr 150px; column-gap: var(--ds-space); align-items: start; padding: var(--ds-space-xxs) 0; line-height: 22px; }
   .rt-ev.edit { grid-template-columns: 1fr 172px 172px; column-gap: var(--ds-space-xs); align-items: center; }
   .rt-ev + .rt-ev { border-top: 1px solid var(--ant-color-split); }
-  .rt-ves { display: block; font-size: var(--ds-font-size-sm); line-height: 20px; color: var(--text, var(--ds-text)); text-decoration: underline; }
 
   .assign-row { background: var(--ds-surface); border: 1px solid transparent; border-radius: var(--ds-radius-lg); padding: var(--ds-space); display: flex; align-items: center; gap: var(--ds-space); }
   .assign-row.hl { border-color: var(--ant-color-primary-hover); }
@@ -662,10 +662,10 @@
   .rail-logo { text-decoration: none; }
   .sidebar { width: 208px; flex: none; position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 0 0 var(--ds-space-lg); }
   .brand { display: flex; align-items: center; height: 48px; padding-left: 28px; }
-  .global-menu.ant-menu, .global-menu .ant-menu-sub.ant-menu-inline { background: transparent !important; border-inline-end: none !important; }
+  .global-menu.ant-menu { background: transparent !important; border-inline-end: none !important; }
   .global-menu .ant-menu-item-selected { background: var(--ds-surface) !important; color: var(--primary) !important; }
-  .global-menu .ant-menu-sub .ant-menu-item { padding-left: 28px !important; }
-  .global-menu .ant-menu-item-group-title { padding: 10px var(--ds-space) var(--ds-space-xxs) !important; font-size: var(--ds-font-size); color: var(--text-2); }
+  .global-menu .ant-menu-sub .ant-menu-item-group-title { padding-inline-start: calc(var(--ds-space-lg) * 2) !important; }
+  .global-menu .ant-menu-item-group-list .ant-menu-item { padding-inline-start: calc(var(--ds-space-lg) * 2 + var(--ds-space)) !important; }
   .global-menu .ant-menu-submenu-selected > .ant-menu-submenu-title { color: var(--text); }
   .app.full .main { margin-left: var(--ds-space-xs); }
   .page { flex: 1; min-width: 0; padding-bottom: var(--ds-space-lg); }
@@ -1482,7 +1482,7 @@
   .do-photo { width: 82px; height: 82px; flex: none; border-radius: var(--ds-radius); box-shadow: inset 0 0 0 1px var(--ds-border); display: flex; align-items: center; justify-content: center; text-align: center; font-size: var(--ds-font-size-sm); line-height: 16px; color: var(--ds-text-secondary); padding: 6px; background: var(--ds-surface); }
   .do-exc-acts { display: flex; gap: var(--ds-space-xs); }
   .do-charges-card { padding-bottom: var(--ds-space-xs); }
-  .do-table .ant-table-thead > tr > th { background: var(--ds-fill); font-weight: 600; }
+  .do-table .ant-table-thead > tr > th { background: var(--ds-table-header-bg); font-weight: 600; }
   .do-table .pos { color: var(--ds-success); }
   .do-table .neg { color: var(--ds-error); }
   .do-approve { display: flex; gap: var(--ds-space); padding: var(--ds-space-sm); border-radius: var(--ds-radius-lg); background: var(--ds-fill); }
@@ -1504,7 +1504,7 @@
   .do-list-head > b { flex: 1; font-weight: 600; }
   .do-search { width: 240px; }
   .do-cell { display: flex; flex-direction: column; line-height: 22px; }
-  .do-list-table .ant-table-thead > tr > th { background: var(--ds-fill); font-weight: 600; }
+  .do-list-table .ant-table-thead > tr > th { background: var(--ds-table-header-bg); font-weight: 600; }
   .do-list-foot { padding: var(--ds-space-sm) var(--ds-space) 0; }
   .do-list-table .ant-table-tbody > tr > td, .do-list-table .ant-table-thead > tr > th { padding: var(--ds-space-sm) var(--ds-space-xs); }
   .do-rec-pop { width: 320px; display: flex; flex-direction: column; gap: var(--ds-space-xs); }
@@ -1614,8 +1614,9 @@
   .do-leg .do-leg-rail { width: 8px; }
   .do-leg .do-leg-pt { width: 8px; height: 8px; border: 0; border-radius: 50%; background: var(--ds-primary); margin-top: 23px; }
   .do-leg .do-leg-rail > i { width: 1px; background: var(--ds-primary); margin: var(--ds-space-xxs) 0 -23px; }
-  .do-ms .do-ms-row { grid-template-columns: minmax(0, 1fr) 180px 180px 32px; align-items: center; }
-  .do-ms-edit.ant-btn { justify-self: end; color: var(--ds-text-tertiary); }
+  /* same 3-column grid and side padding as .do-fields above, so columns line up */
+  .do-ms .do-ms-row { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--ds-space); padding: var(--ds-space-xs) var(--ds-space); align-items: center; }
+  .do-ms-edit.ant-btn { color: var(--ds-text-tertiary); }
   /* drawer table grouped by location, as Container/location step */
   .do-loc-cols { display: grid; grid-template-columns: 210px minmax(0, 1fr) 180px 180px; gap: var(--ds-space-xs); padding: var(--ds-space-xs) var(--ds-space-xs) var(--ds-space-xs) 26px; background: var(--ant-color-fill-quaternary); border-radius: var(--ds-radius-sm); font-weight: 600; margin-top: var(--ds-space-xs); }
   .do-loc { display: flex; gap: 10px; position: relative; }
@@ -1839,7 +1840,7 @@
     .do-head2 { flex-wrap: wrap; }
     .do-head-div { display: none; }
     .do-due { width: 100%; }
-    .do-ms-row { grid-template-columns: minmax(0, 1fr) 110px 110px; font-size: var(--ds-font-size-sm); }
+    .do-ms-row { font-size: var(--ds-font-size-sm); }
     .do-edit-cols, .do-loc-cols { display: none; }
     .do-loc-card, .do-loc-ev { grid-template-columns: minmax(0, 1fr); }
     .do-edit-card { grid-template-columns: minmax(0, 1fr); }
@@ -1863,13 +1864,13 @@
   .ip-step-head { all: unset; box-sizing: border-box; cursor: pointer; width: 100%; display: grid; grid-template-columns: 20px minmax(160px, 1.3fr) 56px minmax(80px, .8fr) minmax(0, 1.6fr); align-items: center; gap: var(--ds-space-sm); padding: var(--ds-space-sm) var(--ds-space-xs); border-radius: var(--ds-radius-lg); }
   .ip-step-head:hover { background: var(--gray-1); }
   .ip-step-head:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
-  .ip-step-name { font-weight: 500; }
+  .ip-step-name { font-weight: 400; }
   .ip-step-count { font-variant-numeric: tabular-nums; color: var(--ds-text-secondary); }
   .ip-step-bar.ant-progress { margin: 0; }
   .ip-step-note { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .ip-step-note.ok { color: var(--ant-color-success-text-active); }
-  .ip-step-dot { width: 16px; height: 16px; border-radius: 50%; box-shadow: inset 0 0 0 2px var(--ds-border); display: inline-flex; align-items: center; justify-content: center; font-size: 10px; color: var(--ds-surface); }
-  .ip-step-dot.prog { box-shadow: inset 0 0 0 4px var(--ds-primary); }
+  .ip-step-dot { width: 16px; height: 16px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--ds-primary); display: inline-flex; align-items: center; justify-content: center; font-size: 10px; color: var(--ds-surface); }
+  .ip-step-dot.prog { box-shadow: inset 0 0 0 1.5px var(--ds-primary); }
   .ip-step-dot.ok { background: var(--ds-success); box-shadow: none; }
   .ip-step-body { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--ds-space-xs); padding: 0 var(--ds-space-xs) var(--ds-space-sm) 40px; }
   .ip-chip { display: flex; flex-direction: column; padding: var(--ds-space-xs) var(--ds-space-sm); border-radius: var(--ds-radius-lg); background: var(--gray-1); color: inherit; line-height: 20px; }
@@ -1923,7 +1924,7 @@
   @media (max-width: 600px) { .ip-tiles { grid-template-columns: minmax(0, 1fr); } }
 
   /* Shared operational list system — same surfaces as Shipments and Dispatches. */
-  .skypace-table .ant-table-thead > tr > th { background:var(--gray-1); color:var(--text-2); font-weight:600; white-space:nowrap; }
+  .skypace-table .ant-table-thead > tr > th { background:var(--ds-table-header-bg); color:var(--text-2); font-weight:600; white-space:nowrap; }
   .skypace-table .ant-table-tbody > tr > td { padding:var(--ds-space-sm); vertical-align:middle; }
   .skypace-table .ant-table-tbody > tr:hover > td { background:var(--ant-color-fill-tertiary); }
   .skypace-table .ant-table-cell { overflow-wrap:normal; }
@@ -1978,8 +1979,8 @@
   .ant-table-tbody > tr > td { border-radius:0 !important; }
 
 </style>
-<script src="design-system/theme.js"></script>
-<link rel="stylesheet" href="design-system/system.css?v=20261104-filt1" />
+<script src="design-system/theme.js?v=20261109-sub"></script>
+<link rel="stylesheet" href="design-system/system.css?v=20261109-sub" />
 </head>
 <body>
 <div id="root"></div>
@@ -2005,7 +2006,9 @@ const theme = DS;
 const Ic = ({ n, size = 16, color, style }) => (
   <span className="anticon ic" style={{ width: size, height: size, color, ...style }} dangerouslySetInnerHTML={{ __html: window.ICONS[n] }} />
 );
-const STATUS = { done: ['Completed', 'green'], prog: ['In Progress', 'blue'], ns: ['Not started', 'default'], transit: ['In transit', 'blue'] };
+// One status name → one color across the project (Figma uses the same Tag colors).
+const STATUS_COLOR = { Confirmed: 'cyan', Upcoming: 'cyan', 'In Transit': 'blue', 'In transit': 'blue', 'In progress': 'blue', 'In Progress': 'blue', Completed: 'green', 'Gated in full': 'green', 'Gated In': 'green', Paid: 'green', Applied: 'green', Active: 'green', Approved: 'green', Released: 'green', Unassigned: 'orange', Pending: 'orange', 'Pending Confirmation': 'orange', Unpaid: 'orange', 'Partially Applied': 'orange', Invited: 'orange', 'Not verified': 'orange', Dispatched: 'purple', Overdue: 'red', Rejected: 'red', Void: 'default', Unapplied: 'default', Draft: 'default', 'Not started': 'default' };
+const STATUS = { done: ['Completed', 'green'], prog: ['In Progress', 'blue'], ns: ['Not started', 'default'], transit: ['In transit', 'blue'], depot: ['At depot', 'cyan'], way: ['On the way to Singapore', 'blue'] };
 const StatusTag = ({ s }) => <Tag color={STATUS[s][1]} variant="outlined" className="do-stag">{STATUS[s][0]}</Tag>;
 const PlainTag = ({ children }) => <Tag variant="filled" className="st-tag st-ns">{children}</Tag>;
 const Managed = ({ name }) => <span className="managed"><I.UserOutlined />{name}</span>;
@@ -2080,18 +2083,18 @@ const loc = (o) => ({ id: uid(), addr2: '', ptc: '', containers: 3, ...o });
 const seedData = () => ({
   origin: {
     cy: [
-      loc({ name: 'Maher Terminals, Port Newark', addr: '1210 Corbin St', city: 'Newark', state: 'NJ', post: '07114', country: 'US', release: '2026-05-31T08:00' }),
-      loc({ name: 'APM Terminals, Elizabeth', addr: 'S080 McLester St', city: 'Elizabeth', state: 'NJ', post: '07201', country: 'US', release: '2026-05-31T08:00' }),
+      loc({ name: 'Maher Terminals, Port Newark', addr: '1210 Corbin St', city: 'Newark', state: 'NJ', post: '07114', country: 'US', release: '2026-05-31T08:00', free: { kind: 'det', days: 2, type: 'cal' } }),
+      loc({ name: 'APM Terminals, Elizabeth', addr: 'S080 McLester St', city: 'Elizabeth', state: 'NJ', post: '07201', country: 'US', release: '2026-05-31T08:00', free: { kind: 'det', days: 4, type: 'cal' } }),
     ],
-    term: [loc({ name: 'Port Newark Container Terminal', addr: '241 Calcutta St', city: 'Newark', state: 'NJ', post: '07114', country: 'US', release: '2026-06-02T10:00', cutoff: '2026-06-02T18:00' })],
+    term: [loc({ name: 'Port Newark Container Terminal', addr: '241 Calcutta St', city: 'Newark', state: 'NJ', post: '07114', country: 'US', release: '2026-06-02T10:00', cutoff: '2026-06-02T18:00', free: { kind: 'dem', days: 5, type: 'cal' } })],
     free: [{ id: uid(), kind: 'det', days: 2, type: 'cal' }],
   },
   dest: {
     cy: [
-      loc({ name: 'Nha Trang Rail Yard (ICD)', addr: '1249 Waverly Pl', city: 'Elizabeth', state: 'NJ', post: '7208', country: 'US', release: '2026-05-31T08:00' }),
+      loc({ name: 'Nha Trang Rail Yard (ICD)', addr: '1249 Waverly Pl', city: 'Elizabeth', state: 'NJ', post: '7208', country: 'US', release: '2026-05-31T08:00', free: { kind: 'det', days: 4, type: 'cal' } }),
       loc({ name: 'APM Terminals, Elizabeth', addr: 'S080 McLester St', city: 'Elizabeth', state: 'NJ', post: '07201', country: 'US', release: '2026-05-31T08:00' }),
     ],
-    term: [loc({ name: 'Cat Lai Terminal, Ho Chi Minh City, VN', addr: '1249 Waverly Pl', city: 'Elizabeth', state: 'NJ', post: '7208', country: 'US', ptc: '43214213412', release: '2026-06-02T10:00' })],
+    term: [loc({ name: 'Cat Lai Terminal, Ho Chi Minh City, VN', addr: '1249 Waverly Pl', city: 'Elizabeth', state: 'NJ', post: '7208', country: 'US', ptc: '43214213412', release: '2026-06-02T10:00', free: { kind: 'dem', days: 5, type: 'cal' } })],
     free: [{ id: uid(), kind: 'det', days: 2, type: 'cal' }],
   },
 });
@@ -2126,12 +2129,19 @@ const STOPS = [
 // Route details of a container: key events only, grouped by location; vessel events come from the carrier (read-only)
 const RT_VES = 'MAERSK SENTOSA / 428E';
 const ROUTE = [
-  { name: 'Elizabeth, NJ, US', place: 'Maher Terminal (CY)', mode: 'Truck', done: true, events: [{ name: 'Gate Out (Empty)', est: '2026-05-18T10:00', act: '2026-05-18T10:42' }] },
-  { name: 'Port Newark, NJ, US', place: 'Maher Terminal', mode: 'Vessel', done: true, events: [{ name: 'Gate In (Full)', est: '2026-05-19T12:00', act: '2026-05-19T12:20' }, { name: 'Vessel Departure', vessel: RT_VES, est: '2026-05-21T12:00', act: '2026-05-21T12:40' }] },
-  { name: 'Cat Lai, VN', place: 'Cat Lai Terminal', mode: 'Vessel', events: [{ name: 'Vessel Arrival', vessel: RT_VES, est: '2026-06-24T11:30' }, { name: 'Ready for Delivery', est: '2026-06-24T16:00' }, { name: 'Gate Out (Full)', est: '2026-06-25T09:00' }] },
-  { name: 'Cat Lai, VN', place: 'Cat Lai CY', mode: 'Truck', events: [{ name: 'Gate In (Empty)', est: '2026-06-26T15:00' }] },
+  { name: 'Chicago, IL, US', place: 'Allzone (Offhire Holding Yard)', leg: 'origin', done: true, events: [{ name: 'Arrived to CY', act: '2026-11-01T00:00' }, { name: 'Gate Out (Empty)', est: '2026-11-06T00:00' }] },
+  { name: '191 North Wacker Drive, Chicago, IL, US', place: 'Supplier warehouse', site: 'supplier', leg: 'origin', events: [{ name: 'Arrived to Supplier' }, { name: 'Departed from Supplier' }] },
+  { name: 'Chicago, IL, US', place: 'Caterpillar Logistics', leg: 'origin', events: [{ name: 'Arrived to Terminal' }, { name: 'Gate In (Full)' }, { name: 'Rail Departure', est: '2026-11-13T00:00' }] },
+  { name: 'Saint-John, CA', leg: 'main', events: [{ name: 'Rail Arrival', leg: 'origin', est: '2026-11-19T00:00' }, { name: 'Vessel Departure', vessel: 'SFL MAUI / 646E', est: '2026-11-24T23:00' }] },
+  { name: 'Wilhelmshaven, DE', leg: 'main', events: [{ name: 'Vessel Arrival', vessel: 'SFL MAUI / 646E', est: '2026-12-14T14:00' }, { name: 'Vessel Departure', vessel: 'AS CARELIA / 651E', est: '2026-12-18T14:00' }] },
+  { name: 'Gdynia, PL', place: 'Gdanski Terminal Kontenerowy (gtk)', leg: 'dest', events: [{ name: 'Vessel Arrival', vessel: 'AS CARELIA / 651E', leg: 'main', est: '2026-12-21T06:00' }, { name: 'Ready for Delivery' }, { name: 'Arrived to Terminal' }, { name: 'Gate Out (Full)' }] },
+  { name: '5 Księdza Jerzego Popiełuszki, Gdańsk, PL', place: 'Receiver warehouse', site: 'receiver', leg: 'dest', events: [{ name: 'Arrived to Receiver' }, { name: 'Departed from Receiver' }] },
+  { name: 'Gdynia, PL', place: 'Empty depot', leg: 'dest', events: [{ name: 'Gate In (Empty)' }] },
 ];
 const RT_FMT = 'D MMM YYYY, HH:mm';
+// prototype «now»: planned date passed without actual → alert in the static view (operator)
+const RT_NOW = dayjs('2026-11-09T12:00');
+const rtMissing = (e) => !e.act && e.est && dayjs(e.est).isBefore(RT_NOW);
 const CONTAINERS = ['ns', 'transit', 'transit', 'transit', 'transit'];
 const TERMINAL_OPTS = [
   { value: 'cat', label: 'Cat Lai Terminal, Ho Chi Minh City, VN' },
@@ -2176,6 +2186,105 @@ const SCREENS = [
   ['7002:94565', 'Link container (quick task)', mk({ ...mainProg, stopsOpen: true, activeStops: 2, exceptions: true, drawer: { type: 'link' } })],
   ['exception', 'Exception bar', mk({ ...mainProg, stopsOpen: true, activeStops: 2, exceptions: true })],
   ['missed', 'Missed dates', mk({ ...mainProg, stopsOpen: true, activeStops: 2, exceptions: true, drawer: { type: 'missedDates' } })],
+];
+
+// Customer view (prototype-only switch in «Figma screens»): read-only planning; CY–CY or Door to Door service
+const cFilled = (o) => mk({ filled: true, ...o });
+const cDone = { origin: ['done'], main: ['done'], dest: ['done'] };
+const CSCREENS = {
+  cy: [
+    ['7049:245818', 'All sections closed', cFilled({})],
+    ['7049:246479', 'All open', cFilled({ open: allOpen })],
+    ['7049:255577', 'Origin', cFilled({ open: { origin: true } })],
+    ['7049:256988', 'Ocean freight', cFilled({ open: { main: true }, stopsOpen: true })],
+    ['7049:258714', 'Destination', cFilled({ open: { dest: true } })],
+    ['7049:259913', 'Containers — origin', cFilled({ drawer: { type: 'containers', variant: 'origin' } })],
+    ['7049:259968', 'Containers — ocean freight', cFilled({ drawer: { type: 'containers', variant: 'main' } })],
+    ['7049:260023', 'Containers — destination', cFilled({ drawer: { type: 'containers', variant: 'dest' } })],
+  ],
+  door: [
+    ['7049:311305', 'All sections closed', cFilled({ tags: cDone })],
+    ['7049:311323', 'All open', cFilled({ tags: cDone, open: allOpen })],
+    ['7052:326074', 'Containers — origin', cFilled({ tags: cDone, drawer: { type: 'containers', variant: 'origin' } })],
+    ['8796:188111', 'Containers — live status', cFilled({ tags: cDone, drawer: { type: 'containers', variant: 'origin', live: true } })],
+    ['7053:341401', 'Containers — destination', cFilled({ tags: cDone, drawer: { type: 'containers', variant: 'dest' } })],
+  ],
+};
+const ViewCtx = React.createContext({ role: 'operator', svc: 'cy', stage: 'screen', set: () => {} });
+// Prototype switch «Stage»: fills the page and sets section statuses for a moment of the trip ('screen' = as in the Figma preset)
+const STAGES = [
+  ['screen', 'As in Figma screen'],
+  ['planned', 'Planned · not started', { origin: ['ns'], main: ['ns'], dest: ['ns'] }, 0, 1],
+  ['origin', 'Origin in progress', { origin: ['prog'], main: ['ns'], dest: ['ns'] }, 2, 1],
+  ['ocean', 'Ocean · in transit', { origin: ['done'], main: ['prog'], dest: ['ns'] }, 6, 2],
+  ['dest', 'Destination in progress', { origin: ['done'], main: ['done'], dest: ['prog'] }, 6, 9],
+  ['done', 'Completed', { origin: ['done'], main: ['done'], dest: ['done'] }, 6, 9],
+];
+const applyStage = (s, stage) => {
+  const p = STAGES.find(([k]) => k === stage);
+  if (!p || !p[2]) return s;
+  return { ...s, filled: true, data: s.filled ? s.data : seedData(), tags: p[2], originProgress: p[3], activeStops: p[4], destProgress: p[0] === 'dest' ? 3 : 0 };
+};
+const screenList = (view) => (view.role === 'customer' ? CSCREENS[view.svc] || CSCREENS.cy : SCREENS);
+// Door to Door: cargo supplier (origin) / receiver (destination) cards
+const PARTY = { name: 'EXXONMOBIL CHEMICAL INTERAMERICA INC', addr: '330 North State Street Chicago, IL, 60654 United States', contact: 'Ivan Ivanov', email: 'ff@mail.com / +89312392131', ready: '28 May, 2026 22:00', containers: 2, refs: ['983812312', '988312312'], more: 1, behalf: 'ABC Logistics', notes: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' };
+// Customer route details: key events per leg (read-only)
+const C_EVENTS = {
+  origin: [['Gate Out (Empty)', 'Transport: Truck'], ['Gate In (Full)', 'Transport: Truck']],
+  main: [['Loaded on Vessel', `Vessel/Voyage: ${RT_VES}`], ['Departed From Port Newark, NJ, US', `Vessel/Voyage: ${RT_VES}`], ['Arriving to Cat Lai, VN', `Vessel/Voyage: ${RT_VES}`], ['Loaded from Vessel', `Vessel/Voyage: ${RT_VES}`]],
+  dest: [['Gate Out (Full)', 'Transport: Truck'], ['Gate In (Empty)', 'Transport: Truck']],
+};
+// Container status in the containers drawer (spec «Showing container statuses on Events Drawer»):
+// not moving → status of the last event + what happens next; moving → «on the way» to the next event + ETA or the next step
+// Status color: moving — blue; waiting at a facility on schedule — cyan; ready / done — green;
+// needs attention (hold, free time ending) — orange; problem (delay, missed date) — red
+const ctrTone = (c) => c.tone || (c.moving ? 'blue' : 'cyan');
+const C_STATUS = {
+  origin: [
+    { s: 'At depot', next: 'empty pickup on 18 May, 10:00' },
+    { s: 'On the way to warehouse', next: 'arrival on 18 May, 14:00', moving: true },
+    { s: 'At warehouse', next: 'loading on 19 May, 08:00' },
+    { s: 'On the way to Port Newark', next: 'gate in on 19 May, 12:00', moving: true },
+    { s: 'At terminal', next: 'loading on vessel on 21 May, 12:00' },
+  ],
+  main: [
+    { s: 'On the way to Tanjung Pelepas', next: 'arrival on 03 Jun, 22:00', moving: true },
+    { s: 'Delayed at Tanjung Pelepas', next: 'departure on 27 Jun, 20:00 (was 25 Jun)', tone: 'red' },
+    { s: 'On the way to Cat Lai', next: 'arrival on 24 Jun, 11:30', moving: true },
+    { s: 'On the way to Singapore', next: 'arrival on 13 May, 09:00', moving: true },
+    { s: 'Customs hold at Cat Lai', next: 'release expected on 26 Jun, 12:00', tone: 'orange' },
+  ],
+  dest: [
+    { s: 'Ready for pickup', next: 'delivery on 25 Jun, 09:00', tone: 'green' },
+    { s: 'On the way to warehouse', next: 'arrival on 25 Jun, 13:00', moving: true },
+    { s: 'At warehouse', next: 'unloading on 25 Jun, 14:00' },
+    { s: 'On the way to depot', next: 'empty return on 26 Jun, 15:00', moving: true },
+    { s: 'Returned empty', tone: 'green' },
+  ],
+};
+// container head: number + size with the status tag under it; «Next: …» / «ETA: …» in its own column so it always starts at the same x
+function ContainerHead({ c }) {
+  return (
+    <Flex align="center" gap={TOKEN.margin} flex={1} style={{ minWidth: 0 }}>
+      <Flex vertical gap={TOKEN.marginXXS} style={{ flex: '0 0 40%', minWidth: 0 }}>
+        <Flex align="center" gap={TOKEN.marginXS}><b>CMAU93821321</b><PlainTag>40’HC</PlainTag></Flex>
+        <div><Tag color={ctrTone(c)} variant="outlined" className="do-stag">{c.s}</Tag></div>
+      </Flex>
+      <Typography.Text style={{ flex: 1, minWidth: 0 }}>
+        {c.next && <><Typography.Text strong>Next:</Typography.Text> {c.next}</>}
+        {c.eta && <><Typography.Text strong>ETA:</Typography.Text> {c.eta}</>}
+      </Typography.Text>
+    </Flex>
+  );
+}
+// Door to Door live status in the containers drawer (8796:188111)
+const C_LIVE = [
+  { s: 'way', next: ['Next:', ' arrival on 13 May, 12:00'], below: true },
+  { s: 'depot', next: ['Next:', ' arrival on 13 May, 12:00'] },
+  { s: 'depot', next: ['', 'On the way to Singapore | Next: arrival on 13 May, 12:00'] },
+  { s: 'depot' },
+  { s: 'transit' },
+  { s: 'transit', info: true },
 ];
 
 /* ---------- shell ---------- */
@@ -2243,7 +2352,7 @@ function TopBar({ crumbs, navKey, shipmentMenu }) {
   );
 }
 
-function PageHeader({ back, tracker=false }) {
+function PageHeader({ back, tracker=false, actions=false }) {
   const item = (icon, t1, t2) => (
     <div className="ph-item"><Ic n={icon} size={16} /><div><div className="t1">{t1}</div><div className="t2">{t2}</div></div></div>
   );
@@ -2252,7 +2361,7 @@ function PageHeader({ back, tracker=false }) {
       <div className="ph-left">
         <Button type="text" size="small" icon={<ChevronIcon dir="left" />} onClick={back} aria-label="Back" />
         <div>
-          <div className="ph-title">SP-000275</div>
+          <Flex align="center" gap={TOKEN.marginSM}><div className="ph-title">SP-000275</div><Tag color={STATUS_COLOR[tracker?'In Transit':'Confirmed']} variant="outlined" className="do-stag">{tracker?'In Transit':'Confirmed'}</Tag></Flex>
           <span className="po-tag">PO 4F0268 <I.EditOutlined style={{ fontSize: 12 }} /></span>
         </div>
       </div>
@@ -2270,7 +2379,7 @@ function PageHeader({ back, tracker=false }) {
         <div className="vdiv" />
         {item('header-ship', tracker?'OOCL':'Maersk', tracker?'OOCL CHONGQING | 070E':'Vessel Name')}
         <div className="vdiv" />
-        <div className="ph-status"><span className="dot-ok" />{tracker?'In Transit':'Confirmed'}</div>
+        <div className="ph-status"><ShipmentActions /></div>
       </div>
     </div>
   );
@@ -2280,16 +2389,27 @@ const SIDE_ITEMS = [
   {key:'overview',icon:<I.HomeOutlined/>,label:'Overview'},
   {key:'action',icon:<I.CompassOutlined/>,label:'Action Center',children:[{key:'ac1',label:'Tasks'},{key:'ac-notifications',label:'Notifications'}]},
   {key:'details',icon:<I.FileTextOutlined/>,label:'Details',children:[{key:'parties',label:'Shipping Parties'},{key:'cargo',label:'Cargo'},{key:'containers',label:'Containers'},{key:'docs',label:'Documents'}]},
-  {key:'tracker',icon:<I.AimOutlined/>,label:'Tracker'},
   {key:'transport',icon:<I.GlobalOutlined/>,label:'Transportation',children:[{key:'ob-overview',label:'Ocean Transportation'},{key:'ip-overview',label:'Export Inland Pickup'},{key:'import',label:'Import Inland Delivery'}]},
   {key:'ops',icon:<I.ControlOutlined/>,label:'Operations',children:[{key:'bol',label:'Bills of Lading'},{key:'services',label:'Services'}]},
   {key:'acc',icon:<I.DollarCircleOutlined/>,label:'Accounting',children:[{key:'charges',label:'Cost Tracking'},{key:'billing',label:'Billing'}]},
   {key:'people',icon:<I.TeamOutlined/>,label:'People'},
   {key:'settings',icon:<I.SettingOutlined/>,label:'Settings'},
 ];
-const SIDE_SUFFIXES={ac1:'/action-center/tasks','ac-notifications':'/action-center/notifications',parties:'/shipping-parties',cargo:'/cargo',docs:'/documents/all',tracker:'/tracker','ob-overview':'/transportation/ocean-booking/overview',import:'/transportation/import/overview',bol:'/bill-of-lading',services:'/additional-services',charges:'/charges',billing:'/billing/receivables',people:'/people',settings:'/settings'};
+const SIDE_SUFFIXES={ac1:'/action-center/tasks','ac-notifications':'/action-center/notifications',parties:'/shipping-parties',cargo:'/cargo',docs:'/documents/all','ob-overview':'/transportation/ocean-booking/overview',import:'/transportation/import/overview',bol:'/bill-of-lading',services:'/additional-services',charges:'/charges',billing:'/billing/receivables',people:'/people',settings:'/settings'};
 const SIDE_ROUTES={overview:()=>SO_PATH,planning:()=>SHIPMENT_PATH,containers:()=>CONTAINERS_PATH,'ip-overview':()=>SHIPMENT_PATH+'/transportation/export/overview','ip-dispatches':()=>DISPATCH_PATH,...Object.fromEntries(Object.entries(SIDE_SUFFIXES).map(([k,v])=>[k,()=>SHIPMENT_PATH+v]))};
 const SIDE_PARENT={ac1:'action','ac-notifications':'action',parties:'details',cargo:'details',containers:'details',docs:'details','ob-overview':'transport','ip-overview':'transport','ip-dispatches':'transport',import:'transport',planning:'transport',bol:'ops',services:'ops',charges:'acc',billing:'acc'};
+// shipment-level actions: a dark dropdown button in the shipment header, shown on the Overview page only
+const SHIPMENT_ACTIONS = [
+  { key: 'edit', icon: <I.EditOutlined />, label: 'Edit shipment' },
+  { key: 'duplicate', icon: <I.CopyOutlined />, label: 'Duplicate shipment' },
+  { key: 'share', icon: <I.ShareAltOutlined />, label: 'Share tracking link' },
+  { key: 'download', icon: <I.DownloadOutlined />, label: 'Download documents' },
+  { type: 'divider' },
+  { key: 'cancel', icon: <I.StopOutlined />, label: 'Cancel shipment', danger: true },
+];
+const ShipmentActions = () => <Dropdown trigger={['click']} placement="bottomRight" menu={{ items: SHIPMENT_ACTIONS }}>
+  <Tooltip title="Shipment actions"><Button icon={<I.EllipsisOutlined />} aria-label="Shipment actions" /></Tooltip>
+</Dropdown>;
 function SideMenu({ selected = 'planning' }) {
   const [openKeys, setOpenKeys] = useState(() => (selected === 'overview' ? [] : [SIDE_PARENT[selected]].filter(Boolean)));
   useEffect(() => { if (SIDE_PARENT[selected]) setOpenKeys(keys => [...new Set([...keys, SIDE_PARENT[selected]])]); }, [selected]);
@@ -2302,23 +2422,113 @@ function SideMenu({ selected = 'planning' }) {
 }
 
 /* ---------- right column ---------- */
+// free time is set per location; the summary shows each kind once (the longest)
+const locFree = (data) => {
+  const by = {};
+  [...data.cy, ...data.term, ...data.free].forEach((r) => { const f = r.free || (r.kind ? r : null); if (f && (!by[f.kind] || by[f.kind].days < f.days)) by[f.kind] = { id: r.id, ...f }; });
+  return Object.values(by);
+};
 function FreeSummary({ section, items }) {
   if (!items.length) return <span className="muted">No free time added</span>;
   const days = (r) => `${r.days} ${r.type === 'work' ? 'working ' : ''}day${r.days === 1 ? '' : 's'}`;
   return <div className="grid-2">{items.map((r) => <span key={r.id}>{FREE_KINDS[r.kind]}: {days(r)}</span>)}</div>;
 }
 
+// Container journey: the furthest milestone any container has reached and how many reached it (follows section statuses)
+const JOURNEY = {
+  planned: ['At terminal', 'Port Newark, NJ, US', 0, 'origin'],
+  origin: ['At terminal', 'Port Newark, NJ, US', 2, 'origin'],
+  ocean: ['On the water', 'MAERSK SENTOSA · 2415 · ETA Cat Lai 24 Jun', 6, 'main'],
+  dest: ['Ready for pickup', 'Cat Lai, VN', 3, 'dest'],
+  done: ['Returned empty', 'Cat Lai, VN', 6, 'dest'],
+};
+const journeyStage = (t) => (t.dest.includes('done') ? 'done' : t.dest.includes('prog') ? 'dest' : t.main.includes('prog') || t.main.includes('done') ? 'ocean' : t.origin.includes('prog') || t.origin.includes('done') ? 'origin' : 'planned');
+// design options of the journey card (prototype only, localStorage 'skypace.jc' = 1..3)
+const JC = (() => { try { return Number(localStorage.getItem('skypace.jc')) || 0; } catch (e) { return 0; } })();
+function JourneyCardAlt({ st, act }) {
+  const key = journeyStage(st.tags);
+  const [name, place, n, variant] = JOURNEY[key];
+  const [where, eta] = place.split(' · ETA ');
+  const count = n === TOTAL_CONTAINERS ? `All ${n}` : `${n} of ${TOTAL_CONTAINERS}`;
+  const full = () => act.drawer({ type: 'containers', variant, all: true });
+  const track = () => go(CONTAINERS_PATH);
+  const bar = <Progress percent={(n / TOTAL_CONTAINERS) * 100} showInfo={false} size="small" status={key === 'done' ? 'success' : 'normal'} style={{ margin: 0 }} />;
+  const box = { padding: `${TOKEN.paddingSM}px ${TOKEN.padding}px` };
+  const placeRow = (
+    <Flex align="baseline" gap={TOKEN.marginXS}>
+      <Typography.Text type="secondary" ellipsis={{ tooltip: where }} style={{ flex: 1, minWidth: 0 }}>{where}</Typography.Text>
+      {eta && <Typography.Text style={{ whiteSpace: 'nowrap' }}>ETA {eta}</Typography.Text>}
+    </Flex>
+  );
+  if (JC === 1) return (
+    <div className="card" style={{ gap: TOKEN.marginSM }}>
+      <div className="card-head"><span className="title">Container journey</span></div>
+      <Flex vertical gap={TOKEN.marginXXS} className="gray-box" style={box}>
+        <Flex align="baseline" gap={TOKEN.marginXS}><Typography.Text strong style={{ flex: 1 }}>{name}</Typography.Text><Typography.Text strong>{count}</Typography.Text></Flex>
+        {bar}{placeRow}
+      </Flex>
+      <Flex gap={TOKEN.marginXS}>
+        <Button block icon={<I.EyeOutlined />} onClick={full}>Full journey</Button>
+        <Button block icon={<I.AimOutlined />} onClick={track}>Container tracking</Button>
+      </Flex>
+    </div>
+  );
+  if (JC === 2) return (
+    <div className="card" style={{ gap: TOKEN.marginSM }}>
+      <div className="card-head"><span className="title">Container journey</span>
+        <Flex gap={TOKEN.marginXXS}>
+          <Tooltip title="Full journey"><Button size="small" type="text" icon={<I.EyeOutlined />} onClick={full} aria-label="Full journey" /></Tooltip>
+          <Tooltip title="Container tracking"><Button size="small" type="text" icon={<I.AimOutlined />} onClick={track} aria-label="Container tracking" /></Tooltip>
+        </Flex></div>
+      <Flex vertical gap={TOKEN.marginXXS} className="gray-box" style={box}>
+        <Flex align="baseline" gap={TOKEN.marginXS}><Typography.Text strong style={{ flex: 1 }}>{name}</Typography.Text><Typography.Text strong>{count}</Typography.Text></Flex>
+        {bar}{placeRow}
+      </Flex>
+    </div>
+  );
+  return (
+    <div className="card" style={{ gap: TOKEN.marginSM }}>
+      <div className="card-head"><span className="title">Container journey</span><Typography.Text strong>{count}</Typography.Text></div>
+      {bar}
+      <Flex vertical className="gray-box" style={{ ...box, cursor: 'pointer' }} onClick={full}>
+        <Flex align="center" gap={TOKEN.marginXS}>
+          <Flex vertical flex={1} style={{ minWidth: 0 }}>
+            <Typography.Text strong>{name}</Typography.Text>
+            {placeRow}
+          </Flex>
+          <I.RightOutlined style={{ color: TOKEN.colorTextTertiary }} />
+        </Flex>
+      </Flex>
+      <Typography.Link onClick={track}><I.AimOutlined /> Container tracking</Typography.Link>
+    </div>
+  );
+}
+function JourneyCard({ st, act }) {
+  if (JC) return <JourneyCardAlt st={st} act={act} />;
+  const key = journeyStage(st.tags);
+  const [name, place, n, variant] = JOURNEY[key];
+  return (
+    <div className="card" style={{ gap: TOKEN.marginSM }}>
+      <div className="card-head"><span className="title">Container journey</span>
+        <LinkBtn icon={<I.EyeOutlined />} onClick={() => act.drawer({ type: 'containers', variant, all: true })}>Full journey</LinkBtn></div>
+      <Flex vertical gap={TOKEN.marginXXS} className="gray-box" style={{ padding: `${TOKEN.paddingSM}px ${TOKEN.padding}px` }}>
+        <Flex align="baseline" gap={TOKEN.marginXS}>
+          <Typography.Text strong ellipsis={{ tooltip: name }} style={{ flex: 1, minWidth: 0 }}>{name}</Typography.Text>
+          <Typography.Text strong style={{ whiteSpace: 'nowrap' }}>{n === TOTAL_CONTAINERS ? `All ${n}` : `${n} of ${TOTAL_CONTAINERS}`}</Typography.Text>
+        </Flex>
+        {/* full bar: blue while all containers are moving together (e.g. on one vessel), green only when the journey is done */}
+        <Progress percent={(n / TOTAL_CONTAINERS) * 100} showInfo={false} size="small" status={key === 'done' ? 'success' : 'normal'} style={{ margin: 0 }} />
+        <Typography.Text type="secondary" ellipsis={{ tooltip: place }}>{place}</Typography.Text>
+      </Flex>
+      <Button block icon={<I.AimOutlined />} onClick={() => go(CONTAINERS_PATH)}>Container tracking</Button>
+    </div>
+  );
+}
+
 function RightColumn({ st, act }) {
   return (
     <div className="col-right">
-      <div className="card">
-        <div className="card-head"><span className="title">Containers</span>
-          <LinkBtn icon={<I.EyeOutlined />} onClick={() => act.drawer({ type: 'containers', variant: 'origin' })}>View</LinkBtn></div>
-        <div className="stat-tiles">
-          <div className="stat-tile"><b>6</b><span>Total</span></div>
-          <div className="stat-tile"><b>6</b><span>Gate In</span></div>
-        </div>
-      </div>
+      <JourneyCard st={st} act={act} />
       <div className="card" style={{ gap: TOKEN.marginSM }}>
         <div className="card-head"><span className="title">General information</span></div>
         <div className="gray-box kv-list">
@@ -2329,18 +2539,20 @@ function RightColumn({ st, act }) {
       </div>
       <div className="card cutoffs-card" style={{ gap: TOKEN.marginSM }}>
         <div className="card-head"><span className="title">Cutoffs</span>
-          <LinkBtn icon={<I.EditOutlined />} onClick={() => act.drawer({ type: 'cutoffs' })}>Edit</LinkBtn></div>
+          {!st.customer && <LinkBtn icon={<I.EditOutlined />} onClick={() => act.drawer({ type: 'cutoffs' })}>Edit</LinkBtn>}</div>
         <div className="gray-box grid-3">
           <KV k="VGM" v="02 Jun, 12:00" /><KV k="Port" v="02 Jun, 12:00" /><KV k="Documentation" v="02 Jun, 12:00" />
         </div>
       </div>
       <div className="card" style={{ gap: TOKEN.marginSM }}>
         <div className="card-head"><span className="title">Free time</span>
-          <LinkBtn icon={<I.PlusOutlined />} onClick={() => act.drawer({ type: 'freeTime' })}>Add</LinkBtn></div>
+          {st.customer
+            ? <LinkBtn icon={<I.ShoppingCartOutlined />} onClick={() => act.msg.success('Free time request sent to Skypace')}>Buy Free time</LinkBtn>
+            : <LinkBtn icon={<I.PlusOutlined />} onClick={() => act.drawer({ type: 'freeTime' })}>Add</LinkBtn>}</div>
         {[['origin', 'Origin'], ['dest', 'Destination']].map(([k, label]) => (
           <div className="gray-box" key={k}>
             <div className="lbl">{label}</div>
-            <FreeSummary section={k} items={st.data[k].free} />
+            <FreeSummary section={k} items={locFree(st.data[k])} />
           </div>
         ))}
       </div>
@@ -2349,25 +2561,58 @@ function RightColumn({ st, act }) {
 }
 
 /* ---------- left column: sections ---------- */
-function Item({ title, addr, cols, onEdit, onContainers }) {
+function Item({ title, addr, cols, onEdit, onContainers, onView, action, progress, free }) {
+  const col = ([k, v, editable]) => (
+    <div key={k}>
+      <div className="lbl">{k}</div>
+      {editable ? <span className="editable">{v}<I.EditOutlined onClick={onContainers} /></span> : <div>{v}</div>}
+    </div>
+  );
+  // with progress the container count lives in the progress cell («0 of 3 ✎»), so the Containers column is dropped
+  const prog = progress && (
+    <div key="prog"><div className="lbl">{progress.label}</div><Flex align="center" gap={TOKEN.marginXS}>
+      <span className="editable" style={{ whiteSpace: 'nowrap' }}>{progress.n} of {progress.of}{onView && <Tooltip title="View containers"><I.EyeOutlined onClick={onView} /></Tooltip>}</span>
+      <Progress percent={(progress.n / progress.of) * 100} showInfo={false} size="small" style={{ flex: 1, margin: 0, paddingInlineEnd: TOKEN.paddingXS }} />
+      {/* containers of this location — same «›» as the free time row */}
+    </Flex></div>
+  );
+  // dates first, then the container progress on its own row, then free time
+  const row1 = progress ? cols.filter((c) => !c[2]).map(col) : cols.map(col);
   return (
     <div className="item">
       <div className="item-head">
         <div style={{ flex: 1, minWidth: 0 }}><div className="name">{title}</div>{addr && <div>{addr}</div>}</div>
-        <LinkBtn icon={<I.EditOutlined />} onClick={onEdit}>Edit</LinkBtn>
+        {action !== undefined ? action : <Tooltip title="Edit"><LinkBtn icon={<I.EditOutlined />} onClick={onEdit} /></Tooltip>}
       </div>
       <hr />
-      <div className="item-cols">
-        {cols.map(([k, v, editable]) => (
-          <div key={k}>
-            <div className="lbl">{k}</div>
-            {editable ? <span className="editable">{v}<I.EditOutlined onClick={onContainers} /></span> : <div>{v}</div>}
-          </div>
-        ))}
-      </div>
+      <div className="item-cols">{row1}</div>
+      {prog && <><hr /><div className="item-cols">{prog}</div></>}
+      {free && <><hr /><div className="item-cols">{free}</div></>}
     </div>
   );
 }
+// Free time of one location (detention at a yard, demurrage at a terminal): kind + days and the last free day
+// returns the cells of the free-time row
+function locationFree({ section, r, st, onEdit, onView }) {
+  if (!r.free) {
+    return [<div key="ft"><div className="lbl">Free time</div>{st.customer
+      ? <Typography.Text type="secondary">Not added</Typography.Text>
+      : <Button type="link" size="small" icon={<I.PlusOutlined />} style={{ padding: 0, height: 'auto' }} onClick={onEdit}>Add free time</Button>}</div>];
+  }
+  const f = r.free;
+  return [
+    <div key="ft"><div className="lbl">Free time</div><span className="editable">{FREE_KINDS[f.kind]} — {f.days} {f.type === 'work' ? 'working' : 'calendar'} days<Tooltip title="Free time by container"><I.EyeOutlined onClick={onView} /></Tooltip></span></div>,
+    <KV key="lfd" k="Last free day" v={lastFreeDay(section, f)} />,
+  ];
+}
+// how many containers passed a location: origin yard → gate out (empty), origin terminal → gate in (full);
+// destination terminal → gate out (full), destination yard → gate in (empty)
+const LOC_EVENT = { origin: { cy: 'Gate out (empty)', term: 'Gate in (full)' }, dest: { term: 'Gate out (full)', cy: 'Gate in (empty)' } };
+const sectionDone = (st, section) => {
+  const t = st.tags[section];
+  if (t.includes('done')) return TOTAL_CONTAINERS;
+  return section === 'origin' ? st.originProgress : t.includes('prog') ? (st.destProgress ?? 2) : 0;
+};
 
 // Turns a stored record into the card shown in a section
 function itemView(section, group, r) {
@@ -2378,19 +2623,45 @@ function itemView(section, group, r) {
   return { title: r.name, addr: addressLine(r), cols: [['Containers', r.containers, true], ...dates] };
 }
 
+// containers that passed this location: the section's done count is spread over its locations in order
+function locExtras(section, group, r, i, items, st, act) {
+  if (group === 'free') return {};
+  // scale the section's count to this group's containers, then fill locations one by one
+  const groupTotal = items.reduce((sum, x) => sum + x.containers, 0);
+  let left = Math.round((sectionDone(st, section) / TOTAL_CONTAINERS) * groupTotal);
+  for (let j = 0; j < i; j++) left -= items[j].containers;
+  const n = Math.max(0, Math.min(r.containers, left));
+  return {
+    progress: { label: LOC_EVENT[section][group], n, of: r.containers },
+    onView: () => act.drawer({ type: 'containers', variant: section }),
+    free: locationFree({ section, r, st, onEdit: () => act.drawer({ type: 'freeTime', section, loc: { group, idx: i } }), onView: () => act.drawer({ type: 'locFree', section, group, idx: i, n }) }),
+  };
+}
 function SubGroup({ section, group, st, act }) {
   const items = st.data[section][group];
   const meta = GROUPS[group];
   const drawerType = group === 'free' ? 'freeTime' : 'terminal';
   const onAdd = () => act.drawer({ type: drawerType, group, section });
   const addBtn = <Button type="link" className={items.length ? 'add-link' : ''} icon={<I.PlusOutlined />} onClick={onAdd}>{meta.add[section]}</Button>;
+  if (st.customer) {
+    // customer: read-only cards; free time can be bought, nothing else is edited here
+    if (!items.length) return null;
+    const buy = <LinkBtn icon={<I.ShoppingCartOutlined />} onClick={() => act.msg.success('Free time request sent to Skypace')}>Buy free time</LinkBtn>;
+    return (
+      <div className="sub-group">
+        <div className="sub-title" style={{ marginBottom: 0 }}>{meta.title}</div>
+        {items.map((r, i) => <Item key={r.id} {...itemView(section, group, r)} {...locExtras(section, group, r, i, items, st, act)}
+          action={group === 'free' ? buy : <LinkBtn icon={<I.EyeOutlined />} onClick={() => act.drawer({ type: 'containers', variant: section })}>View</LinkBtn>} />)}
+      </div>
+    );
+  }
   return (
     <div className="sub-group">
       <div className="sub-title" style={{ marginBottom: 0 }}>{meta.title}</div>
       {items.length ? (
         <>
           {items.map((r, i) => (
-            <Item key={r.id} {...itemView(section, group, r)}
+            <Item key={r.id} {...itemView(section, group, r)} {...locExtras(section, group, r, i, items, st, act)}
               onEdit={() => act.drawer({ type: drawerType, group, section, editIdx: i })}
               onContainers={() => act.drawer({ type: 'assign' })} />
           ))}
@@ -2412,7 +2683,7 @@ function EmptyBlock({ title, children, onClick }) {
   return <Flex vertical gap={TOKEN.marginXS}><Typography.Text strong>{title}</Typography.Text><EmptySlot onClick={onClick} style={{ flex: 1, minHeight: TOKEN.controlHeight * 3 }}>{children}</EmptySlot></Flex>;
 }
 
-function ContainersProgress({ items, onView }) {
+function ContainersProgress({ items, onView, next }) {
   return (
     <div className="item">
       <div className="item-head"><span className="name">Containers</span><LinkBtn icon={<I.EyeOutlined />} onClick={onView}>View</LinkBtn></div>
@@ -2422,6 +2693,37 @@ function ContainersProgress({ items, onView }) {
           <div key={t}><div>{t}</div><Progress percent={(n / 6) * 100} showInfo={false} size="small" /></div>
         ))}
       </div>
+      {next && <KV k={next[0]} v={next[1]} />}
+    </div>
+  );
+}
+
+// Door to Door (customer): cargo supplier / receiver with contacts, methods and references
+function PartyItem({ dest, act }) {
+  const p = PARTY;
+  const rows = [
+    [['Contact Person', p.contact], ['Email / Phone', p.email]],
+    [['Cargo ready date', p.ready], ['Containers', p.containers]],
+    [[dest ? 'Receiving Method' : 'Supplier Method', 'FCFS'], [dest ? 'Unloading method' : 'Loading method', dest ? 'Live unload' : 'Live load']],
+    [['References', <Flex gap={TOKEN.marginXXS} wrap>{p.refs.map((r) => <Tag key={r} variant="outlined">{r}</Tag>)}<Tag variant="outlined">+{p.more}</Tag></Flex>], ['On behalf of', p.behalf]],
+  ];
+  return (
+    <div className="item">
+      <div className="item-head">
+        <div style={{ flex: 1, minWidth: 0 }}><div className="name">{p.name}</div><div>{p.addr}</div></div>
+        <LinkBtn icon={<I.EditOutlined />} onClick={() => act.msg.success('Change request sent to Skypace')}>Request changes</LinkBtn>
+      </div>
+      {rows.map((r, i) => <React.Fragment key={i}><hr /><div className="item-cols">{r.map(([k, v]) => <KV key={k} k={k} v={v} />)}</div></React.Fragment>)}
+      <hr />
+      <KV k="Additional notes" v={p.notes} />
+    </div>
+  );
+}
+function PartyGroup({ dest, act }) {
+  return (
+    <div className="sub-group">
+      <div className="sub-title" style={{ marginBottom: 0 }}>{dest ? 'Cargo Receiver' : 'Cargo Supplier'}</div>
+      <PartyItem dest={dest} act={act} /><PartyItem dest={dest} act={act} />
     </div>
   );
 }
@@ -2446,16 +2748,23 @@ function OriginSection({ st, act }) {
   const open = st.open.origin;
   const n = st.originProgress;
   const hasLocations = st.data.origin.cy.length + st.data.origin.term.length > 0;
+  const door = st.customer && st.svc === 'door';
   return (
     <section className="section">
-      <SectionHeader icon="truck" title="Origin" tags={st.tags.origin} sub={['6 of 6 gated in · cutoff 02 Jun, 18:00']}
+      <SectionHeader icon="truck" title="Origin" tags={st.tags.origin} sub={[door ? '3 gated in, 2 already delivered' : `${sectionDone(st, 'origin')} of ${TOTAL_CONTAINERS} gated in · cutoff 02 Jun, 18:00`]}
         managers={st.managers.origin} open={open} onToggle={() => act.toggle('origin')} />
-      {open && (
+      {open && door && (
         <div className="sec-body">
-          {hasLocations && <ContainersProgress items={[[`${n} of 6 at gate out`, n], [`${n} of 6 gate in`, n]]} onView={() => act.drawer({ type: 'containers', variant: 'origin' })} />}
+          <ContainersProgress items={[['2 of 6 delivered', 2], ['4 of 6 containers gate in', 4]]} next={['Next estimated Empty Drop', '02 Jun, 16:45']}
+            onView={() => act.drawer({ type: 'containers', variant: 'origin' })} />
+          <PartyGroup act={act} />
+          <SubGroup section="origin" group="free" st={st} act={act} />
+        </div>
+      )}
+      {open && !door && (
+        <div className="sec-body">
           <SubGroup section="origin" group="cy" st={st} act={act} />
           <SubGroup section="origin" group="term" st={st} act={act} />
-          <SubGroup section="origin" group="free" st={st} act={act} />
         </div>
       )}
     </section>
@@ -2466,19 +2775,23 @@ function DestinationSection({ st, act }) {
   const open = st.open.dest;
   const inProg = st.tags.dest.includes('prog');
   const hasLocations = st.data.dest.cy.length + st.data.dest.term.length > 0;
+  const door = st.customer && st.svc === 'door';
   return (
     <section className="section">
-      <SectionHeader icon="truck" title="Destination" tags={st.tags.dest} sub={['final delivery ETA 02 Jul']}
+      <SectionHeader icon="truck" title="Destination" tags={st.tags.dest} sub={[door ? '3 gated in, 2 already delivered' : 'final delivery ETA 02 Jul']}
         managers={st.managers.dest} open={open} onToggle={() => act.toggle('dest')} />
-      {open && (
+      {open && door && (
         <div className="sec-body">
-          {hasLocations && inProg && (
-            <ContainersProgress items={[['0 of 6 ready for pickup', 0], ['0 of 6 at gate out', 0], ['0 of 6 gate in', 0]]}
-              onView={() => act.drawer({ type: 'containers', variant: 'dest' })} />
-          )}
+          <ContainersProgress items={[['2 of 6 delivered', 2], ['4 of 6 containers returned empty', 4]]} next={['Next estimated Full Arrival', '02 Jun, 16:45']}
+            onView={() => act.drawer({ type: 'containers', variant: 'dest' })} />
+          <PartyGroup dest act={act} />
+          <SubGroup section="dest" group="free" st={st} act={act} />
+        </div>
+      )}
+      {open && !door && (
+        <div className="sec-body">
           <SubGroup section="dest" group="term" st={st} act={act} />
           <SubGroup section="dest" group="cy" st={st} act={act} />
-          <SubGroup section="dest" group="free" st={st} act={act} />
         </div>
       )}
     </section>
@@ -2515,7 +2828,11 @@ function MainSection({ st, act }) {
     items: [{ key: 'schedule', label: 'Select new schedule' }, { key: 'manual', label: 'Change manually' }],
     onClick: ({ key, domEvent }) => { domEvent.stopPropagation(); act.set({ updateMenu: false }); act.drawer({ type: key === 'schedule' ? 'schedule' : 'manual' }); },
   };
-  const updateBtn = (
+  const updateBtn = st.customer ? (
+    <span onClick={(e) => e.stopPropagation()}>
+      <Button icon={<I.EditOutlined />} onClick={() => act.msg.success('Change request sent to Skypace')}>Request changes</Button>
+    </span>
+  ) : (
     <span onClick={(e) => e.stopPropagation()}>
       <Dropdown menu={updateMenu} trigger={['click']} open={st.updateMenu} onOpenChange={(v) => act.set({ updateMenu: v })} placement="bottomRight">
         <Button icon={<I.EditOutlined />} style={st.updateMenu ? { borderColor: TOKEN.colorPrimary, color: TOKEN.colorPrimaryActive } : null}>Update</Button>
@@ -2626,7 +2943,7 @@ function TerminalDrawer({ d, st, act, close }) {
       footer={<>
         {editing && <DeleteBtn what={GROUPS[d.group].what} onConfirm={remove} />}
         <Button onClick={close}>{editing ? 'Cancel' : 'Close'}</Button>
-        <Button type="primary" onClick={save}>{editing ? 'Save' : 'Confirm'}</Button>
+        <Button color="default" variant="solid" onClick={save}>{editing ? 'Save' : 'Confirm'}</Button>
       </>}>
       <Form form={form} layout="vertical" initialValues={initial} requiredMark={false} onValuesChange={onValuesChange}>
         <Form.Item name="name" rules={[{ required: true, whitespace: true, message: 'Enter the terminal name or select it from the list' }]}
@@ -2722,7 +3039,7 @@ function PickTerminalDrawer({ d, act, close }) {
     <Drw title={`Add container ${GROUPS[d.group].noun}`} width={1137} onClose={close} bordered className="big pick"
       styles={{ body: { padding: '18px 27px' } }}
       footer={<><Button size="large" onClick={() => back()}>Enter address manually</Button>
-        <Button size="large" type="primary" disabled={sel == null} onClick={pick}>Select terminal</Button></>}>
+        <Button size="large" color="default" variant="solid" disabled={sel == null} onClick={pick}>Select terminal</Button></>}>
       <div className="white-panel">
         <Tabs type="card" className="terminal-tabs" activeKey={tab} onChange={(k) => { setTab(k); setMore(false); }} items={[
           { key: 'near', label: <span><I.EnvironmentOutlined /> Terminals nearby Oakland</span>, children: list },
@@ -2733,9 +3050,64 @@ function PickTerminalDrawer({ d, act, close }) {
   );
 }
 
+// Free time of one location by container (spec «Summary Free Days component»): summary (type, days, basis, next LFD)
+// + status when the phase is finished (all good / breaches) + table: container, days used, LFD, status
+function freeRows(section, r, n, idx) {
+  const f = r.free;
+  return Array.from({ length: r.containers }, (_, i) => {
+    const start = dayjs(FREE_START[section]).add(i, 'day');
+    const lfd = addDays(start.toISOString(), f.days, f.type);
+    const moved = i < n;
+    const breach = moved && idx === 0 && i === 1; // first location: one container went over its free time
+    const status = moved ? (breach ? 'Overdue' : 'Completed') : i === n && n > 0 ? 'In progress' : 'Not started';
+    const used = status === 'Not started' ? null : breach ? f.days + 2 : status === 'In progress' ? Math.max(1, f.days - 1) : Math.max(1, f.days - 1);
+    return { key: i, num: `CMAU93821${String(321 + i * 7).padStart(3, '0')}`, size: '40’HC', used, lfd: status === 'Not started' ? null : lfd, status };
+  });
+}
+function LocationFreeDrawer({ d, st, act, close }) {
+  const r = st.data[d.section][d.group][d.idx];
+  const f = r.free;
+  const rows = freeRows(d.section, r, d.n ?? 0, d.idx);
+  const finished = rows.every((x) => x.status === 'Completed' || x.status === 'Overdue');
+  const breaches = rows.filter((x) => x.status === 'Overdue').length;
+  const next = rows.filter((x) => x.status === 'In progress').map((x) => x.lfd).sort((a, b) => a.valueOf() - b.valueOf())[0];
+  const basis = f.type === 'work' ? 'Working days' : 'Calendar days';
+  const box = { background: 'var(--gray-1)', borderRadius: TOKEN.borderRadiusLG, padding: `${TOKEN.paddingSM}px ${TOKEN.padding}px` };
+  const field = (k, v) => <Flex vertical flex={1} key={k}><Typography.Text type="secondary">{k}</Typography.Text><Typography.Text>{v}</Typography.Text></Flex>;
+  const columns = [
+    { title: 'Container', dataIndex: 'num', render: (v, x) => <Flex align="center" gap={TOKEN.marginXS}><Typography.Text strong>{v}</Typography.Text><PlainTag>{x.size}</PlainTag></Flex> },
+    { title: 'Days used', dataIndex: 'used', render: (v, x) => (v == null ? '—' : <Typography.Text type={x.status === 'Overdue' ? 'danger' : undefined}>{v} of {f.days}</Typography.Text>) },
+    { title: 'Last free day', dataIndex: 'lfd', render: (v) => (v ? v.format(LONG_DT) : '—') },
+    { title: 'Status', dataIndex: 'status', render: (v) => <Tag color={STATUS_COLOR[v]} variant="outlined" className="do-stag">{v}</Tag> },
+  ];
+  return (
+    <Drw title={`Free time · ${r.name}`} width={900} onClose={close} className="gray" footer={<Button color="default" variant="solid" onClick={close}>Close</Button>}>
+      <Flex vertical gap={TOKEN.marginXS}>
+        <Flex vertical gap={TOKEN.marginSM} style={{ background: TOKEN.colorBgContainer, borderRadius: TOKEN.borderRadiusLG, padding: `${TOKEN.paddingSM}px ${TOKEN.padding}px` }}>
+          <Flex align="center" justify="space-between"><Typography.Text strong>Summary</Typography.Text>
+            {!st.customer && <LinkBtn icon={<I.EditOutlined />} onClick={() => act.drawer({ type: 'freeTime', section: d.section, loc: { group: d.group, idx: d.idx } })}>Edit</LinkBtn>}</Flex>
+          <Flex gap={TOKEN.margin} style={box}>
+            {field('Free days type', FREE_KINDS[f.kind])}
+            {field('Free days', f.days)}
+            {field('Basis', basis)}
+            {next && field('Next last free day', next.format(LONG_DT))}
+          </Flex>
+          {finished && (breaches
+            ? <Alert type="error" showIcon message={`Free time exceeded for ${breaches} of ${rows.length} containers`} description="All containers have moved. Extra charges may apply." />
+            : <Alert type="success" showIcon message="All containers moved within free time" description="No detention or demurrage charges expected." />)}
+        </Flex>
+        <Flex vertical gap={TOKEN.marginSM} style={{ background: TOKEN.colorBgContainer, borderRadius: TOKEN.borderRadiusLG, padding: `${TOKEN.paddingSM}px ${TOKEN.padding}px` }}>
+          <Typography.Text strong>Containers</Typography.Text>
+          <Table size="small" pagination={false} columns={columns} dataSource={rows} />
+        </Flex>
+      </Flex>
+    </Drw>
+  );
+}
 function FreeTimeDrawer({ d, st, act, close }) {
   const [form] = Form.useForm();
-  const editing = d.editIdx != null ? st.data[d.section].free[d.editIdx] : null;
+  const locRec = d.loc ? st.data[d.section][d.loc.group][d.loc.idx] : null;
+  const editing = d.loc ? locRec.free || null : d.editIdx != null ? st.data[d.section].free[d.editIdx] : null;
   const initial = editing ? { section: d.section, ...editing } : { section: d.section || 'origin', kind: 'det', type: 'cal' };
   const section = Form.useWatch('section', form) || initial.section;
   const days = Form.useWatch('days', form);
@@ -2743,6 +3115,7 @@ function FreeTimeDrawer({ d, st, act, close }) {
   const preview = days > 0 ? lastFreeDay(section, { days, type }) : null;
 
   const kindConflict = (kind, sec) => {
+    if (d.loc) return null;
     const others = st.data[sec].free.filter((r) => r !== editing);
     const clash = others.find((r) => r.kind === kind || r.kind === 'mer' || kind === 'mer');
     return clash ? `${FREE_KINDS[clash.kind]} is already set for ${sec === 'origin' ? 'Origin' : 'Destination'} — edit it instead` : null;
@@ -2751,18 +3124,23 @@ function FreeTimeDrawer({ d, st, act, close }) {
     const v = await form.validateFields().catch(() => null); // invalid fields are shown inline
     if (!v) return;
     const rec = { id: editing?.id || uid(), kind: v.kind, days: v.days, type: v.type };
-    act.upsert(v.section, 'free', rec);
+    if (d.loc) act.upsert(d.section, d.loc.group, { ...locRec, free: rec });
+    else act.upsert(v.section, 'free', rec);
     act.msg.success(`${FREE_KINDS[rec.kind]} free time ${editing ? 'updated' : 'added'}`);
     close();
   };
-  const remove = () => { act.remove(d.section, 'free', editing.id); act.msg.success('Free time deleted'); close(); };
+  const remove = () => {
+    if (d.loc) act.upsert(d.section, d.loc.group, { ...locRec, free: undefined });
+    else act.remove(d.section, 'free', editing.id);
+    act.msg.success('Free time deleted'); close();
+  };
 
   return (
-    <Drw title={`${editing ? 'Edit' : 'Add'} Free time`} width={400} onClose={close}
+    <Drw title={`${editing ? 'Edit' : 'Add'} Free time${locRec ? ` · ${locRec.name}` : ''}`} width={400} onClose={close}
       footer={<>
         {editing && <DeleteBtn what="free time" onConfirm={remove} />}
         <Button onClick={close}>Cancel</Button>
-        <Button type="primary" onClick={save}>{editing ? 'Save' : 'Add'}</Button>
+        <Button color="default" variant="solid" onClick={save}>{editing ? 'Save' : 'Add'}</Button>
       </>}>
       <Form form={form} layout="vertical" initialValues={initial} requiredMark={false}>
         <Form.Item name="section" label="Location" hidden={!!d.section}>
@@ -2793,7 +3171,7 @@ function FreeTimeDrawer({ d, st, act, close }) {
 function CutoffsDrawer({ close }) {
   return (
     <Drw title="Edit Cutoffs" width={386} onClose={close}
-      footer={<><Button onClick={close}>Cancel</Button><Button type="primary" onClick={close}>Save</Button></>}>
+      footer={<><Button onClick={close}>Cancel</Button><Button color="default" variant="solid" onClick={close}>Save</Button></>}>
       <Form layout="vertical">
         <Form.Item label="Port Cutoff"><DP /></Form.Item>
         <Form.Item label="Documentation"><DP /></Form.Item>
@@ -2803,13 +3181,14 @@ function CutoffsDrawer({ close }) {
   );
 }
 
-function ContainerCard({ status, open, onToggle, variant, editing, setEditing }) {
+function ContainerCard({ status, c, open, onToggle, variant, editing, setEditing }) {
   const cols = editing ? 'rt-cols edit' : 'rt-cols';
   return (
     <div className="ctr">
       <div className="ctr-head" onClick={onToggle}>
         <div className="icon-box sm"><Ic n="container" size={16} /></div>
-        <div className="sec-title" style={{ flex: 1 }}><b>CMAU93821321</b><PlainTag>40’HC</PlainTag><StatusTag s={status} /></div>
+        {c ? <ContainerHead c={c} />
+          : <div className="sec-title" style={{ flex: 1 }}><b>CMAU93821321</b><PlainTag>40’HC</PlainTag><StatusTag s={status} /></div>}
         <Chevron open={open} />
       </div>
       {open && (
@@ -2818,46 +3197,89 @@ function ContainerCard({ status, open, onToggle, variant, editing, setEditing })
           <div className="item-head" style={{ alignItems: 'center' }}>
             <div style={{ flex: 1 }}><b style={{ fontWeight: 600 }}>Route Details</b><div className="lbl">Click Update to change the container schedule.</div></div>
             {editing
-              ? <Button type="primary" icon={<I.SaveOutlined />} onClick={() => setEditing(false)}>Save</Button>
+              ? <Button color="default" variant="solid" icon={<I.SaveOutlined />} onClick={() => setEditing(false)}>Save</Button>
               : <Button icon={<I.EditOutlined />} onClick={() => setEditing(true)}>Update</Button>}
           </div>
           <div>
             <div className={'rt-head ' + cols}>
               <div>Location</div><div>Event</div>{editing ? <><div>Estimated</div><div>Actual</div></> : <div>Date</div>}
             </div>
-            <div className="ev-list" style={{ marginTop: 16 }}>
-              {ROUTE.map((l, i) => (
-                <div className="ev-row" key={i}>
-                  <div className="ev-rail">
-                    <div className={'rt-dot' + (l.done ? '' : ' next')} />
-                    {i < ROUTE.length - 1 && <div className={'rt-line' + (l.done ? '' : ' next')} />}
-                  </div>
-                  <div className="rt-card">
-                    <div className="rt-loc"><b>{l.name}</b><div>{l.place}</div><div>Transport: {l.mode}</div></div>
-                    <div className="rt-events">
-                      {l.events.map((e) => (
-                        <div className={'rt-ev ' + cols} key={e.name}>
-                          <div><div>{e.name}</div>{e.vessel && <a className="rt-ves">{e.vessel}</a>}</div>
-                          {editing
-                            ? <>
-                                <DP showTime={{ format: 'HH:mm' }} format={RT_FMT} placeholder="Select date" defaultValue={dayjs(e.est)} disabled={!!e.vessel} />
-                                <DP showTime={{ format: 'HH:mm' }} format={RT_FMT} placeholder="Select date" defaultValue={e.act ? dayjs(e.act) : undefined} disabled={!!e.vessel} />
-                              </>
-                            : <div className={e.act ? '' : 'muted'}>{dayjs(e.act || e.est).format(RT_FMT)}</div>}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <RouteList cols={cols} editing={editing} alerts />
           </div>
         </>
       )}
     </div>
   );
 }
-function ContainersFree({ variant }) {
+// Route details list: locations with their events (shared by operator and customer cards)
+function RouteList({ cols = 'rt-cols', editing, alerts, leg }) {
+  // leg filter (customer tabs): keep a location's events of that leg; locations without them drop out
+  const route = !leg || leg === 'all' ? ROUTE : ROUTE.map((l) => ({ ...l, events: l.events.filter((e) => (e.leg || l.leg) === leg) })).filter((l) => l.events.length);
+  return (
+  <div className="ev-list" style={{ marginTop: 16 }}>
+    {route.map((l, i) => (
+      <div className="ev-row" key={i}>
+        <div className="ev-rail">
+          <div className={'rt-dot' + (l.done ? '' : ' next')} />
+          {i < route.length - 1 && <div className={'rt-line' + (l.done ? '' : ' next')} />}
+        </div>
+        <div className="rt-card" style={l.site ? { flexWrap: 'wrap' } : undefined}>
+          <div className="rt-loc"><b>{l.name}</b>{l.place && <div>{l.place}</div>}</div>
+          <div className="rt-events">
+            {l.events.map((e) => (
+              <div className={'rt-ev ' + cols} key={e.name}>
+                <div><div>{e.name}</div>{e.vessel && <Typography.Text type="secondary" style={{ display: 'block', fontSize: TOKEN.fontSizeSM }}>{e.vessel}</Typography.Text>}</div>
+                {editing
+                  ? <>
+                      <DP showTime={{ format: 'HH:mm' }} format={RT_FMT} placeholder="Select date" defaultValue={e.est ? dayjs(e.est) : undefined} disabled={!!e.vessel} />
+                      <DP showTime={{ format: 'HH:mm' }} format={RT_FMT} placeholder="Select date" defaultValue={e.act ? dayjs(e.act) : undefined} status={rtMissing(e) ? 'warning' : undefined} disabled={!!e.vessel} />
+                    </>
+                  : (e.act || e.est) ? (alerts && rtMissing(e)
+                      ? <Tooltip title="Planned date has passed. Add the actual date"><Typography.Text type="warning"><Flex align="center" gap={TOKEN.marginXS}>{dayjs(e.est).format(RT_FMT)}<I.ExclamationCircleOutlined /></Flex></Typography.Text></Tooltip>
+                      : <div>{dayjs(e.act || e.est).format(RT_FMT)}</div>) : <div><Tag variant="outlined">—</Tag></div>}
+              </div>
+            ))}
+          </div>
+          {l.site && (l.events.length > 1 || !leg || leg === 'all') && <SiteInfo kind={l.site} />}
+        </div>
+      </div>
+    ))}
+  </div>
+  );
+}
+// Supplier / receiver stop: loading instructions and planned dates behind «View more information»
+const SITE_INFO = {
+  supplier: [
+    ['Loading instructions', [[['Cargo ready', '27 May, 08:00'], ['Facility access', 'Appointment'], ['Loading method', 'Drop and pick']]]],
+    ['Planned dates', [[['Planned empty drop', 'Thu 28 May'], ['Time window', '08:00–09:00'], ['Drop reference', 'DRP-55120']], [['Planned full pickup', 'Fri 29 May'], ['Time window', '10:00–11:00'], ['Pickup reference', 'PKP-55121']]]],
+  ],
+  receiver: [
+    ['Unloading instructions', [[['Delivery ready', '24 Dec, 08:00'], ['Facility access', 'Appointment'], ['Unloading method', 'Drop and pick']]]],
+    ['Planned dates', [[['Planned full drop', 'Thu 24 Dec'], ['Time window', '08:00–09:00'], ['Drop reference', 'DRP-61204']], [['Planned empty pickup', 'Mon 28 Dec'], ['Time window', '10:00–11:00'], ['Pickup reference', 'PKP-61205']]]],
+  ],
+};
+function SiteInfo({ kind }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Flex vertical gap={TOKEN.marginXS} align="flex-start" style={{ flexBasis: '100%' }}>
+      {open && SITE_INFO[kind].map(([title, rows]) => (
+        <Flex vertical gap={TOKEN.marginXS} key={title} style={{ alignSelf: 'stretch' }}>
+          <Divider style={{ margin: 0 }} />
+          <Typography.Text strong>{title}</Typography.Text>
+          {rows.map((r, i) => (
+            <antd.Row gutter={TOKEN.margin} key={i}>
+              {r.map(([k, v]) => <antd.Col span={8} key={k}><Flex vertical><Typography.Text type="secondary">{k}</Typography.Text><Typography.Text>{v}</Typography.Text></Flex></antd.Col>)}
+            </antd.Row>
+          ))}
+        </Flex>
+      ))}
+      <Button type="link" size="small" style={{ paddingInline: 0 }} icon={open ? <I.UpOutlined /> : <I.DownOutlined />} iconPlacement="end" onClick={() => setOpen(!open)}>
+        {open ? 'Hide information' : 'View more information'}
+      </Button>
+    </Flex>
+  );
+}
+function ContainersFree({ variant, lastDay }) {
   return (
     <div className="item">
       <div className="item-head"><span style={{ flex: 1 }}><b style={{ fontWeight: 600 }}>{variant === 'dest' ? 'Destination' : 'Origin'}</b> Free time</span>
@@ -2865,23 +3287,87 @@ function ContainersFree({ variant }) {
       <hr />
       <div className="prog-cols">
         {['10 of 15 Working days Detention', '10 of 15 Calendar days Demurrage'].map((t) => (
-          <div key={t}><div>{t}</div><Progress percent={16} showInfo={false} size="small" /></div>
+          <div key={t}><div>{t}</div><Progress percent={16} showInfo={false} size="small" />{lastDay && <KV k="Last free day" v="02 Jun, 16:45" />}</div>
         ))}
       </div>
     </div>
   );
 }
 
-function ContainersDrawer({ d, close }) {
-  const [openIdx, setOpenIdx] = useState(2);
+// Customer containers drawer card: read-only key events (Event | Actual), «Request changes» instead of Update.
+// Door to Door adds the delivery plan row and last free days; the live variant shows where the container is now.
+function CustomerContainerCard({ c, open, onToggle, variant, door, info, act, leg }) {
+  return (
+    <div className="ctr">
+      <div className="ctr-head" onClick={onToggle}>
+        <div className="icon-box sm"><Ic n="container" size={16} /></div>
+        {STATUS[c.s] ? <>
+          {c.below
+            ? <Flex vertical><div className="sec-title"><b>CMAU93821321</b><PlainTag>40’HC</PlainTag></div><div><StatusTag s={c.s} /></div></Flex>
+            : <div className="sec-title"><b>CMAU93821321</b><PlainTag>40’HC</PlainTag><StatusTag s={c.s} /></div>}
+          <Typography.Text style={{ flex: 1, paddingInlineStart: TOKEN.paddingLG }}>{c.next && <><Typography.Text strong>{c.next[0]}</Typography.Text>{c.next[1]}</>}</Typography.Text>
+        </> : <ContainerHead c={c} />}
+        <Chevron open={open} />
+      </div>
+      {info && (
+        <div className="gray-box" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: TOKEN.marginXS }}>
+          <KV k="Est. Empty Drop" v="02 Jun, 12:00" /><KV k="Est. Full Pickup" v="02 Jun, 12:00" /><KV k="Unloading method" v="Live unload" /><KV k="Scheduling method" v="FCFS" />
+        </div>
+      )}
+      {open && (
+        <>
+          <ContainersFree variant={variant} lastDay={door} />
+          <div className="item-head" style={{ alignItems: 'center' }}>
+            <b style={{ flex: 1, fontWeight: 600 }}>Route Details</b>
+            <Button icon={<I.EditOutlined />} onClick={() => act.msg.success('Change request sent to Skypace')}>Request changes</Button>
+          </div>
+          <div>
+            <div className="rt-head rt-cols"><div>Location</div><div>Event</div><div>Date</div></div>
+            <RouteList leg={leg} />
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function ContainersDrawer({ d, st, act, close }) {
+  const [openIdx, setOpenIdx] = useState(d.live ? 4 : 2);
   const [editing, setEditing] = useState(!!d.editing);
   useEffect(() => setEditing(!!d.editing), [d]);
+  const [leg, setLeg] = useState(d.all ? 'all' : d.variant || 'all');
+  useEffect(() => setLeg(d.all ? 'all' : d.variant || 'all'), [d]);
+  if (st.customer) {
+    const door = st.svc === 'door';
+    const v = leg === 'all' ? d.variant : leg;
+    const list = d.live ? C_LIVE : C_STATUS[v] || C_STATUS.origin;
+    return (
+      <Drw title="Containers" width={900} onClose={close} className="gray" footer={<Button color="default" variant="solid" onClick={close}>Close</Button>}>
+        <Flex vertical gap={TOKEN.marginXS}>
+          {/* leg switcher — same as the task scope switch on Tasks: Segmented with icons in a white card */}
+          <div className="card-flat task-scope-switch">
+            <Segmented aria-label="Route leg" value={leg} onChange={setLeg} options={[
+              { value: 'all', icon: <I.AppstoreOutlined />, label: 'All' },
+              { value: 'origin', icon: <Ic n="warehouse" size={14} />, label: 'Origin' },
+              { value: 'main', icon: <Ic n="header-ship" size={14} />, label: 'Ocean' },
+              { value: 'dest', icon: <Ic n="port" size={14} />, label: 'Destination' },
+            ]} />
+          </div>
+          {list.map((c, i) => (
+            <CustomerContainerCard key={i} c={c} open={openIdx === i} onToggle={() => setOpenIdx(openIdx === i ? -1 : i)}
+              variant={v === 'main' ? d.variant : v} door={door} info={d.live ? !!c.info : door} act={act} leg={leg} />
+          ))}
+        </Flex>
+      </Drw>
+    );
+  }
   return (
     <Drw title="Containers" width={900} onClose={close} className="gray"
-      footer={editing ? <Button type="primary" onClick={() => setEditing(false)}>Save</Button> : <Button type="primary" onClick={close}>Close</Button>}>
+      footer={editing ? <Button color="default" variant="solid" onClick={() => setEditing(false)}>Save</Button>
+        : <Flex gap={TOKEN.marginXS}><Button icon={<I.LinkOutlined />} onClick={() => act.drawer({ type: 'assign' })}>Link containers</Button><Button color="default" variant="solid" onClick={close}>Close</Button></Flex>}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {CONTAINERS.map((s, i) => (
-          <ContainerCard key={i} status={s} open={openIdx === i} onToggle={() => setOpenIdx(openIdx === i ? -1 : i)}
+          <ContainerCard key={i} status={s} c={(C_STATUS[d.variant] || C_STATUS.origin)[i]} open={openIdx === i} onToggle={() => setOpenIdx(openIdx === i ? -1 : i)}
             variant={d.variant} editing={editing} setEditing={setEditing} />
         ))}
       </div>
@@ -2892,7 +3378,7 @@ function ContainersDrawer({ d, close }) {
 function AssignDrawer({ d, close }) {
   const [vals, setVals] = useState(['maher', 'cat', 'cat', 'maher', 'maher']);
   return (
-    <Drw title="Containers" width={900} onClose={close} className="gray" footer={<Button type="primary" onClick={close}>Confirm</Button>}>
+    <Drw title="Link containers" width={900} onClose={close} className="gray" footer={<Button color="default" variant="solid" onClick={close}>Confirm</Button>}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {vals.map((v, i) => (
           <div key={i} className={'assign-row' + (v === 'cat' ? ' hl' : '')}>
@@ -2911,7 +3397,7 @@ function ManualDrawer({ close }) {
   const [legs, setLegs] = useState([1, 2]);
   const F = ({ label, children }) => <Form.Item label={label}>{children}</Form.Item>;
   return (
-    <Drw title="Containers" width={869} onClose={close} className="gray" footer={<Button type="primary" onClick={close}>Close</Button>}>
+    <Drw title="Containers" width={869} onClose={close} className="gray" footer={<Button color="default" variant="solid" onClick={close}>Close</Button>}>
       <Form layout="vertical">
         <div className="leg-card">
           <div className="hd">Cutoffs</div>
@@ -2955,7 +3441,7 @@ function ScheduleDrawer({ close }) {
   );
   return (
     <Drw title="Select new schedule" width={1137} onClose={close} bordered className="big" styles={{ body: { padding: '18px 27px' } }}
-      footer={<><Button size="large" onClick={close}>Cancel</Button><Button size="large" type="primary" onClick={close}>Select & Update</Button></>}>
+      footer={<><Button size="large" onClick={close}>Cancel</Button><Button size="large" color="default" variant="solid" onClick={close}>Select & Update</Button></>}>
       <div className="white-panel" style={{ padding: '0 15px 15px' }}>
         <div className="item-head" style={{ padding: `${TOKEN.padding}px 0`, borderBottom: `${TOKEN.lineWidth}px solid ${TOKEN.colorSplit}`, marginBottom: TOKEN.margin, alignItems: 'center' }}>
           <b style={{ flex: 1, fontWeight: 500 }}>Select Schedule</b>
@@ -3043,7 +3529,7 @@ function LinkContainerDrawer({ close }) {
   const [terms, setTerms] = useState(Object.fromEntries(LINK_CANDIDATES.map((c) => [c.id, c.terminal])));
   return (
     <Drw title="Quick Task Completion Mode" width={900} onClose={close} bordered className="big gray"
-      footer={<><Button size="large" onClick={close}>Close</Button><Button size="large" type="primary" disabled={!sel} onClick={close}>Confirm</Button></>}>
+      footer={<><Button size="large" onClick={close}>Close</Button><Button size="large" color="default" variant="solid" disabled={!sel} onClick={close}>Confirm</Button></>}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         <div className="card" style={{ gap: 4 }}>
           <div style={{ fontSize: 16, lineHeight: '24px', fontWeight: 600 }}>Shipment #1781</div>
@@ -3138,7 +3624,7 @@ function MissedDatesDrawer({ close }) {
           {left ? `${left} of ${MISSED_COUNT} dates still missing` : 'All dates filled in'}
         </span>
         <Button size="large" onClick={close}>Close</Button>
-        <Button size="large" type="primary" disabled={left > 0} onClick={close}>Confirm</Button>
+        <Button size="large" color="default" variant="solid" disabled={left > 0} onClick={close}>Confirm</Button>
       </>}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         <div className="card" style={{ gap: 4 }}>
@@ -3200,6 +3686,7 @@ function Drawers({ st, act }) {
     case 'terminal': return <TerminalDrawer {...p} />;
     case 'pickTerminal': return <PickTerminalDrawer {...p} />;
     case 'freeTime': return <FreeTimeDrawer {...p} />;
+    case 'locFree': return <LocationFreeDrawer {...p} />;
     case 'cutoffs': return <CutoffsDrawer {...p} />;
     case 'containers': return <ContainersDrawer {...p} />;
     case 'assign': return <AssignDrawer {...p} />;
@@ -3255,16 +3742,32 @@ function SortBtn({ options, value, onChange, label = 'Sort by' }) {
     </Dropdown>
   );
 }
-// Filter popover body: one column of full-width antd fields, "Reset filters" link at the bottom
-const FilterFields = ({ children }) => <Flex vertical gap={TOKEN.marginSM} style={{ width: TOKEN.controlHeight * 8, maxWidth: '100%' }}>{children}</Flex>;
-const ResetFilters = ({ onClick }) => <Button type="link" style={{ alignSelf: 'flex-start', paddingInline: 0 }} onClick={onClick}>Reset filters</Button>;
+// Filter popover body: one column of full-width antd fields; title row has "Clear filter" (disabled until something is picked)
+// FilterSelect fields render as a plain antd Collapse without dividers: one panel per field (name in the header), an open panel gets the gray/1 fill; fields with picked values start open
+const flatKids = (c) => React.Children.toArray(c).flatMap((k) => (k && k.type === React.Fragment ? flatKids(k.props.children) : [k]));
+function FilterFields({ children }) {
+  const kids = flatKids(children);
+  const asCollapse = kids.length > 0 && kids.every((k) => k && k.type === FilterSelect);
+  const keyOf = (k) => String(k.key ?? k.props.label);
+  const [open, setOpen] = useState(() => kids.filter((k) => k.props && k.props.value && k.props.value.length).map(keyOf));
+  return <Flex vertical gap={TOKEN.marginXS} style={{ width: TOKEN.controlHeight * 8, maxWidth: '100%' }}>
+    {asCollapse ? <Collapse ghost size="small" expandIconPlacement="end" expandIcon={({ isActive }) => <ExpandArrow open={isActive} />}
+      activeKey={open} onChange={(k) => setOpen([].concat(k))}
+      styles={{ header: { paddingInline: TOKEN.paddingXS, paddingBlock: TOKEN.paddingXS, alignItems: 'center' }, body: { paddingInline: TOKEN.paddingXS, paddingBlock: 0, paddingBottom: TOKEN.paddingXS } }}
+      items={kids.map((k, i) => { const n = (k.props.value || []).length; const on = open.includes(keyOf(k)); return { key: keyOf(k),
+        style: { borderRadius: TOKEN.borderRadiusLG, background: on ? 'var(--gray-1)' : undefined, marginTop: i ? TOKEN.marginXXS : 0, transition: `background ${TOKEN.motionDurationMid}` },
+        label: <Typography.Text strong={n > 0 || on}>{k.props.label}</Typography.Text>,
+        extra: n ? <Badge count={n} size="small" color={TOKEN.colorPrimary} /> : null, children: k }; })} /> : children}
+  </Flex>;
+}
+const FilterTitle = ({ active, onClear }) => <Flex justify="space-between" align="center" gap={TOKEN.marginXS}><span>Filters</span><Button type="link" size="small" style={{ paddingInline: 0 }} disabled={!active} onClick={onClear}>Clear filter</Button></Flex>;
 // a filter value is a list of picked options; empty list = no filter
 const fpick = (sel, v) => !sel || !sel.length || sel.includes(v);
 function FilterSelect({ label, value, onChange, options }) {
   const [q, setQ] = useState('');
   const opts = options.map((o) => (typeof o === 'object' ? o : { value: o, label: o }));
   const sel = value || [];
-  return <Select mode="multiple" allowClear aria-label={label} placeholder={label} value={sel} showSearch={false} maxTagCount="responsive" virtual={false} menuItemSelectedIcon={null}
+  return <Select mode="multiple" allowClear aria-label={label} placeholder="Please Select" value={sel} style={{ width: "100%" }} showSearch={false} maxTagCount="responsive" virtual={false} menuItemSelectedIcon={null}
     onChange={(v) => onChange(v.length ? v : undefined)} onOpenChange={(o) => !o && setQ('')}
     options={opts.map((o) => ({ ...o, style: String(o.label).toLowerCase().includes(q.toLowerCase()) ? undefined : { display: 'none' } }))}
     optionRender={(o) => <Checkbox checked={sel.includes(o.value)} style={{ pointerEvents: 'none' }}>{o.label}</Checkbox>}
@@ -3273,9 +3776,9 @@ function FilterSelect({ label, value, onChange, options }) {
       {menu}
     </Flex>} />;
 }
-function FilterBtn({ active, content }) {
+function FilterBtn({ active, content, onClear }) {
   return (
-    <Popover trigger="click" placement="bottomRight" content={<FilterFields>{content}</FilterFields>} title="Filters">
+    <Popover trigger="click" placement="bottomRight" content={<FilterFields>{content}</FilterFields>} title={<FilterTitle active={active} onClear={onClear} />}>
       <Button icon={<I.FilterOutlined />} className={active ? 'filter-on' : ''}>Filter{active ? ` · ${active}` : ''}</Button>
     </Popover>
   );
@@ -3317,8 +3820,11 @@ function StatTiles({ items, active, onPick, variant }) {
 }
 const PAGINATION = { pageSize: 10, showSizeChanger: false, showTotal: (t) => `Total ${t} items`, className: 'page-pager' };
 // All operational lists use this table. Pages own their columns and business rules.
-function DataTable({ minWidth = 900, className = '', scroll, pagination = PAGINATION, rowKey = 'key', size = 'middle', ...props }) {
-  return <Table {...props} size={size} rowKey={rowKey} pagination={pagination}
+const arrowExpandIcon = ({ expanded, onExpand, record, expandable }) => expandable === false ? null
+  : <Button type="text" size="small" aria-label={expanded ? 'Collapse row' : 'Expand row'} icon={<ExpandArrow open={expanded} />} onClick={(e) => onExpand(record, e)} />;
+function DataTable({ minWidth = 900, className = '', scroll, pagination = PAGINATION, rowKey = 'key', size = 'middle', expandable, ...props }) {
+  const exp = expandable && { columnWidth: 40, expandIcon: arrowExpandIcon, ...expandable };
+  return <Table {...props} expandable={exp} size={size} rowKey={rowKey} pagination={pagination}
     className={`data-table skypace-table do-list-table ${className}`}
     scroll={{ x: minWidth, ...scroll }} />;
 }
@@ -3338,21 +3844,21 @@ function useColumnFilters(cols, rows) {
   const on = fields.filter((x) => f[x.k]?.length);
   const shown = rows.filter((r) => on.every((x) => f[x.k].includes(r[x.k])));
   const filters = fields.length ? <>{fields.map((x) => <FilterSelect key={x.k} label={x.label} value={f[x.k]} onChange={(v) => setF({ ...f, [x.k]: v })}
-    options={x.vals.map((v) => ({ value: v, label: x.text(v) }))} />)}{on.length > 0 && <ResetFilters onClick={() => setF({})} />}</> : null;
-  return { shown, filters, count: on.length };
+    options={x.vals.map((v) => ({ value: v, label: x.text(v) }))} />)}</> : null;
+  return { shown, filters, count: on.length, clear: () => setF({}) };
 }
-function ListPanel({ title, search, onSearch, placeholder = 'Search', actions, filters, filterCount = 0, sort, children, count }) {
+function ListPanel({ title, search, onSearch, placeholder = 'Search', actions, filters, filterCount = 0, onClearFilters, sort, children, count }) {
   // without explicit filters, build them from the panel's table columns
   const table = React.Children.toArray(children).find((c) => c?.props?.columns && c.props.dataSource);
   const auto = useColumnFilters(onSearch && !filters && table ? table.props.columns : [], table ? table.props.dataSource : []);
-  if (onSearch && !filters && auto.filters) { filters = auto.filters; filterCount = auto.count; children = React.Children.map(children, (c) => c === table || (c?.props?.columns && c.props.dataSource === table.props.dataSource) ? React.cloneElement(c, { dataSource: auto.shown }) : c); }
+  if (onSearch && !filters && auto.filters) { filters = auto.filters; filterCount = auto.count; onClearFilters = auto.clear; children = React.Children.map(children, (c) => c === table || (c?.props?.columns && c.props.dataSource === table.props.dataSource) ? React.cloneElement(c, { dataSource: auto.shown }) : c); }
   return <section className="card-flat do-list list-panel">
     {/* a searchable list is the only table on its page: search and filter replace the title, actions stay on the right */}
     <div className="do-list-head">{!onSearch && <b>{title}{count != null && <span className="list-count">{count}</span>}</b>}
       <div className={'list-controls' + (onSearch ? ' list-controls-fill' : '')}>{onSearch && <Input allowClear className="do-search" aria-label={`Search ${typeof title === 'string' ? title : 'list'}`} placeholder={placeholder}
-        value={search} onChange={(e) => onSearch(e.target.value)} prefix={<I.SearchOutlined className="muted" />} />}{filters && <Popover trigger="click" placement="bottomRight" title="Filters" content={<FilterFields>{filters}</FilterFields>}>
+        value={search} onChange={(e) => onSearch(e.target.value)} prefix={<I.SearchOutlined className="muted" />} />}{filters && <Popover trigger="click" placement="bottomRight" title={<FilterTitle active={filterCount > 0} onClear={onClearFilters} />} content={<FilterFields>{filters}</FilterFields>}>
         <Button icon={<I.FilterOutlined />} className={filterCount ? 'filter-on' : ''}>Filter{filterCount ? ` · ${filterCount}` : ''}</Button>
-      </Popover>}{onSearch && !filters && <Popover trigger="click" placement="bottomRight" title="Filters" content={<FilterFields><Typography.Text type="secondary">No filters for this list yet</Typography.Text></FilterFields>}>
+      </Popover>}{onSearch && !filters && <Popover trigger="click" placement="bottomRight" title={<FilterTitle active={false} />} content={<FilterFields><Typography.Text type="secondary">No filters for this list yet</Typography.Text></FilterFields>}>
         <Button icon={<I.FilterOutlined />}>Filter</Button>
       </Popover>}{sort}{actions && <div className="list-actions">{actions}</div>}</div>
     </div>{children}
@@ -3466,22 +3972,25 @@ function OverviewTable({ title, dateLabel, seed, to, destination = false, approv
 }
 // Quick access panel on top of Overview: shortcuts to the most common actions, can be hidden
 const QUICK_ACCESS = [
-  ['Quote shipment', <I.FileSearchOutlined />, 'colorPrimaryBg', 'colorPrimary', '/quote-shipments'],
-  ['View shipment', <I.EyeOutlined />, 'purple1', 'purple6', '/shipments'],
-  ['Invite colleagues', <I.UserAddOutlined />, 'colorSuccessBg', 'colorSuccess', null],
-  ['Guides and FAQs', <I.ReadOutlined />, 'blue1', 'blue6', null],
-  ['Get help', <I.CustomerServiceOutlined />, 'orange1', 'orange6', null],
+  ['Quote shipment', 'Get rates in minutes', <I.FileSearchOutlined />, 'colorPrimaryBg', 'colorPrimary', '/quote-shipments'],
+  ['View shipment', 'Track your bookings', <I.EyeOutlined />, 'purple1', 'purple6', '/shipments'],
+  ['Invite colleagues', 'Work as a team', <I.UserAddOutlined />, 'colorSuccessBg', 'colorSuccess', null],
+  ['Guides and FAQs', 'How Skypace works', <I.ReadOutlined />, 'colorInfoBg', 'colorInfo', null],
+  ['Get help', 'Ask your manager', <I.CustomerServiceOutlined />, 'orange1', 'orange6', null, 'assets/avatar-bridget.png'],
 ];
-function QuickAccess({ onHide, onSoon }) {
+function QuickAccess({ onSoon }) {
   const { token } = antd.theme.useToken();
-  return <Card size="small" style={{ order: -2 }} title={<Flex gap={token.marginXS} align="center"><I.ThunderboltOutlined style={{ color: token.colorPrimary }} /><Typography.Text strong>Quick access</Typography.Text></Flex>}
-    extra={<Button size="small" type="text" icon={<I.CloseOutlined />} onClick={onHide}>Hide panel</Button>}>
+  return <Card size="small" style={{ order: -2 }} title={<Flex gap={token.marginXS} align="center"><I.ThunderboltOutlined style={{ color: token.colorPrimary }} /><Typography.Text strong>Quick access</Typography.Text></Flex>}>
     <antd.Row gutter={[token.marginXS, token.marginXS]}>
-      {QUICK_ACCESS.map(([label, icon, bg, fg, to]) => <antd.Col key={label} flex="1 1 160px">
-        <Card hoverable size="small" onClick={() => to ? go(to) : onSoon(label)} styles={{ body: { padding: token.padding } }}>
-          <Flex vertical align="center" gap={token.marginSM}>
-            <Avatar shape="square" size={token.controlHeightLG} icon={icon} style={{ background: token[bg], color: token[fg] }} />
-            <Typography.Text strong>{label}</Typography.Text>
+      {QUICK_ACCESS.map(([label, note, icon, bg, fg, to, photo]) => <antd.Col key={label} flex="1 1 200px">
+        <Card hoverable size="small" onClick={() => to ? go(to) : onSoon(label)} style={{ height: '100%' }} styles={{ body: { padding: `${token.paddingSM}px ${token.padding}px` } }}>
+          <Flex align="center" gap={token.marginSM}>
+            {photo ? <Avatar size={token.controlHeightLG} src={photo} style={{ flex: 'none' }} /> : <Avatar shape="square" size={token.controlHeightLG} icon={icon} style={{ background: token[bg], color: token[fg], flex: 'none' }} />}
+            <Flex vertical flex={1} style={{ minWidth: 0 }}>
+              <Typography.Text strong ellipsis>{label}</Typography.Text>
+              <Typography.Text type="secondary" ellipsis style={{ fontSize: token.fontSizeSM }}>{note}</Typography.Text>
+            </Flex>
+            <I.RightOutlined style={{ color: token.colorTextQuaternary, fontSize: token.fontSizeSM }} />
           </Flex>
         </Card>
       </antd.Col>)}
@@ -3492,9 +4001,8 @@ function OverviewPage() {
   const [msgApi,msgCtx]=message.useMessage();
   const track=q=>{ const v=q.trim().toUpperCase(); if(!v)return; if(v.startsWith('SP-')||/^[A-Z]{4}\d{6,7}$/.test(v)||/^\d{6,}$/.test(v))go(SHIPMENT_PATH); else msgApi.warning(`Nothing found for “${q}”. Try a container, shipment or cargo reference number.`); };
   const tiles=(items,to)=><div className="mini-tiles">{items.map(([value,label])=><button key={label} className="stat-btn" type="button" onClick={()=>go(to)}><span>{label}</span><b>{value}</b></button>)}</div>;
-  const [quick,setQuick]=useState(()=>!store.get('skypace.quickAccessHidden',false));
   return <div className="overview-dashboard">{msgCtx}
-    {quick&&<QuickAccess onHide={()=>{setQuick(false);store.set('skypace.quickAccessHidden',true);msgApi.info('Quick access hidden');}} onSoon={(l)=>msgApi.info(`${l} · coming soon`)}/>}
+    <QuickAccess onSoon={(l)=>msgApi.info(`${l} · coming soon`)}/>
     <div className="overview-summary">
       <section className="card"><div className="card-head"><span className="title">Tasks</span><LinkBtn icon={<I.EyeOutlined/>} onClick={()=>go('/action-center/tasks')}>View details</LinkBtn></div>
         {tiles([[TASK_COUNTS.soon,'Due soon'],[TASK_COUNTS.today,'Today'],[TASK_COUNTS.overdue,'Overdue']],'/action-center/tasks')}
@@ -3598,9 +4106,8 @@ function TasksPage({shipment=false}) {
           { key: 'regular', label: <span className="task-tab-label"><span>Regular</span><span className="task-tab-count">{kindCount('regular')}</span></span> },
           { key: 'exceptions', label: <span className="task-tab-label"><span>Exceptions</span><span className="task-tab-count">{kindCount('exceptions')}</span></span> },
         ]} />
-        <FilterBtn active={Object.values(f).filter(Boolean).length} content={<>
+        <FilterBtn active={Object.values(f).filter(Boolean).length} onClear={() => setF({})} content={<>
           {sel('assignee', 'Assignee', PEOPLE)}{sel('module', 'Module', MODULES)}{sel('status', 'Status', TASK_STATUS)}
-          {Object.values(f).some(Boolean) && <ResetFilters onClick={() => setF({})} />}
         </>} />
       </div>
       {group('Overdue', rows.filter(isOverdue))}
@@ -3648,11 +4155,10 @@ function NotificationsPage({shipment=false}) {
       <section className="card-flat table-card notifications-panel">
       <div className="do-list-head notifications-table-head">
         <div className="list-controls list-controls-fill">
-        <FilterBtn active={Object.values(f).filter(Boolean).length} content={<>
+        <FilterBtn active={Object.values(f).filter(Boolean).length} onClear={() => setF({})} content={<>
         {sel('priority', 'Priority', [{ value: 'Important', label: 'Important' }, { value: 'Regular', label: 'Regular' }])}
         {sel('date', 'Received date', [{ value: 'today', label: 'Last 24 hours' }, { value: 'week', label: 'Last 7 days' }, { value: 'month', label: 'Last 30 days' }])}
         {sel('module', 'Module', MODULES.map((m) => ({ value: m, label: m })))}
-        {Object.values(f).some(Boolean) && <ResetFilters onClick={() => setF({})} />}
         </>} />
         <div className="list-actions"><Button icon={<I.CheckOutlined />} disabled={!items.some(n => n.unread)} onClick={() => setItems(items.map((n) => ({ ...n, unread: false })))}>Mark all as read</Button></div>
         </div>
@@ -3903,10 +4409,9 @@ function ShipmentsPage() {
       <section className="card-flat do-list">
         <div className="do-list-head">
           <Input allowClear className="do-search" placeholder="Shipment, booking, port, customer" value={q} onChange={(e) => setQ(e.target.value)} prefix={<I.SearchOutlined className="muted" />} />
-          <FilterBtn active={Object.values(fl).filter(Boolean).length} content={<>
+          <FilterBtn active={Object.values(fl).filter(Boolean).length} onClear={() => setFl({})} content={<>
             {FILTERS.map(([k, l]) => <FilterSelect key={k} label={l} value={fl[k]} onChange={(v) => setFl({ ...fl, [k]: v })}
               options={[...new Set(SHIPMENTS.map((x) => x[k]).filter(Boolean))].map((v) => ({ value: v, label: v }))} />)}
-            {Object.values(fl).some(Boolean) && <ResetFilters onClick={() => setFl({})} />}
           </>} />
           <SortBtn value={sort} onChange={setSort} options={[['newest', 'Newest first'], ['etd', 'ETD'], ['eta', 'ETA'], ['status', 'Status'], ['customer', 'Customer A–Z']]} />
           {kpi && <Tag closable onClose={() => setKpi(null)}>{KPIS.find((k) => k.key === kpi).title}</Tag>}
@@ -4272,11 +4777,10 @@ function ContractsPage({ scope = 'contracts' }) {
   ];
   return <div className="page-stack">
     <ListPanel title="Carrier contracts" count={rows.length} search={q} onSearch={setQ} placeholder="Search by contract name or number"
-      filterCount={Object.values(f).filter(Boolean).length}
+      filterCount={Object.values(f).filter(Boolean).length} onClearFilters={() => setF({})}
       filters={<>
         <FilterSelect label="Category" value={f.category} onChange={v => setF({ ...f, category: v })} options={uniq(items.map(r => r.category))} />
         <FilterSelect label="Carrier" value={f.carrier} onChange={v => setF({ ...f, carrier: v })} options={uniq(items.map(r => r.carrier))} />
-        {Object.values(f).some(Boolean) && <ResetFilters onClick={() => setF({})} />}
       </>}
       actions={<Button type="primary" icon={<I.PlusOutlined />} onClick={() => edit()}>Add Contract</Button>}>
       <DataTable columns={cols} dataSource={rows} minWidth={650} />
@@ -6038,7 +6542,7 @@ function ShipmentShell({ selected, back, tracker=false, embedded=false, children
   if(embedded) return <>{children}</>;
   return (
     <>
-      <PageHeader back={back} tracker={tracker} />
+      <PageHeader back={back} tracker={tracker} actions={selected==='overview'} />
       <div className="columns">
         <SideMenu selected={selected} />
         <div className="content-wrap"><div className="cn-wrap">{children}</div></div>
@@ -8881,7 +9385,7 @@ function DoLegCard({ leg, last, onEdit }) {
       <div className="do-leg-card">
         <div className="do-leg-head">
           <div className="do-leg-name">
-            <div className="do-leg-title"><b>{leg.head || leg.place}</b><Tag color={{ Completed: 'green', 'In progress': 'geekblue' }[status]} className="do-tag" title={evs.map((x) => `${x.label}: ${x.act ? 'done' : 'not recorded'}`).join('\n')}>{status}</Tag></div>
+            <div className="do-leg-title"><b>{leg.head || leg.place}</b><Tag color={STATUS_COLOR[status]} className="do-tag" title={evs.map((x) => `${x.label}: ${x.act ? 'done' : 'not recorded'}`).join('\n')}>{status}</Tag></div>
             <span className="do-leg-addr">{leg.title}</span>
           </div>
           {!leg.yard && <Button type="text" size="small" className="do-icon-edit" icon={<I.EditOutlined />} aria-label={`Edit ${leg.title}`} onClick={onEdit} />}
@@ -9459,15 +9963,15 @@ function DoStepBox({ title, sub, onEdit, editLabel, rows = [], children }) {
 function DoMsTable({ leg, nextK, onEdit }) {
   return (
     <div className="do-ms">
-      <div className="do-ms-row head"><span>Milestone</span><span>Predicted</span><span>Actual</span><span /></div>
+      <div className="do-ms-row head"><span>Milestone</span><span>Predicted</span><span>Actual</span></div>
       {doKeyRows(leg).map((x) => {
         // Actual: a recorded date with an edit button, or a "Record …" button while there is no date yet
         const rec = `Record ${x.label.toLowerCase()}`;
         return (
           <div key={x.k} className="do-ms-row"><span>{x.label}</span><span>{doFmt(x.est)}</span>
-            {x.act ? <span>{doFmt(x.act)}</span>
+            {x.act
+              ? <Flex align="center" justify="space-between" gap={4}><span>{doFmt(x.act)}</span><Button type="text" size="small" className="do-ms-edit" icon={<I.EditOutlined />} aria-label={`Edit ${x.label}`} onClick={onEdit} /></Flex>
               : <span>{x.missing ? <DoWarnLink onClick={onEdit}>{rec}</DoWarnLink> : <DoLink size="small" onClick={onEdit}>{rec}</DoLink>}</span>}
-            {x.act ? <Button type="text" size="small" className="do-ms-edit" icon={<I.EditOutlined />} aria-label={`Edit ${x.label}`} onClick={onEdit} /> : <span />}
           </div>
         );
       })}
@@ -10070,7 +10574,7 @@ function DispatchesAllPage({shipment=false,movement}) {
       <section className="card-flat do-list">
         <div className="do-list-head">
           <Input allowClear className="do-search" placeholder={shipment?'Dispatch ID, container or carrier':'Dispatch ID, container, carrier, shipment'} value={q} onChange={(e) => setQ(e.target.value)} prefix={<I.SearchOutlined className="muted" />} />
-          <Popover trigger="click" placement="bottomRight" title="Filters" content={<FilterFields>{cf.filters}</FilterFields>}>
+          <Popover trigger="click" placement="bottomRight" title={<FilterTitle active={cf.count > 0} onClear={cf.clear} />} content={<FilterFields>{cf.filters}</FilterFields>}>
             <Button icon={<I.FilterOutlined />} className={cf.count ? 'filter-on' : ''}>Filter{cf.count ? ` · ${cf.count}` : ''}</Button>
           </Popover>
           {kpi && <Tag closable onClose={() => setKpi(null)}>{KPIS.find((k) => k.key === kpi).title}</Tag>}
@@ -10115,7 +10619,7 @@ const IP_PATH = SHIPMENT_PATH + '/inland-pickup';
 const IP_TODAY = '2026-05-27';
 const IP_BOOKING = '412431231212';
 const IP_CUTOFFS = { vgm: dayjs('2026-06-02T12:00'), port: dayjs('2026-06-02T18:00') };
-const IP_FREE_DAYS = 4;
+const IP_FREE_DAYS = 2;
 
 const ipSum = (arr, f) => arr.reduce((s, x) => s + f(x), 0);
 const ipUsd = (n) => `$${num(Math.abs(n))}`;
@@ -10131,27 +10635,66 @@ const ipNext = (d) => {
 
 /* ---------- progress: one row per step, every container under it ---------- */
 const IP_STEPS = [
-  { key: 'dispatched', complete: true, label: 'Dispatched to carrier', done: (d) => d.dispatched, when: () => 'Not dispatched' },
-  { key: 'confirmed', complete: true, label: 'Confirmed by carrier', done: (d) => d.confirmed, when: (d) => (d.dispatched ? 'Waiting for carrier' : 'Not dispatched') },
-  { key: 'picked', complete: true, label: 'Empty picked up', done: (d) => d.legsDone >= 1, when: (d) => doTimes(d).pickup },
+  { key: 'dispatched', label: 'Dispatched to carrier', done: (d) => d.dispatched, when: () => 'Not dispatched' },
+  { key: 'confirmed', label: 'Confirmed by carrier', done: (d) => d.confirmed, when: (d) => (d.dispatched ? 'Waiting for carrier' : 'Not dispatched') },
+  { key: 'picked', label: 'Empty picked up', done: (d) => d.legsDone >= 1, when: (d) => doTimes(d).pickup },
   { key: 'loaded', label: 'Loaded at site', done: (d) => d.legsDone >= 2, when: (d) => doTimes(d).load },
   { key: 'gated', label: 'Gated in at terminal', done: (d) => d.legsDone >= 3, when: (d) => doTimes(d).gate },
-  { key: 'vgm', label: 'VGM and container data', done: (d) => d.vgm, when: () => `VGM cutoff ${IP_CUTOFFS.vgm.format('ddd D MMM, HH:mm')}` },
+  { key: 'vgm', label: 'VGM and container data', done: (d) => d.vgm, due: true, when: () => IP_CUTOFFS.vgm.format('ddd D MMM, HH:mm') },
 ];
+// Step note on the right: one format for every step —
+// Next: <day>, <time window> · N containers | Due: <deadline> | Overdue: <planned> · N | Not scheduled | All done
+const IP_MON = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+const ipParseWhen = (text, base) => {
+  if (!text || /not planned|not dispatched|waiting/i.test(text)) return null;
+  const dm = /(\d{1,2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/.exec(text);
+  const day = /today/i.test(text) ? dayjs(IP_TODAY) : dm ? dayjs(IP_TODAY).month(IP_MON[dm[2]]).date(+dm[1]) : base;
+  const tm = /(\d{1,2}:\d{2})(?:\s*[–-]\s*(\d{1,2}:\d{2}))?/.exec(text);
+  if (!day || !tm) return null;
+  const [h, m] = tm[1].split(':');
+  return { day: day.startOf('day'), at: day.hour(+h).minute(+m), time: tm[2] ? `${tm[1]}–${tm[2]}` : tm[1] };
+};
+const ipDayName = (v) => { const t = dayjs(IP_TODAY); return v.isSame(t, 'day') ? 'Today' : v.isSame(t.add(1, 'day'), 'day') ? 'Tomorrow' : v.format('ddd D MMM'); };
+const ipWhenOf = (step, d) => ipParseWhen(step.when(d), ipParseWhen(doTimes(d).pickup)?.day);
+const ipWhenText = (w) => `${ipDayName(w.day)}, ${w.time}`;
+const ipCnt = (n) => `${n} container${n === 1 ? '' : 's'}`;
+const IP_DISPATCH_DUE = dayjs(`${IP_TODAY}T16:00`);
+const IP_CONFIRM_DUE = dayjs(`${IP_TODAY}T17:00`);
+const ipAt = (v) => `${ipDayName(v)}, ${v.format('HH:mm')}`;
+function ipStepNote(step, pending) {
+  if (step.key === 'dispatched') {
+    const t = `${pending.length} to dispatch`;
+    return IP_DISPATCH_DUE.isBefore(IP_NOW) ? { text: `Overdue: ${ipAt(IP_DISPATCH_DUE)} · ${t}`, type: 'warning' } : { text: `Due: ${ipAt(IP_DISPATCH_DUE)} · ${t}`, type: IP_DISPATCH_DUE.diff(IP_NOW, 'hour') <= 24 ? 'warning' : 'secondary' };
+  }
+  if (step.key === 'confirmed') {
+    const wait = pending.filter((d) => d.dispatched).length;
+    if (!wait) return { text: `Waiting for dispatch · ${ipCnt(pending.length)}`, type: 'tertiary' };
+    return IP_CONFIRM_DUE.isBefore(IP_NOW) ? { text: `Overdue: confirm by ${ipAt(IP_CONFIRM_DUE)} · ${ipCnt(wait)}`, type: 'warning' } : { text: `Waiting for carrier · ${ipCnt(wait)}`, type: 'secondary' };
+  }
+  if (step.due) { const at = IP_CUTOFFS[step.key]; return { text: `Due: ${ipDayName(at)}, ${at.format('HH:mm')}`, type: at.diff(IP_NOW, 'hour') <= 24 ? 'warning' : 'secondary' }; }
+  const planned = pending.filter((d) => d.dispatched).map((d) => ({ d, w: ipWhenOf(step, d) })).filter((x) => x.w);
+  if (!planned.length) return pending.every((d) => !d.dispatched) ? { text: `Waiting for dispatch · ${ipCnt(pending.length)}`, type: 'tertiary' } : { text: 'Not scheduled', type: 'tertiary' };
+  const late = planned.filter((x) => x.w.at.isBefore(IP_NOW));
+  const pick = (arr) => { const first = [...arr].sort((x, y) => x.w.at.valueOf() - y.w.at.valueOf())[0]; return { first, n: arr.filter((x) => x.w.day.isSame(first.w.day, 'day')).length }; };
+  if (late.length) { const { first } = pick(late); return { text: `Overdue: ${ipWhenText(first.w)} · ${ipCnt(late.length)}`, type: 'warning' }; }
+  const { first, n } = pick(planned);
+  return { text: `Next: ${ipWhenText(first.w)} · ${ipCnt(n)}`, type: 'secondary' };
+}
 function IpStep({ step, list, open, onToggle }) {
-  const isDone = step.complete ? () => true : step.done; // first steps shown as finished for every container in this frame
+  const isDone = step.done;
   const done = list.filter(isDone); const n = done.length; const all = n === list.length;
   const pending = list.filter((d) => !isDone(d));
-  const firstPlanned = pending.find((d) => d.dispatched);
-  const note = all ? 'All done' : n === 0 && !firstPlanned ? `${pending.length} not dispatched yet` : firstPlanned ? `Next: ${step.when(firstPlanned)}` : `${pending.length} not dispatched yet`;
+  const note = all ? { text: 'All done', type: 'success' } : ipStepNote(step, pending);
   return (
     <div className={'ip-step' + (open ? ' open' : '')}>
       <button type="button" className="ip-step-head" aria-expanded={open} onClick={onToggle}>
-        <span className={'ip-step-dot' + (all ? ' ok' : n ? ' prog' : '')}>{all && <I.CheckOutlined />}</span>
+        {/* 3 states: done = green check · in progress = ring filled n/N · not started = empty gray ring */}
+        {all ? <I.CheckCircleFilled style={{ color: TOKEN.colorSuccess, fontSize: TOKEN.fontSizeLG }} />
+          : <Progress type="circle" size={TOKEN.fontSizeLG} percent={(n / list.length) * 100} showInfo={false} strokeWidth={14} railColor={TOKEN.colorBorder} aria-label={n ? 'In progress' : 'Not started'} />}
         <b className="ip-step-name">{step.label}</b>
         <span className="ip-step-count">{n} of {list.length}</span>
         <Progress className="ip-step-bar" percent={(n / list.length) * 100} showInfo={false} size="small" strokeColor={all ? TOKEN.colorSuccess : undefined} />
-        <span className={'do-sub ip-step-note' + (all ? ' ok' : '')}>{note}</span>
+        <Typography.Text type={note.type} className="ip-step-note">{note.text}</Typography.Text>
       </button>
       {open && (
         <div className="ip-step-body">
@@ -10161,7 +10704,7 @@ function IpStep({ step, list, open, onToggle }) {
               <a key={d.id} className="ip-chip" href={href(`${DISPATCH_PATH}/${d.id}`)}>
                 <span className="ip-chip-id">{d.id}</span>
                 <span className="do-sub">{d.number || 'No container yet'}</span>
-                {ok ? <span className="ip-chip-ok"><I.CheckCircleFilled /> Done</span> : <span className={'do-sub' + (d.dispatched ? '' : ' warn')}>{step.when(d)}</span>}
+                {ok ? <span className="ip-chip-ok"><I.CheckCircleFilled /> Done</span> : <span className={'do-sub' + (d.dispatched ? '' : ' warn')}>{(() => { const w = d.dispatched && ipWhenOf(step, d); return w ? ipWhenText(w) : step.when(d); })()}</span>}
               </a>
             );
           })}
@@ -10172,77 +10715,198 @@ function IpStep({ step, list, open, onToggle }) {
 }
 
 /* ---------- right column: what the operator owes, what's coming, who we wait for ---------- */
-function ipTodos(list) {
+// "Dispatch by today 16:00" / "… by Thu 16:00" → "Due date 28 May, 16:00"
+const IP_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const ipDueAt = (text) => {
+  const m = /(today|Sun|Mon|Tue|Wed|Thu|Fri|Sat)\w*\s+(\d\d:\d\d)/.exec(text || '');
+  if (!m) return null;
+  let d = dayjs(`${IP_TODAY}T${m[2]}`);
+  if (m[1] !== 'today') { const want = IP_DAYS.indexOf(m[1]); while (d.day() !== want) d = d.add(1, 'day'); }
+  return d;
+};
+const ipDue = (at) => `Due date ${(at || dayjs(`${IP_TODAY}T17:00`)).format('D MMM, HH:mm')}`;
+function ipTodos(list, mode = 'export') {
   const out = [];
   list.filter((d) => doStatus(d) === 'draft').sort((a, b) => a.deadline.order - b.deadline.order).forEach((d) => out.push({
-    id: d.id, warn: d.deadline.warn || doNeedsAttention(d), title: `Dispatch ${d.id}`, sub: `${d.deadline.title} · ${d.deadline.sub}`, cta: 'Open', onClick: () => ipOpen(d.id) }));
+    id: d.id, warn: d.deadline.warn || doNeedsAttention(d), title: `${mode === 'import' ? 'Import' : 'Export'} Container Dispatch`, sub: ipDue(ipDueAt(d.deadline.title)), cta: 'Open', onClick: () => ipOpen(d.id) }));
   list.forEach((d) => {
     const nx = ipNext(d);
-    if (nx?.row.missing) out.push({ id: d.id + '-m', warn: true, title: `Add ${IP_EVENT_NAME[nx.row.k]?.toLowerCase() || 'event'} time · ${d.id}`, sub: `Estimated ${ipDayLabel(nx.row.est)} · not reported by ${DO_CARRIERS[d.carrier].short}`, cta: 'Add time', onClick: () => ipOpen(d.id, `leg:${nx.leg.id}`) });
-    if (d.extra === 'pending') out.push({ id: d.id + '-x', warn: true, title: `Review extra charge · ${d.id}`, sub: `${DO_CARRIERS[d.carrier].short} asks to approve before invoicing`, cta: 'Review', onClick: () => ipOpen(d.id, 'm:extra') });
-    if (d.exception?.open) out.push({ id: d.id + '-e', warn: true, title: `Resolve seal mismatch · ${d.id}`, sub: 'Seal number doesn’t match the booking', cta: 'Review', onClick: () => ipOpen(d.id, 'm:resolve') });
+    if (nx?.row.missing) out.push({ id: d.id + '-m', warn: true, title: `Add ${IP_EVENT_NAME[nx.row.k]?.toLowerCase() || 'event'} time · ${d.id}`, sub: ipDue(nx.row.est), cta: 'Add time', onClick: () => ipOpen(d.id, `leg:${nx.leg.id}`) });
+    if (d.extra === 'pending') out.push({ id: d.id + '-x', warn: true, title: `Review extra charge · ${d.id}`, sub: ipDue(), cta: 'Review', onClick: () => ipOpen(d.id, 'm:extra') });
+    if (d.exception?.open) out.push({ id: d.id + '-e', warn: true, title: `Resolve seal mismatch · ${d.id}`, sub: ipDue(), cta: 'Review', onClick: () => ipOpen(d.id, 'm:resolve') });
   });
   return out;
 }
+// Dates to watch (Figma 8091:4393): event (· order) on top, only the place name under it
+const ipPlace = (p) => String(p || '').split(',')[0];
+const IP_NOW = dayjs(`${IP_TODAY}T12:00`);
+// split into overdue (planned time passed, not done), upcoming (next 5) and past (done)
 function ipDates(list) {
-  const out = [];
+  const out = []; const overdue = []; const past = [];
   list.forEach((d) => {
+    if (doStatus(d) !== 'draft') doLegs(d).forEach((leg) => doKeyRows(leg).forEach((r) => {
+      if (r.act && r.est && r.est.isBefore(IP_NOW)) past.push({ at: r.est, title: `${IP_EVENT_NAME[r.k] || r.label} · ${d.id}`, sub: ipPlace(leg.place), id: d.id });
+    }));
     const nx = ipNext(d);
-    if (nx?.row.est) out.push({ at: nx.row.est, title: `${IP_EVENT_NAME[nx.row.k] || nx.row.label} · ${d.id}`, sub: `${nx.leg.place} · ${DO_CARRIERS[d.carrier].short}`, note: doStatus(d) === 'dispatched' ? 'Not confirmed yet' : 'Confirmed', tone: doStatus(d) === 'dispatched' ? 'warn' : 'ok', id: d.id });
-    if (doStatus(d) === 'draft' && d.plan.drop) out.push({ at: doAt(d.plan.drop, (d.plan.dropWin || '').split('–')[0] || '08:00'), title: `Empty drop · ${d.id}`, sub: d.places.load.short || d.places.load.name, note: 'Planned · not dispatched', tone: 'warn', id: d.id });
+    if (nx?.row.est && nx.row.est.isBefore(IP_NOW)) overdue.push({ at: nx.row.est, title: `${IP_EVENT_NAME[nx.row.k] || nx.row.label} · ${d.id}`, sub: ipPlace(nx.leg.place), id: d.id });
+    else if (nx?.row.est) out.push({ at: nx.row.est, title: `${IP_EVENT_NAME[nx.row.k] || nx.row.label} · ${d.id}`, sub: ipPlace(nx.leg.place), note: doStatus(d) === 'dispatched' ? 'Not confirmed yet' : 'Confirmed', tone: doStatus(d) === 'dispatched' ? 'warn' : 'ok', id: d.id });
+    if (doStatus(d) === 'draft' && d.plan.drop) out.push({ at: doAt(d.plan.drop, (d.plan.dropWin || '').split('–')[0] || '08:00'), title: `Empty drop · ${d.id}`, sub: ipPlace(d.places.load.short || d.places.load.name), note: 'Planned · not dispatched', tone: 'warn', id: d.id });
   });
-  out.push({ at: IP_CUTOFFS.vgm, title: `Cutoffs · ${DO_CTO_SHORT}`, sub: `VGM ${IP_CUTOFFS.vgm.format('HH:mm')} · port cutoff ${IP_CUTOFFS.port.format('HH:mm')}`, note: `${list.filter((d) => d.legsDone >= 3).length} of ${list.length} gated in` });
-  return out.sort((a, b) => a.at.valueOf() - b.at.valueOf()).slice(0, 5);
+  out.push({ at: IP_CUTOFFS.vgm, title: 'VGM cutoff', sub: DO_CTO_SHORT }, { at: IP_CUTOFFS.port, title: 'Port cutoff', sub: DO_CTO_SHORT });
+  const byTime = (a, b) => a.at.valueOf() - b.at.valueOf();
+  return { overdue: overdue.sort(byTime), upcoming: out.sort(byTime), past: past.sort(byTime) };
+}
+// Dates to watch as an agenda (Google Calendar-like, antd tokens): day heading, event blocks under it, «now» line inside today.
+// kind: past (done) | overdue (date passed, not done — muted, no alarm) | default (upcoming); cutoffs (no id) get the warning tint.
+// event row inside a day box: color bar = kind (move — primary, cutoff — warning, past/overdue — muted)
+function IpEvent({ x, kind }) {
+  const muted = kind === 'past' || kind === 'overdue';
+  const bar = muted ? TOKEN.colorBorder : x.id ? TOKEN.colorPrimary : TOKEN.colorWarning;
+  const time = x.at.format('HH:mm');
+  return (
+    <Flex align="stretch" gap={TOKEN.marginSM} style={{ cursor: x.id ? 'pointer' : undefined }} onClick={() => x.id && ipOpen(x.id)}>
+      <span style={{ width: TOKEN.lineWidthBold * 1.5, flex: 'none', borderRadius: TOKEN.borderRadiusXS, background: bar }} />
+      <Flex vertical flex={1} style={{ minWidth: 0 }}>
+        <Typography.Text strong={kind !== 'past'} style={muted ? { color: TOKEN.colorTextTertiary } : undefined}>{x.title}</Typography.Text>
+        <Typography.Text type="secondary" style={{ fontSize: TOKEN.fontSizeSM }}>{kind === 'overdue' ? `Was planned ${time} · ${x.sub}` : `${time} · ${x.sub}`}</Typography.Text>
+      </Flex>
+      {kind === 'past' && <I.CheckCircleFilled style={{ color: TOKEN.colorSuccess, alignSelf: 'center' }} aria-label="Done" />}
+    </Flex>
+  );
+}
+function IpAgenda({ items }) {
+  const days = [];
+  items.forEach((it) => {
+    const k = it.x.at.format('YYYY-MM-DD');
+    if (days[days.length - 1]?.k !== k) days.push({ k, at: it.x.at, items: [] });
+    days[days.length - 1].items.push(it);
+  });
+  // today always gets its heading so the «now» line has a place
+  if (!days.some((d) => d.k === IP_TODAY)) {
+    const i = days.findIndex((d) => d.k > IP_TODAY);
+    days.splice(i < 0 ? days.length : i, 0, { k: IP_TODAY, at: IP_NOW, items: [] });
+  }
+  return days.map((d) => {
+    const today = d.k === IP_TODAY;
+    return (
+      <Flex vertical gap={TOKEN.marginXS} key={d.k} style={IP_BOX}>
+        <Typography.Text strong type={d.k < IP_TODAY ? 'secondary' : undefined} style={today ? { color: TOKEN.colorPrimary } : undefined}>
+          {today ? 'Today · ' : ''}{d.at.format('ddd, MMM D')}
+        </Typography.Text>
+        <IpSplit />
+        {d.items.map((it, i) => <React.Fragment key={i}>{i > 0 && <IpSplit />}<IpEvent {...it} /></React.Fragment>)}
+        {!d.items.length && <Typography.Text type="tertiary">No events</Typography.Text>}
+      </Flex>
+    );
+  });
 }
 const ipWaiting = (list) => list.filter((d) => doStatus(d) === 'dispatched').map((d) => ({ d, title: `Confirmation · ${d.id}`, sub: `${DO_CARRIERS[d.carrier].name} · dispatched ${d.dispatchedAt}`, due: 'Expected by 27 May, 17:00' }));
 
-// To do · Dates to watch · Waiting on others — separate cards with the same heading as the rest of the page
-function IpYourPart({ list, msg }) {
-  const todos = ipTodos(list); const dates = ipDates(list); const waiting = ipWaiting(list);
+/* ---------- shared blocks (Figma 8657:686238): card heading, gray box, label + value ---------- */
+const IP_BOX = { background: 'var(--gray-1)', borderRadius: TOKEN.borderRadiusLG, padding: `${TOKEN.paddingSM}px ${TOKEN.padding}px` };
+function IpHead({ title, count, extra }) {
+  return (
+    <Flex align="center" gap={TOKEN.marginXS}>
+      <Flex flex={1} align="center" gap={TOKEN.marginXS}><Typography.Text strong>{title}</Typography.Text>{count != null && <Tag bordered={false}>{count}</Tag>}</Flex>
+      {extra}
+    </Flex>
+  );
+}
+const IpField = ({ label, children }) => (
+  <Flex vertical flex={1} style={{ minWidth: 0 }}>
+    <Typography.Text type="secondary" style={{ fontSize: TOKEN.fontSizeSM }}>{label}</Typography.Text>
+    {typeof children === 'string' ? <Typography.Text>{children}</Typography.Text> : children}
+  </Flex>
+);
+// one line of fields, equal columns
+const IpFields = ({ cols }) => <Flex gap={TOKEN.marginXS}>{cols.map(([k, v]) => <IpField key={k} label={k}>{v}</IpField>)}</Flex>;
+const IpSplit = () => <Divider style={{ margin: 0 }} />;
+// place header: bold name, address under it (small when `small`)
+const IpPlaceName = ({ name, address, small }) => (
+  <Flex vertical>
+    <Typography.Text strong>{name}</Typography.Text>
+    <Typography.Text style={small ? { fontSize: TOKEN.fontSizeSM } : undefined}>{address}</Typography.Text>
+  </Flex>
+);
+
+// Dates to watch → «Calendar»: month view in a modal, events in day cells (same color bars as the agenda)
+function IpCalendarModal({ dates, onClose }) {
+  const all = [...dates.past.map((x) => ({ x, kind: 'past' })), ...dates.overdue.map((x) => ({ x, kind: 'overdue' })), ...dates.upcoming.map((x) => ({ x }))]
+    .sort((a, b) => a.x.at.valueOf() - b.x.at.valueOf());
+  const cell = (v, info) => {
+    if (info.type !== 'date') return info.originNode;
+    const items = all.filter((it) => it.x.at.isSame(v, 'day'));
+    return (
+      <Flex vertical gap={TOKEN.marginXXS}>
+        {items.map((it, i) => {
+          const muted = it.kind === 'past' || it.kind === 'overdue';
+          const bar = muted ? TOKEN.colorBorder : it.x.id ? TOKEN.colorPrimary : TOKEN.colorWarning;
+          return (
+            <Tooltip key={i} title={`${it.kind === 'overdue' ? 'Was planned ' : ''}${it.x.at.format('HH:mm')} · ${it.x.title} · ${it.x.sub}`}>
+              <Flex align="stretch" gap={TOKEN.marginXXS} onClick={(e) => { e.stopPropagation(); it.x.id && ipOpen(it.x.id); }} style={{ cursor: it.x.id ? 'pointer' : undefined, minWidth: 0 }}>
+                <span style={{ width: TOKEN.lineWidthBold * 1.5, flex: 'none', borderRadius: TOKEN.borderRadiusXS, background: bar }} />
+                <Typography.Text ellipsis style={{ fontSize: TOKEN.fontSizeSM, ...(muted ? { color: TOKEN.colorTextTertiary } : {}) }}>
+                  {it.x.at.format('HH:mm')} {it.x.title}
+                </Typography.Text>
+              </Flex>
+            </Tooltip>
+          );
+        })}
+      </Flex>
+    );
+  };
+  return (
+    <Modal open title="Dates to watch" width={1000} footer={null} onCancel={onClose}>
+      <antd.Calendar defaultValue={dayjs(IP_TODAY)} cellRender={cell} />
+    </Modal>
+  );
+}
+
+// To do · Dates to watch · Waiting on others
+function IpYourPart({ list, msg, mode }) {
+  const todos = ipTodos(list, mode); const dates = ipDates(list); const waiting = ipWaiting(list);
+  const [showPast, setShowPast] = useState(false);
+  const [cal, setCal] = useState(false);
   return (
     <>
       <section className="do-card">
-        <div className="do-box-head"><b className="do-grow ip-h">To do</b></div>
-        {todos.length ? (
-          <div className="do-attn">
-            {todos.map((t) => (
-              <div key={t.id} className="do-attn-item">
-                {t.warn ? <I.ExclamationCircleOutlined className="ip-ic warn" /> : <I.ClockCircleOutlined className="ip-ic" />}
-                <div className="do-attn-txt"><b>{t.title}</b><span className={'do-sub' + (t.warn ? ' warn' : '')}>{t.sub}</span></div>
-                <Button size="small" onClick={t.onClick}>{t.cta}</Button>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="ip-clear"><I.CheckCircleFilled /><div><b>Nothing needs you right now</b><span className="do-sub">All orders are dispatched and confirmed. Carriers report each move.</span></div></div>
+        <IpHead title="To do" />
+        {todos.length ? todos.map((t) => (
+          <Flex key={t.id} align="center" gap={TOKEN.marginXS} style={IP_BOX}>
+            <Flex vertical flex={1} style={{ minWidth: 0 }}>
+              <Typography.Text strong>{t.title}</Typography.Text>
+              <Typography.Text type={t.warn ? 'warning' : 'secondary'} style={{ fontSize: TOKEN.fontSizeSM }}>{t.sub}</Typography.Text>
+            </Flex>
+            <Tooltip title={t.cta}><Button size="small" icon={<I.RightOutlined />} aria-label={`${t.cta} · ${t.title}`} onClick={t.onClick} /></Tooltip>
+          </Flex>
+        )) : <Typography.Text type="secondary">Nothing needs you right now</Typography.Text>}
+      </section>
+      <section className="do-card">
+        <IpHead title="Dates to watch" extra={<DoLink size="small" onClick={() => setCal(true)}>Calendar</DoLink>} />
+        {/* collapsed: not-done passed dates + next 5; "Show all dates" adds done ones and the rest, in time order */}
+        <IpAgenda items={[
+          ...(showPast ? dates.past.map((x) => ({ x, kind: 'past' })) : []),
+          ...dates.overdue.map((x) => ({ x, kind: 'overdue' })),
+          ...(showPast ? dates.upcoming : dates.upcoming.slice(0, 5)).map((x) => ({ x })),
+        ].sort((a, b) => a.x.at.valueOf() - b.x.at.valueOf())} />
+        {(dates.past.length > 0 || dates.upcoming.length > 5) && (
+          <Button block type="link" icon={showPast ? <I.UpOutlined /> : <I.DownOutlined />} iconPlacement="end" onClick={() => setShowPast(!showPast)}>
+            {showPast ? 'Show less' : `Show all dates (${dates.past.length + dates.overdue.length + dates.upcoming.length})`}
+          </Button>
         )}
       </section>
+      {cal && <IpCalendarModal dates={dates} onClose={() => setCal(false)} />}
       <section className="do-card">
-        <div className="do-box-head"><b className="do-grow ip-h">Dates to watch</b><DoLink size="small" onClick={() => msg.info('Calendar view is coming next')}>Calendar</DoLink></div>
-        <Timeline className="ip-tl" mode="start" items={dates.map((x) => ({
-          color: { ok: 'green', warn: 'gold' }[x.tone] || 'gray',
-          content: (
-            <button type="button" className="ip-tl-body" onClick={() => x.id && ipOpen(x.id)} disabled={!x.id}>
-              <span className="ip-tl-when">{x.at.format('YYYY-MM-DD') === IP_TODAY ? <b>Today</b> : x.at.format('ddd D MMM')} · {x.at.format('HH:mm')}</span>
-              <b>{x.title}</b><span className="do-sub">{x.sub}</span>
-              {x.note && <Tag bordered={false} className={'do-tag' + ({ ok: ' ok', warn: ' gold' }[x.tone] || '')}>{x.note}</Tag>}
-            </button>
-          ),
-        }))} />
-      </section>
-      <section className="do-card">
-        <div className="do-box-head"><b className="do-grow ip-h">Waiting on others</b></div>
-        {waiting.length ? (
-          <div className="do-attn">
-            {waiting.map((w) => (
-              <div key={w.d.id} className="do-attn-item">
-                <I.ClockCircleOutlined className="ip-ic" />
-                <div className="do-attn-txt"><b>{w.title}</b><span className="do-sub">{w.sub}</span><span className="do-sub">{w.due}</span></div>
-                <Button size="small" icon={<I.SendOutlined />} onClick={() => msg.success(`Reminder sent to ${DO_CARRIERS[w.d.carrier].contact}`)}>Chase</Button>
-              </div>
-            ))}
-          </div>
-        ) : <div className="do-fields"><span className="do-sub">No one owes us a reply</span></div>}
+        <IpHead title="Waiting on others" />
+        {waiting.length ? waiting.map((w) => (
+          <Flex key={w.d.id} align="center" gap={TOKEN.marginXS} style={IP_BOX}>
+            <Flex vertical flex={1} style={{ minWidth: 0 }}>
+              <Typography.Text strong>{w.title}</Typography.Text>
+              <Typography.Text type="secondary" style={{ fontSize: TOKEN.fontSizeSM }}>{w.due}</Typography.Text>
+            </Flex>
+            <Tooltip title="Chase"><Button size="small" icon={<I.SendOutlined />} aria-label={`Chase ${w.d.id}`} onClick={() => msg.success(`Reminder sent to ${DO_CARRIERS[w.d.carrier].contact}`)} /></Tooltip>
+          </Flex>
+        )) : <Typography.Text type="secondary">No one owes us a reply</Typography.Text>}
       </section>
     </>
   );
@@ -10259,7 +10923,7 @@ const IP_UPDATES = [
 function IpUpdates() {
   return (
     <section className="do-card">
-      <div className="do-box-head"><b className="do-grow ip-h">Latest updates</b></div>
+      <IpHead title="Latest updates" />
       <div className="ip-feed">
         {IP_UPDATES.map(([day, time, title, by, id], i) => (
           <a key={i} className="ip-feed-row" href={href(`${DISPATCH_PATH}/${id}`)}>
@@ -10269,45 +10933,89 @@ function IpUpdates() {
           </a>
         ))}
       </div>
-      <DoLink size="small" onClick={() => go(DISPATCH_PATH)}>All activity <I.ArrowRightOutlined /></DoLink>
+      <Flex><Button type="text" size="small" onClick={() => go(DISPATCH_PATH)}>All activity</Button></Flex>
     </section>
   );
 }
 
 /* ---------- left column ---------- */
-const IP_PLACES = [
-  { ...DO_PLACE_CY, key: 'cy', kind: 'Empty pickup' },
-  { ...DO_SITE_A, key: 'a', kind: 'Loading · Chicago, IL' },
-  { ...DO_PLACE_RET, key: 'ret', kind: 'Full return' },
+// loading sites: gray box, contact line always visible, the rest opens with the arrow
+const IP_LOADING = [
+  { ...DO_SITE_A, key: 'a', email: 'ff@mail.com', ready: '28 May, 2026 22:00', containers: '2', receiving: 'FCFS', method: 'Live load', refs: ['983812312', '988312312', '412431231'], behalf: 'ABC Logistics', notes: 'Forklift on site. Driver calls the dock 30 min before arrival; gate closes at 14:00.' },
+  { ...DO_SITE_B, key: 'b', contact: 'Anna Peters', email: 'dock@intertape.com', ready: '29 May, 2026 08:00', containers: '4', receiving: 'Appointment', method: 'Drop and pick', refs: ['771203998'], behalf: 'ABC Logistics', notes: '' },
 ];
-function IpLocations({ edits, onEdit, mode='export' }) {
+function IpLoadingPlace({ p, open, onToggle }) {
+  return (
+    <Flex vertical gap={TOKEN.marginXS} style={IP_BOX}>
+      <Flex align="flex-start" gap={TOKEN.marginXS}>
+        <Flex flex={1} style={{ minWidth: 0 }}><IpPlaceName name={p.name} address={p.address} small /></Flex>
+        <Button type="text" size="small" icon={<ExpandArrow open={open} />} aria-expanded={open} aria-label={`${open ? 'Hide' : 'Show'} details · ${p.name}`} onClick={onToggle} />
+      </Flex>
+      <IpSplit />
+      <IpFields cols={[['Contact Person', p.contact || '—'], ['Email / Phone', `${p.email} / ${p.phone}`]]} />
+      {open && <>
+        <IpSplit />
+        <IpFields cols={[['Cargo ready date', p.ready], ['Containers', p.containers]]} />
+        <IpFields cols={[['Receiving Method', p.receiving], ['Loading method', p.method]]} />
+        <IpSplit />
+        <IpFields cols={[['References', <Flex wrap gap={TOKEN.marginXXS}>{p.refs.slice(0, 2).map((r) => <Tag key={r} style={{ marginInlineEnd: 0 }}>{r}</Tag>)}{p.refs.length > 2 && <Tooltip title={p.refs.slice(2).join(', ')}><Tag style={{ marginInlineEnd: 0 }}>+{p.refs.length - 2}</Tag></Tooltip>}</Flex>], ['On behalf of', p.behalf]]} />
+        {p.notes && <IpField label="Additional notes">{p.notes}</IpField>}
+      </>}
+    </Flex>
+  );
+}
+function IpLoading({ msg }) {
+  const [open, setOpen] = useState({ b: true });
   return (
     <section className="do-card">
-      <div className="do-box-head"><b className="do-grow ip-h">Locations</b></div>
-      <div className="ip-places">
-        {(mode==='import'?[{key:'import-pickup',kind:'FULL PICKUP',name:'Gdynia Terminal',address:'Gdynia, Poland'},{key:'import-receiver',kind:'UNLOADING · GDAŃSK',name:'Cargo Receiver',address:'5 Księdza Jerzego Popiełuszki, Gdańsk, Poland'},{key:'import-return',kind:'EMPTY RETURN',name:'Gdynia Container Yard',address:'Gdynia, Poland'}]:IP_PLACES).map((p0) => {
-          const p = { ...p0, ...edits[p0.key] };
-          return (
-            <div key={p.key} className="ip-place">
-              <div className="ip-place-head">
-                <span className="ip-eyebrow">{p.kind}</span>
-                <Button type="text" size="small" className="do-icon-edit" icon={<I.EditOutlined />} aria-label={`Edit ${p.kind}`} onClick={() => onEdit(p)} />
-              </div>
-              <div className="ip-place-name"><b>{p.name}</b><span className="do-sub">{p.address}</span></div>
-            </div>
-          );
-        })}
-      </div>
+      <IpHead title="Loading locations" extra={<DoLink size="small" onClick={() => msg.info('Locations are managed in Planning & Tracking')}>Manage location</DoLink>} />
+      {IP_LOADING.map((p) => <IpLoadingPlace key={p.key} p={p} open={!!open[p.key]} onToggle={() => setOpen({ ...open, [p.key]: !open[p.key] })} />)}
     </section>
   );
 }
 
-// free time as Figma 7049:265054: one gray item per kind (Detention…), Edit opens a drawer, Add free time under the list
-const IP_FREE_START = dayjs('2026-05-29T17:00'); // first container's free time ends here on day 1
+// empty pickup yards: first one shown, the rest behind "Show more locations"
+const IP_YARDS = [
+  { key: 'maher', name: 'Maher Terminals, Port Newark', address: '1210 Corbin St, Newark, NJ 07114, US', containers: '3', release: '31 May, 08:00' },
+  { key: 'apm', name: 'APM Terminals Port Elizabeth', address: '5080 McLester St, Elizabeth, NJ 07201, US', containers: '2', release: '31 May, 12:00' },
+  { key: 'ii', name: 'Integrated Industries', address: '2750 W 35th St, Chicago, IL 60632, US', containers: '1', release: '30 May, 07:00' },
+];
+function IpYards() {
+  const [more, setMore] = useState(false);
+  return (
+    <section className="do-card">
+      <IpHead title="Empty pickup locations" count={IP_YARDS.length} />
+      {(more ? IP_YARDS : IP_YARDS.slice(0, 1)).map((y) => (
+        <Flex key={y.key} vertical gap={TOKEN.marginXS} style={IP_BOX}>
+          <IpPlaceName name={y.name} address={y.address} />
+          <IpSplit />
+          <IpFields cols={[['Containers', y.containers], ['Earliest Release', y.release]]} />
+        </Flex>
+      ))}
+      {IP_YARDS.length > 1 && <Flex><Button type="link" className="add-link" icon={<ExpandArrow open={more} />} onClick={() => setMore(!more)}>{more ? 'Show less' : 'Show more locations'}</Button></Flex>}
+    </section>
+  );
+}
+
+function IpReturn() {
+  return (
+    <section className="do-card">
+      <IpHead title="Full return" />
+      <Flex vertical gap={TOKEN.marginXS} style={IP_BOX}>
+        <IpPlaceName name="Port Newark Container Terminal" address="241 Calcutta St, Newark, NJ 07114, US" />
+        <IpSplit />
+        <IpFields cols={[['Containers', '6'], ['Earliest CTO Full Drop', '02 Jun, 10:00'], ['Terminal Cutoff Date', IP_CUTOFFS.port.format('DD MMM, HH:mm')]]} />
+      </Flex>
+    </section>
+  );
+}
+
+// free time: one gray item per kind (Detention…), pencil opens a drawer, Add free time under the list
+const IP_FREE_START = dayjs('2026-05-29T18:00'); // first container's free time ends here on day 1
 const ipLastFree = (r) => {
   let d = IP_FREE_START; let left = r.days - 1;
   while (left > 0) { d = d.add(1, 'day'); if (r.type !== 'work' || ![0, 6].includes(d.day())) left--; }
-  return d.format('DD MMM YYYY, HH:mm');
+  return d.format('D MMM YYYY, HH:mm');
 };
 function IpFreeTime({ msg }) {
   const [items, setItems] = useState([{ id: 1, kind: 'det', days: IP_FREE_DAYS, type: 'cal' }]);
@@ -10320,11 +11028,18 @@ function IpFreeTime({ msg }) {
   };
   return (
     <section className="do-card">
-      <div className="sub-group">
-        <b className="ip-h">Free time</b>
-        {items.map((r) => <Item key={r.id} title={FREE_KINDS[r.kind]} cols={[['Days', days(r)], ['Last free day', ipLastFree(r)]]} onEdit={() => setEditing(r)} />)}
-        <Button type="link" className="add-link" icon={<I.PlusOutlined />} onClick={() => setEditing({ kind: 'det', days: IP_FREE_DAYS, type: 'cal' })}>Add free time</Button>
-      </div>
+      <IpHead title="Free Time" />
+      {items.map((r) => (
+        <Flex key={r.id} vertical gap={TOKEN.marginXS} style={IP_BOX}>
+          <Flex align="center" gap={TOKEN.marginXS}>
+            <Typography.Text strong style={{ flex: 1 }}>{FREE_KINDS[r.kind]}</Typography.Text>
+            <Button type="link" size="small" icon={<I.EditOutlined />} aria-label={`Edit ${FREE_KINDS[r.kind]}`} onClick={() => setEditing(r)} />
+          </Flex>
+          <IpSplit />
+          <IpFields cols={[['Days', days(r)], ['Last free day', ipLastFree(r)]]} />
+        </Flex>
+      ))}
+      <Flex><Button type="link" className="add-link" icon={<I.PlusOutlined />} onClick={() => setEditing({ kind: 'det', days: IP_FREE_DAYS, type: 'cal' })}>Add free time</Button></Flex>
       {editing && (
         <DoFormDrawer title={editing.id ? 'Edit free time' : 'Add free time'} okText={editing.id ? 'Save' : 'Add'} initial={{ kind: editing.kind, days: editing.days, type: editing.type }}
           onClose={() => setEditing(null)} onSave={save}>
@@ -10341,34 +11056,46 @@ function IpFreeTime({ msg }) {
 // money: what we bill and what carriers charge, straight from the orders' charges
 function ipMoney(list) {
   const buy = ipSum(list, (d) => ipSum(d.charges, (c) => c.buy)); const sell = ipSum(list, (d) => ipSum(d.charges, (c) => c.sell));
-  const budget = list.length * ipSum(DO_CHARGES, (c) => c.buy);
+  const budget = list.length * ipSum(DO_CHARGES, (c) => c.buy); const sellBudget = list.length * ipSum(DO_CHARGES, (c) => c.sell);
   const extras = ipSum(list, (d) => ipSum(d.charges.filter((c) => !DO_CHARGES.some((b) => b.id === c.id)), (c) => c.buy));
   const done = list.filter((d) => doStatus(d) === 'completed');
-  return { buy, sell, margin: sell - buy, pct: sell ? ((sell - buy) / sell) * 100 : 0, budget, extras, invoices: done.filter((d) => d.invoice).length, due: done.length };
+  return { buy, sell, margin: sell - buy, pct: sell ? ((sell - buy) / sell) * 100 : 0, markup: buy ? ((sell - buy) / buy) * 100 : 0, budget, sellBudget, extras, invoices: done.filter((d) => d.invoice).length, due: done.length };
 }
+// cost tracking (spec): Total AP Cost and Total AR Cost with budget plan + difference; Profit = AR − AP and its % of cost, as on the Cost Tracking page
+const ipSigned = (n) => `${n > 0 ? '+' : n < 0 ? '−' : ''}${ipUsd(n)}`;
 function IpMoney({ list, onCosts }) {
-  const m = ipMoney(list); const over = m.buy > m.budget;
-  const tile = (label, value, note, sub, tone, bar) => (
-    <div className="ip-tile">
-      <span className="do-sub">{label}</span>
-      <b className="ip-tile-v">{value}</b>
-      {bar != null && <Progress percent={bar} showInfo={false} size="small" strokeColor={tone === 'warn' ? TOKEN.colorWarning : TOKEN.colorSuccess} />}
-      <span className={'ip-tile-note ' + (tone || '')}>{note}</span>
-      <span className="do-sub">{sub}</span>
-    </div>
-  );
+  const m = ipMoney(list);
+  const apDiff = m.buy - m.budget; const arDiff = m.sell - m.sellBudget; const profit = m.sell - m.buy;
+  const tone = (good) => (good ? 'success' : 'danger');
+  const tiles = [
+    { label: 'Total AP Cost', value: ipUsd(m.buy), rows: [['Budget plan', ipUsd(m.budget)], ['Difference', ipSigned(apDiff), apDiff ? tone(apDiff < 0) : undefined]] },
+    { label: 'Total AR Cost', value: ipUsd(m.sell), rows: [['Budget plan', ipUsd(m.sellBudget)], ['Difference', ipSigned(arDiff), arDiff ? tone(arDiff > 0) : undefined]] },
+    { label: 'Profit', value: `${profit < 0 ? '−' : ''}${ipUsd(profit)}`, valueTone: tone(profit >= 0),
+      rows: [['Profit, %', `${m.markup.toFixed(2)}%`]] },
+  ];
   return (
     <section className="do-card" id="ip-money">
-      <div className="do-box-head">
-        <div><b className="ip-h">Money</b><span className="do-sub">Drayage only · projected until carrier invoices match</span></div>
-        <DoLink size="small" onClick={onCosts}>Costs by order</DoLink>
-      </div>
-      <div className="ip-tiles">
-        {tile('Margin', `${ipUsd(m.margin)} · ${m.pct.toFixed(1)}%`, 'As quoted', `Billed ${ipUsd(m.sell)} − cost ${ipUsd(m.buy)}`, m.margin < 0 ? 'err' : 'ok')}
-        {tile('Cost vs budget', ipUsd(m.buy), over ? `${ipUsd(m.buy - m.budget)} over budget` : 'On budget', `Budget ${ipUsd(m.budget)} · all rates agreed`, over ? 'warn' : 'ok', Math.min(100, (m.buy / m.budget) * 100))}
-        {tile('Extra charges', ipUsd(m.extras), m.extras ? 'Approved' : 'None', m.extras ? 'Passed through to the customer' : 'Nothing reported by carriers', m.extras ? 'warn' : 'ok')}
-        {tile('Carrier invoices', `${m.invoices} of ${list.length}`, m.due ? `${m.due - m.invoices} due` : 'None due yet', 'Each one is due after gate-in', m.due > m.invoices ? 'warn' : '', (m.invoices / list.length) * 100)}
-      </div>
+      <IpHead title="Cost Tracking" extra={<DoLink size="small" onClick={onCosts}>View More</DoLink>} />
+      <Flex gap={TOKEN.marginXS} wrap>
+        {tiles.map((t) => (
+          <Flex key={t.label} vertical gap={TOKEN.marginXS} flex="1 1 180px" style={{ ...IP_BOX, padding: TOKEN.paddingXS }}>
+            <Flex vertical>
+              <Typography.Text type="secondary">{t.label}</Typography.Text>
+              <Typography.Title level={4} type={t.valueTone} style={{ margin: 0 }}>{t.value}</Typography.Title>
+            </Flex>
+            <IpSplit />
+            <Flex gap={TOKEN.marginXS}>
+              {t.rows.map(([k, v, vt]) => (
+                <Flex key={k} vertical flex={1} style={{ minWidth: 0 }}>
+                  <Typography.Text type="secondary">{k}</Typography.Text>
+                  <Typography.Text type={vt}>{k === 'Difference' && <>{vt ? (v.startsWith('+') ? <I.ArrowUpOutlined /> : <I.ArrowDownOutlined />) : <I.CheckCircleOutlined style={{ color: TOKEN.colorSuccess }} />}{' '}</>}{v}</Typography.Text>
+                </Flex>
+              ))}
+              {t.rows.length === 1 && <Flex flex={1} />}
+            </Flex>
+          </Flex>
+        ))}
+      </Flex>
     </section>
   );
 }
@@ -10402,30 +11129,12 @@ function IpCosts({ list }) {
   );
 }
 
-function IpOcean() {
-  return (
-    <section className="do-card">
-      <div className="do-box-head"><b className="do-grow ip-h">Ocean</b><DoLink size="small" onClick={() => go(SHIPMENT_PATH+'/transportation/ocean-booking/planning-tracking')}>Planning &amp; Tracking</DoLink></div>
-      <DoFields rows={[[['Carrier', 'Maersk'], ['Booking', IP_BOOKING], ['Vessel / voyage', DO_VESSEL]], [['Terminal', DO_TERMINAL], ['Port cutoff', IP_CUTOFFS.port.format('ddd D MMM, HH:mm')], ['VGM cutoff', IP_CUTOFFS.vgm.format('ddd D MMM, HH:mm')]]]} />
-    </section>
-  );
-}
-function IpCustomer() {
-  return (
-    <section className="do-card">
-      <div className="do-box-head"><b className="do-grow ip-h">Customer</b><DoLink size="small" onClick={() => go('/contacts')}>Open</DoLink></div>
-      <DoFields rows={[[['Company', 'Maxton Inc'], ['Contact', 'Vladimir Nikolaev · +1 212 555 0147'], ['Skypace operator', 'Bridget Moore']]]} />
-    </section>
-  );
-}
 
 /* ---------- page ---------- */
 function InlandPickupPage({embedded=false,mode='export'}) {
   const list = useDispatchOrders();
   const [costs, setCosts] = useState(false);
   const [openSteps, setOpenSteps] = useState({});
-  const [edits, setEdits] = useState({});
-  const [editing, setEditing] = useState(null);
   const [msgApi, msgCtx] = message.useMessage();
   return (
     <ShipmentShell selected={mode==='import'?'import':'ip-overview'} embedded={embedded}>
@@ -10434,34 +11143,26 @@ function InlandPickupPage({embedded=false,mode='export'}) {
           <div className="do-cols ip-cols">
             <div className="do-main">
               <section className="do-card">
-                <div className="do-box-head"><b className="do-grow ip-h">Step by step</b>
-                </div>
+                <IpHead title="Step by step" />
                 <div className="ip-steps">
                   {IP_STEPS.map(step=>mode==='import'?{...step,label:({picked:'Full picked up',loaded:'Unloaded at receiver',gated:'Empty returned to terminal',vgm:'Delivery and container data'})[step.key]||step.label}:step).map((s) => <IpStep key={s.key} step={s} list={list} open={!!openSteps[s.key]}
                     onToggle={() => setOpenSteps(({ [s.key]: was, ...rest }) => (was ? rest : { ...rest, [s.key]: true }))} />)}
                 </div>
               </section>
-              <IpOcean />
-              <IpLocations mode={mode} edits={edits} onEdit={setEditing} />
+              <IpLoading msg={msgApi} />
+              <IpYards />
+              <IpReturn />
               <IpFreeTime msg={msgApi} />
               <IpMoney list={list} onCosts={() => setCosts(true)} />
-              <IpCustomer />
             </div>
             <div className="do-side">
-              <IpYourPart list={list} msg={msgApi} />
+              <IpYourPart list={list} msg={msgApi} mode={mode} />
               <IpUpdates />
             </div>
           </div>
       </div>
       {costs && (
         <Drw title="Costs by order" width={880} onClose={() => setCosts(false)} bordered className="do-drawer"><IpCosts list={list} /></Drw>
-      )}
-      {editing && (
-        <DoFormDrawer title={`Edit ${editing.name}`} intro="Changes apply to every dispatch order that uses this place." initial={{ name: editing.name, address: editing.address }}
-          onClose={() => setEditing(null)} onSave={(v) => { setEdits({ ...edits, [editing.key]: v }); setEditing(null); msgApi.success(`${v.name} saved`); }}>
-          <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Enter a name' }]}><Input /></Form.Item>
-          <Form.Item name="address" label="Address" rules={[{ required: true, message: 'Enter the address' }]}><Input.TextArea autoSize={{ minRows: 2 }} /></Form.Item>
-        </DoFormDrawer>
       )}
     </ShipmentShell>
   );
@@ -10551,11 +11252,9 @@ const SO_ROUTE = [
   { title: 'Cat Lai, VN', kind: 'POD', icon: 'port', when: `ETA ${soDay(SO_DATES.eta, false)}` },
   { title: 'Nha Trang, VN', kind: 'Destination', icon: 'warehouse', when: `ETA ${soDay(SO_DATES.final, false)}` },
 ];
-// pickup, departure, arrival and delivery dates under the route
+// pickup and delivery dates under the route (first and last stop)
 const SO_KEY_DATES = [
   ['Chicago, IL', 'Pickup from', soDay(dayjs('2026-05-27T08:30'), false)],
-  ['(USEWR) Port Newark', 'ETD', soDay(SO_DATES.etd, false)],
-  ['(VNCLI) Cat Lai', 'ETA', soDay(SO_DATES.eta, false)],
   ['Nha Trang, VN', 'Delivery from', soDay(SO_DATES.final, false)],
 ];
 // key facts of the shipment under the route, four per row
@@ -10587,9 +11286,9 @@ function SoRoute() {
           ? { icon, title: <Text strong>{r.title}</Text>, content: details }
           : { icon: <Tooltip title={<Flex vertical><Text strong style={{ color: 'inherit' }}>{r.title}</Text><span>{r.kind} · {r.when}</span></Flex>}>{icon}</Tooltip> };
       })} />
-      {/* key dates of the route: pickup and port of loading on the left, port of discharge and delivery on the right */}
+      {/* key dates of the route: pickup on the left, delivery on the right */}
       <Flex justify="space-between" wrap gap={token.marginSM}>
-        {[SO_KEY_DATES.slice(0, 2), SO_KEY_DATES.slice(2)].map((group, g) => (
+        {[SO_KEY_DATES.slice(0, 1), SO_KEY_DATES.slice(1)].map((group, g) => (
           <Flex key={g} gap={token.marginLG} wrap>
             {group.map(([place, label, date]) => (
               <Flex key={place} vertical align={g ? 'end' : 'start'}>
@@ -10600,18 +11299,23 @@ function SoRoute() {
           </Flex>
         ))}
       </Flex>
-      <SoInset>
-        <Row gutter={[token.margin, token.marginSM]}>
-          {SO_FACTS.map(([label, value]) => (
-            <Col key={label} xs={12} lg={6}>
-              <Flex vertical>
-                <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>{label}</Text>
-                <Text>{value}</Text>
-              </Flex>
-            </Col>
-          ))}
-        </Row>
-      </SoInset>
+      {/* three gray boxes, four facts in each (shipment · carrier and dates · people) */}
+      <Flex vertical gap={token.marginXS}>
+        {[0, 4, 8].map((from) => (
+          <SoInset key={from}>
+            <Row gutter={[token.margin, token.marginSM]}>
+              {SO_FACTS.slice(from, from + 4).map(([label, value]) => (
+                <Col key={label} xs={12} lg={6}>
+                  <Flex vertical>
+                    <Text type="secondary" style={{ fontSize: token.fontSizeSM }}>{label}</Text>
+                    <Text>{value}</Text>
+                  </Flex>
+                </Col>
+              ))}
+            </Row>
+          </SoInset>
+        ))}
+      </Flex>
     </SoCard>
   );
 }
@@ -10649,7 +11353,8 @@ function SoTodo({ list }) {
 }
 
 function soDates(list) {
-  const pickup = ipDates(list).filter((x) => x.id).slice(0, 2);
+  const { overdue, upcoming } = ipDates(list);
+  const pickup = [...overdue, ...upcoming].filter((x) => x.id).slice(0, 2);
   return [
     ...pickup,
     { at: SO_DATES.doc, title: 'SI cutoff · Maersk', sub: 'Shipping instructions', note: 'Not sent', tone: 'warn' },
@@ -10740,19 +11445,30 @@ const HOME = crumb('Home', '/overview');
 /* Shipment workspace: shared list, form and navigation primitives. */
 const SHIPMENT_SECTIONS = {
   tasks:['Tasks','ac1'], notifications:['Notifications','ac-notifications'], parties:['Shipping Parties','parties'],
-  cargo:['Cargo','cargo'], documents:['Documents','docs'], tracker:['Shipment Tracker','tracker'],
+  cargo:['Cargo','cargo'], documents:['Documents','docs'],
   ocean:['Ocean Transportation','ob-overview'], export:['Export Inland Pickup','ip-overview'], import:['Import Inland Delivery','import'],
   bol:['Bills of Lading','bol'], services:['Services','services'], charges:['Cost Tracking','charges'], billing:['Billing','billing'],
   people:['People','people'], settings:['Settings','settings'],
 };
-const SW_CARGO = [{key:'cargo-1',hs:'870810',description:'Bumpers and automotive parts',references:'PO 4F0268',pcs:99,weight:24500,volume:54,value:42000}];
+const SW_CARGO = [{key:'cargo-1',hs:'870810',description:'Bumpers and automotive parts',references:'PO 4F0268',pcs:99,weight:24500,volume:54,value:42000,package:'Pallets',marks:''}];
+// expanded cargo row: the shared field grid (DoFields — gray box, label above value), empty values shown as a dash
+function CargoDetails({ r }) {
+  const v = (x) => (x === '' || x == null ? '—' : x);
+  const hs = <Flex gap={TOKEN.marginXXS} align="center">{v(r.hs)}<Tooltip title="Harmonized System code"><I.InfoCircleOutlined style={{ color: TOKEN.colorTextTertiary }} /></Tooltip></Flex>;
+  // three gray boxes (what · how packed · size) on the white expanded row
+  return <Flex vertical gap={TOKEN.marginXS}>
+    <DoFields rows={[[['HS code', hs], ['Description', v(r.description)], ['References', v(r.references)]]]} />
+    <DoFields rows={[[['Value', r.value != null ? money(Number(r.value)) : '—'], ['Package type', v(r.package)], ['Units', v(r.pcs)]]]} />
+    <DoFields rows={[[['Weight, kg', v(r.weight)], ['Volume, cbm', v(r.volume)], ['Marks', v(r.marks)]]]} />
+  </Flex>;
+}
 const SW_CHARGES = [
   {key:'ch1',name:'Ocean freight',party:'Maersk',category:'Ocean',quantity:1,rate:2450,status:'Confirmed'},
   {key:'ch2',name:'Origin terminal handling',party:'Maersk',category:'Origin',quantity:1,rate:280,status:'Confirmed'},
   {key:'ch3',name:'Inland pickup',party:'Swift Transportation',category:'Inland',quantity:1,rate:650,status:'Estimated'},
 ];
 const SW_COLLECTIONS = {
-  cargo:{title:'Goods',action:'Add cargo',rows:SW_CARGO,fields:[['hs','HS Code'],['description','Description'],['references','References'],['pcs','Pcs','number'],['weight','Weight, kg','number'],['volume','Volume, cbm','number'],['value','Goods value, USD','money']]},
+  cargo:{title:'Goods',action:'Add cargo',rows:SW_CARGO,fields:[['hs','HS Code'],['description','Description'],['references','References'],['pcs','Pcs','number'],['weight','Weight, kg','number'],['volume','Volume, cbm','number'],['value','Goods value, USD','money']],extra:[['package','Package type'],['marks','Marks']]},
   documents:{title:'Files',action:'Upload document',rows:[],fields:[['name','Document name'],['category','Category',['Bill of Lading','Commercial Invoice','Packing List','Booking Confirmation','Other']],['status','Status',['Draft','Approved','Pending review']],['updated','Updated']]},
   bol:{title:'Shipping documents',action:'Add Bill of Lading',rows:[],fields:[['number','B/L number'],['type','Type',['Master B/L','House B/L']],['shipper','Shipper'],['consignee','Consignee'],['status','Status',['Draft','Submitted','Released']]]},
   charges:{title:'Charges',action:'Add charge',rows:SW_CHARGES,fields:[['name','Charge'],['party','Vendor'],['category','Category',['Ocean','Origin','Destination','Inland','Other']],['quantity','Quantity','number'],['rate','Rate, USD','money'],['status','Status',['Estimated','Confirmed','Invoiced']]]},
@@ -10776,16 +11492,17 @@ function ShipmentCollection({kind}) {
   const filterFields=cfg.fields.filter(f=>Array.isArray(f[2]));
   const rows=items.filter(r=>!q||Object.values(r).some(v=>String(v).toLowerCase().includes(q.toLowerCase()))).filter(r=>Object.entries(filter).every(([k,v])=>fpick(v,r[k])));
   const save=v=>{setItems(prev=>editing.key?prev.map(r=>r.key===editing.key?{...r,...v}:r):[...prev,{...v,key:kind+'-'+Date.now()}]);setEditing(null);message.success('Saved locally');};
-  const columns=cfg.fields.map(([key,label,type],i)=>({title:label,dataIndex:key,ellipsis:true,width:i===0?undefined:type==='number'?90:type==='money'?110:key==='status'?100:140,sorter:(a,b)=>type==='number'||type==='money'?(Number(a[key])||0)-(Number(b[key])||0):String(a[key]||'').localeCompare(String(b[key]||'')),render:v=>type==='money'?money(Number(v)||0):key==='status'?<StateTag color={['Approved','Confirmed','Paid','Released','Completed'].includes(v)?'green':'default'}>{v||'Draft'}</StateTag>:v??'—'}));
+  const columns=cfg.fields.map(([key,label,type],i)=>({title:label,dataIndex:key,ellipsis:true,width:i===0?undefined:type==='number'?90:type==='money'?110:key==='status'?100:140,sorter:(a,b)=>type==='number'||type==='money'?(Number(a[key])||0)-(Number(b[key])||0):String(a[key]||'').localeCompare(String(b[key]||'')),render:v=>type==='money'?money(Number(v)||0):key==='status'?<StateTag color={STATUS_COLOR[v||'Draft']||'default'}>{v||'Draft'}</StateTag>:v??'—'}));
   if(kind==='charges')columns.splice(columns.length-1,0,{title:'Amount, USD',width:120,render:(_,r)=>money((r.quantity||0)*(r.rate||0))});
   columns.push({title:'Actions',key:'actions',width:64,align:'center',fixed:'right',render:(_,r)=><Dropdown menu={{items:[{key:'edit',label:'Edit'},{key:'delete',label:'Delete',danger:true}],onClick:({key})=>key==='edit'?setEditing(r):Modal.confirm({title:'Delete this record?',okText:'Delete',okButtonProps:{danger:true},onOk:()=>setItems(prev=>prev.filter(x=>x.key!==r.key))})}} trigger={['click']}><Button type="text" aria-label={'Actions for '+(r[cfg.fields[0][0]]||'record')} icon={<I.MoreOutlined/>}/></Dropdown>});
+  const expandable=kind==='cargo'?{expandedRowRender:r=><CargoDetails r={r}/>,columnWidth:40,expandIcon:({expanded,onExpand,record})=><Button type="text" size="small" aria-label={(expanded?'Collapse ':'Expand ')+record.description} icon={<ExpandArrow open={expanded}/>} onClick={e=>onExpand(record,e)}/>}:undefined;
   return <>
-    <ListPanel title={cfg.title} count={rows.length} search={q} onSearch={setQ} placeholder={'Search '+cfg.title.toLowerCase()} actions={<Button type="primary" icon={kind==='documents'?<I.UploadOutlined/>:<I.PlusOutlined/>} onClick={()=>setEditing({})}>{cfg.action}</Button>} filterCount={Object.values(filter).filter(Boolean).length} filters={filterFields.length?<>{filterFields.map(([key,label,opts])=><FilterSelect key={key} label={label} value={filter[key]} onChange={v=>setFilter({...filter,[key]:v})} options={opts}/>)}{Object.values(filter).some(Boolean)&&<ResetFilters onClick={()=>setFilter({})}/>}</>:undefined}>
-      <DataTable columns={columns} dataSource={rows} minWidth={columns.reduce((sum,c)=>sum+(c.width||140),0)} pagination={items.length>10?PAGINATION:false} locale={{emptyText:<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={'No '+cfg.title.toLowerCase()+' yet'}/>}} />
+    <ListPanel title={cfg.title} count={rows.length} search={q} onSearch={setQ} placeholder={'Search '+cfg.title.toLowerCase()} actions={<Button type="primary" icon={kind==='documents'?<I.UploadOutlined/>:<I.PlusOutlined/>} onClick={()=>setEditing({})}>{cfg.action}</Button>} filterCount={Object.values(filter).filter(Boolean).length} onClearFilters={()=>setFilter({})} filters={filterFields.length?<>{filterFields.map(([key,label,opts])=><FilterSelect key={key} label={label} value={filter[key]} onChange={v=>setFilter({...filter,[key]:v})} options={opts}/>)}</>:undefined}>
+      <DataTable columns={columns} dataSource={rows} expandable={expandable} className={kind==='cargo'?'cargo-table':''} minWidth={columns.reduce((sum,c)=>sum+(c.width||140),0)} pagination={items.length>10?PAGINATION:false} locale={{emptyText:<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={'No '+cfg.title.toLowerCase()+' yet'}/>}} />
       {kind==='charges'&&<div className="sw-total"><span>Total cost</span><b>{money(rows.reduce((s,r)=>s+(r.quantity||0)*(r.rate||0),0))} USD</b></div>}
       {['receivables','payables'].includes(kind)&&<div className="sw-total"><span>Total / Balance</span><b>{money(rows.reduce((s,r)=>s+(r.total||0),0))} / {money(rows.reduce((s,r)=>s+(r.balance||0),0))} USD</b></div>}
     </ListPanel>
-    {editing&&<ShipmentRecordForm title={editing.key?'Edit '+cfg.title.toLowerCase():cfg.action} fields={cfg.fields.filter(f=>f[0]!=='updated')} initial={editing} onClose={()=>setEditing(null)} onSave={save} upload={kind==='documents'}/>}
+    {editing&&<ShipmentRecordForm title={editing.key?'Edit '+cfg.title.toLowerCase():cfg.action} fields={[...cfg.fields,...(cfg.extra||[])].filter(f=>f[0]!=='updated')} initial={editing} onClose={()=>setEditing(null)} onSave={save} upload={kind==='documents'}/>}
   </>;
 }
 const SW_SERVICES = [
@@ -11002,7 +11719,7 @@ function ShipmentTransport({mode,tab='overview'}) {
   </div>;
 }
 function ShipmentMovementTable({imported}) {
-  return <ListPanel title={imported?'Arrivals':'Departures'} count={3} actions={<Button onClick={()=>go(DISPATCH_PATH)}>Open dispatches</Button>}><DataTable minWidth={700} pagination={false} dataSource={['HAMU1481029','TGHU8820147','ONEU1051502'].map((v,i)=>({key:v,container:v,date:imported?'28 Feb, 15:34':'19 Feb, 08:00',id:'ID-'+(9981+i),status:i===0?'Confirmed':'Unassigned'}))} columns={[{title:'Container',dataIndex:'container',render:v=><PageLink to={CONTAINERS_PATH}>{v}</PageLink>},{title:imported?'Full arrival':'Empty pickup',dataIndex:'date'},{title:'Dispatch order',dataIndex:'id',render:v=><PageLink to={DISPATCH_PATH+'/'+v}>{v}</PageLink>},{title:'Status',dataIndex:'status',render:v=><Tag color={v==='Confirmed'?'success':undefined}>{v}</Tag>}]}/></ListPanel>;
+  return <ListPanel title={imported?'Arrivals':'Departures'} count={3} actions={<Button onClick={()=>go(DISPATCH_PATH)}>Open dispatches</Button>}><DataTable minWidth={700} pagination={false} dataSource={['HAMU1481029','TGHU8820147','ONEU1051502'].map((v,i)=>({key:v,container:v,date:imported?'28 Feb, 15:34':'19 Feb, 08:00',id:'ID-'+(9981+i),status:i===0?'Confirmed':'Unassigned'}))} columns={[{title:'Container',dataIndex:'container',render:v=><PageLink to={CONTAINERS_PATH}>{v}</PageLink>},{title:imported?'Full arrival':'Empty pickup',dataIndex:'date'},{title:'Dispatch order',dataIndex:'id',render:v=><PageLink to={DISPATCH_PATH+'/'+v}>{v}</PageLink>},{title:'Status',dataIndex:'status',render:v=><Tag color={STATUS_COLOR[v]}>{v}</Tag>}]}/></ListPanel>;
 }
 /* ---------- Cost tracking: payables vs receivables per container and per fee ---------- */
 // [group] or [name, unit, buy rate, sell rate, qty, info]
@@ -11174,7 +11891,6 @@ function ShipmentWorkspace({section,tab}) {
   else if(section==='bol')content=<BillsOfLadingPage/>;
   else if(section==='services')content=<ShipmentServices/>;
   else if(section==='people')content=<ShipmentPeople/>;
-  else if(section==='tracker')content=<ShipmentTracker/>;
   else if(['ocean','export','import'].includes(section))content=<ShipmentTransport mode={section} tab={tab||'overview'}/>;
   else if(['charges','billing'].includes(section))content=<ShipmentAccounting section={section} tab={tab}/>;
   else if(section==='settings')content=<ShipmentSettings/>;
@@ -11189,7 +11905,7 @@ function resolvePage(path, query) {
   if(path.startsWith('/shipments/5562/')) return resolvePage(SHIPMENT_PATH+path.slice('/shipments/5562'.length),query);
   const shipmentSuffix=path.startsWith(SHIPMENT_PATH+'/')?path.slice(SHIPMENT_PATH.length):null;
   if(shipmentSuffix) {
-    const routes={'/action-center/tasks':'tasks','/action-center/notifications':'notifications','/action-center/notification':'notifications','/shipping-parties':'parties','/cargo':'cargo','/documents':'documents','/documents/all':'documents','/tracker':'tracker','/bill-of-lading':'bol','/additional-services':'services','/charges':'charges','/people':'people','/settings':'settings'};
+    const routes={'/action-center/tasks':'tasks','/action-center/notifications':'notifications','/action-center/notification':'notifications','/shipping-parties':'parties','/cargo':'cargo','/documents':'documents','/documents/all':'documents','/bill-of-lading':'bol','/additional-services':'services','/charges':'charges','/people':'people','/settings':'settings'};
     const transportation=shipmentSuffix.match(/^\/transportation\/(ocean-booking|export|import)(?:\/(overview|planning-tracking|planning|dispatches|tracker|charges|accessorials|free-time))?$/);
     const billing=shipmentSuffix.match(/^\/billing(?:\/(receivables|payables))?$/);
     let section=routes[shipmentSuffix],tab;
@@ -11332,26 +12048,40 @@ const PAGE_SCREENS = [
 /* ---------- screens switcher ---------- */
 function ScreenSwitcher({ route }) {
   const [open, setOpen] = useState(false);
+  const view = React.useContext(ViewCtx);
+  const customer = view.role === 'customer';
+  const list = screenList(view);
+  const pre = customer ? 'C' : 'S';
   const full = route.path + (route.query.tab ? `?tab=${route.query.tab}` : '');
-  const shipIdx = route.path === SHIPMENT_PATH ? clampScreen(route.query.screen) : -1;
+  const onPlanning = route.path === SHIPMENT_PATH || route.path.endsWith('/planning-tracking');
+  const shipIdx = onPlanning && route.query.screen ? clampScreen(route.query.screen, list) : -1;
   const pageIdx = PAGE_SCREENS.findIndex(([, , to]) => to === full);
-  const badge = shipIdx >= 0 ? `S${shipIdx + 1}` : pageIdx >= 0 ? pageIdx + 1 : null;
+  const badge = shipIdx >= 0 ? `${pre}${shipIdx + 1}` : pageIdx >= 0 ? pageIdx + 1 : null;
   const pick = (to) => { go(to); setOpen(false); };
   return (
     <>
       <FloatButton icon={<I.AppstoreOutlined />} tooltip="Figma screens" onClick={() => setOpen(true)} badge={badge ? { count: badge, color: TOKEN.colorPrimary } : undefined}
         style={{ insetInlineStart: 8, insetInlineEnd: 'auto', bottom: 16, zIndex: 2000 }} />
       <Drawer open={open} onClose={() => setOpen(false)} title="Figma screens" size={360} placement="left" zIndex={2100}>
+        <div className="sw-group">Prototype view</div>
+        <Flex vertical gap={TOKEN.marginXS}>
+          <Segmented block value={view.role} onChange={(role) => view.set({ role })} aria-label="View as"
+            options={[{ value: 'operator', label: 'Operator' }, { value: 'customer', label: 'Customer' }]} />
+          {customer && <Segmented block value={view.svc} onChange={(svc) => view.set({ svc })} aria-label="Service"
+            options={[{ value: 'cy', label: 'CY – CY' }, { value: 'door', label: 'Door to Door' }]} />}
+          <Select value={view.stage || 'screen'} onChange={(stage) => view.set({ stage })} aria-label="Stage" prefix="Stage"
+            options={STAGES.map(([value, label]) => ({ value, label }))} />
+        </Flex>
         <div className="sw-group">Pages</div>
         <List className="screens-list" dataSource={PAGE_SCREENS} renderItem={([id, name, to], i) => (
           <List.Item className={i === pageIdx ? 'cur' : ''} onClick={() => pick(to)}>
             <span><span className="num">{i + 1}</span>{name}</span><span className="lbl" style={{ color: TOKEN.colorTextQuaternary }}>{id}</span>
           </List.Item>
         )} />
-        <div className="sw-group">Shipment {SHIPMENT_ID} · Planning & Tracking <span className="muted">(← / →)</span></div>
-        <List className="screens-list" dataSource={SCREENS} renderItem={([id, name], i) => (
-          <List.Item className={i === shipIdx ? 'cur' : ''} onClick={() => pick(`${SHIPMENT_PATH}?screen=${i + 1}`)}>
-            <span><span className="num">S{i + 1}</span>{name}</span><span className="lbl" style={{ color: TOKEN.colorTextQuaternary }}>{id}</span>
+        <div className="sw-group">Shipment {SHIPMENT_ID} · Planning & Tracking · {customer ? `Customer, ${view.svc === 'door' ? 'Door to Door' : 'CY – CY'}` : 'Operator'} <span className="muted">(← / →)</span></div>
+        <List className="screens-list" dataSource={list} renderItem={([id, name], i) => (
+          <List.Item className={i === shipIdx ? 'cur' : ''} onClick={() => { view.set({ stage: 'screen' }); pick(`${SHIPMENT_PATH}?screen=${i + 1}`); }}>
+            <span><span className="num">{pre}{i + 1}</span>{name}</span><span className="lbl" style={{ color: TOKEN.colorTextQuaternary }}>{id}</span>
           </List.Item>
         )} />
       </Drawer>
@@ -11360,20 +12090,24 @@ function ScreenSwitcher({ route }) {
 }
 
 /* ---------- shipment detail page (Planning & Tracking) ---------- */
-const clampScreen = (n) => { const v = parseInt(n, 10); return v >= 1 && v <= SCREENS.length ? v - 1 : 0; };
+const clampScreen = (n, list = SCREENS) => { const v = parseInt(n, 10); return v >= 1 && v <= list.length ? v - 1 : 0; };
 function ShipmentPage({ screen, embedded=false }) {
-  const cur = clampScreen(screen);
-  const [st, setSt] = useState(() => SCREENS[cur][2]());
-  useEffect(() => { setSt(SCREENS[cur][2]()); }, [cur]);
+  const view = React.useContext(ViewCtx);
+  const list = screenList(view);
+  const cur = clampScreen(screen, list);
+  const [raw, setSt] = useState(() => applyStage(list[cur][2](), view.stage));
+  useEffect(() => { setSt(applyStage(list[cur][2](), view.stage)); }, [cur, view.role, view.svc, view.stage]);
+  // customer / service come from the prototype switch, not from the screen preset
+  const st = { ...raw, customer: view.role === 'customer', svc: view.svc };
   useEffect(() => {
     const onKey = (e) => {
       if (/input|textarea/i.test(e.target.tagName) || document.querySelector('.ant-drawer-open')) return;
-      if (e.key === 'ArrowRight' && cur < SCREENS.length - 1) go(`${SHIPMENT_PATH}?screen=${cur + 2}`);
+      if (e.key === 'ArrowRight' && cur < list.length - 1) go(`${SHIPMENT_PATH}?screen=${cur + 2}`);
       if (e.key === 'ArrowLeft' && cur > 0) go(`${SHIPMENT_PATH}?screen=${cur}`);
     };
     addEventListener('keydown', onKey);
     return () => removeEventListener('keydown', onKey);
-  }, [cur]);
+  }, [cur, list]);
   const [msgApi, msgCtx] = message.useMessage();
   const act = {
     msg: msgApi,
@@ -11449,7 +12183,11 @@ function App() {
   const navKind = page.collapsed ? 'shipment' : 'global';
   const railMode = navPref[navKind] ?? !!page.collapsed;
   const toggleNav = () => { const next = { ...navPref, [navKind]: !railMode }; setNavPref(next); store.set('skypace.nav', next); };
+  // prototype-only: who is looking at the shipment (Operator / Customer) and the customer's service type
+  const [view, setView] = useState(() => ({ role: 'operator', svc: 'cy', stage: 'screen', ...store.get('skypace.view', {}) }));
+  const viewCtx = useMemo(() => ({ ...view, set: (o) => setView((v) => { const n = { ...v, ...o }; store.set('skypace.view', n); return n; }) }), [view]);
   return (
+    <ViewCtx.Provider value={viewCtx}>
     <ConfigProvider theme={theme} componentSize="middle" input={{ variant: 'outlined' }} inputNumber={{ variant: 'outlined' }} datePicker={{ variant: 'outlined' }} select={{ variant: 'outlined', suffixIcon: <ChevronIcon dir="down" /> }}>
       {page.bare ? <div className="page" key={route.path.startsWith('/auth/') ? '/auth' : route.path}>{page.el}</div> : (
         <div className={'app' + (railMode ? ' collapsed' : ' full')}>
@@ -11462,6 +12200,7 @@ function App() {
       )}
       <ScreenSwitcher route={route} />
     </ConfigProvider>
+    </ViewCtx.Provider>
   );
 }
 

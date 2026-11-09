@@ -13,6 +13,10 @@
   --ds-bg: var(--ant-color-bg-layout);
   --ds-surface: var(--ant-color-bg-container);
   --ds-elevated: var(--ant-color-bg-container);
+  --ds-geekblue-1: #f5f6f8; /* Figma geekblue/1 */
+  --ds-gray-1: #f9fafb; /* Figma gray/1 */
+  --ds-gray-2: #f4f5f8; /* Figma gray/2 */
+  --ds-table-header-bg: #fafafa; /* Figma Table/headerBg */
   --ds-fill: #32365605;
   --ds-fill-secondary: #3236560f;
   --ds-fill-tertiary: #3236560a;
@@ -51,7 +55,7 @@
   --ds-font-weight: 400;
   --ds-font-weight-strong: 600;
   --text:var(--ds-text); --text-2:var(--ds-text-tertiary); --muted:var(--ds-muted);
-  --bg:var(--ds-bg); --card:var(--ds-surface); --gray-1:var(--ant-color-fill-quaternary);
+  --bg:var(--ds-bg); --card:var(--ds-surface); --gray-1:var(--ds-gray-1);
   --split:var(--ds-split); --primary:var(--ds-primary); --primary-7:var(--ds-primary-active);
   --primary-bg:var(--ds-primary-bg); --link:var(--ds-link); --border:var(--ds-border);
   --solid:var(--ds-solid); --solid-hover:#323656bf;
@@ -89,7 +93,7 @@ button, input, textarea, select { font-family:inherit; }
 .ref-tag.ant-tag { background:var(--ds-surface); border-color:var(--ds-border); color:var(--ds-text); border-radius:var(--ds-radius-sm); }
 .filter-on.ant-btn { border-color:var(--ds-primary); color:var(--ds-primary); }
 /* Middle-density operational table uses the exported Table MD tokens. */
-.data-table .ant-table-thead > tr > th, .do-list-table .ant-table-thead > tr > th { background:var(--ant-color-fill-quaternary); color:var(--ds-text); font-weight:600; }
+.data-table .ant-table-thead > tr > th, .do-list-table .ant-table-thead > tr > th { background:var(--ds-table-header-bg); color:var(--ds-text); font-weight:600; }
 .data-table .ant-table-tbody > tr > td, .data-table .ant-table-thead > tr > th { padding:var(--ds-space-sm) var(--ds-space-xs); border-color:var(--ds-border-secondary); }
 .data-table .ant-table-thead > tr > th:first-child, .data-table .ant-table-tbody > tr > td:first-child { padding-left:var(--ds-space-xs) !important; }
 .data-table .ant-table-tbody > tr:not(.ant-table-row-selected):hover > td { background:var(--ant-color-fill-quaternary); }
@@ -426,7 +430,7 @@ table, .ant-table-wrapper, .ant-table, .ant-table-container, .ant-table-content,
 /* Expanded container histories retain the same shared DataTable foundation. */
 .qa-tracker .ant-table-expanded-row > td { padding:var(--ds-space-xs) !important; background:var(--ds-surface) !important; }
 .qa-container-history { border:1px solid var(--ds-split); overflow:hidden; }
-.qa-container-history .ant-table-thead > tr > th { background:var(--ds-fill-tertiary); font-weight:500; }
+.qa-container-history .ant-table-thead > tr > th { background:var(--ds-table-header-bg); font-weight:500; }
 .qa-container-history .ant-table-tbody > tr > td { vertical-align:top; }
 .qa-history-event { display:flex; position:relative; gap:var(--ds-space-sm); }
 .qa-history-marker { position:relative; display:flex; align-items:flex-start; flex:none; width:16px; padding-top:2px; color:var(--ds-primary); z-index:1; }

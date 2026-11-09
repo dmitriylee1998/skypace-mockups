@@ -2,6 +2,7 @@
 window.SKYPACE_DESIGN_SYSTEM = {
   "token": {
     "colorPrimary": "#5f68c0",
+    "geekblue1": "#f5f6f8",
     "colorSuccess": "#52c41a",
     "colorWarning": "#faad14",
     "colorError": "#ff4d4f",
@@ -78,7 +79,7 @@ window.SKYPACE_DESIGN_SYSTEM = {
     "colorFillSecondary": "#3236560f",
     "colorFillTertiary": "#3236560a",
     "colorFillQuaternary": "#32365605",
-    "colorBgLayout": "#f5f5f5",
+    "colorBgLayout": "#f5f6f8",
     "colorBgContainer": "#ffffff",
     "colorBgElevated": "#ffffff",
     "colorBgSpotlight": "#323656d9",
@@ -372,7 +373,7 @@ window.SKYPACE_DESIGN_SYSTEM = {
       "itemSelectedBg": "#f0f1fa",
       "itemSelectedColor": "#5f68c0",
       "popupBg": "#ffffff",
-      "subMenuItemBg": "#32365605",
+      "subMenuItemBg": "#f4f5f8",
       "subMenuItemBorderRadius": 4,
       "subMenuItemSelectedColor": "#5f68c0",
       "zIndexPopup": 1050
@@ -866,6 +867,7 @@ window.SKYPACE_DESIGN_SYSTEM = {
       "titleFontSize": 14
     },
     "Table": {
+      "headerBg": "#fafafa",
       "bodySortBg": "#fafafa",
       "borderColor": "#f0f0f0",
       "cellFontSize": 14,
