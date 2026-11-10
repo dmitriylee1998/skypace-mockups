@@ -1980,7 +1980,7 @@
 
 </style>
 <script src="design-system/theme.js?v=20261109-sub"></script>
-<link rel="stylesheet" href="design-system/system.css?v=20261109-sub" />
+<link rel="stylesheet" href="design-system/system.css?v=20261110-journey-location14" />
 </head>
 <body>
 <div id="root"></div>
@@ -2504,25 +2504,19 @@ function JourneyCardAlt({ st, act }) {
   );
 }
 function JourneyCard({ st, act }) {
-  if (JC) return <JourneyCardAlt st={st} act={act} />;
-  const key = journeyStage(st.tags);
-  const [name, place, n, variant] = JOURNEY[key];
-  return (
-    <div className="card" style={{ gap: TOKEN.marginSM }}>
-      <div className="card-head"><span className="title">Container journey</span>
-        <LinkBtn icon={<I.EyeOutlined />} onClick={() => act.drawer({ type: 'containers', variant, all: true })}>Full journey</LinkBtn></div>
-      <Flex vertical gap={TOKEN.marginXXS} className="gray-box" style={{ padding: `${TOKEN.paddingSM}px ${TOKEN.padding}px` }}>
-        <Flex align="baseline" gap={TOKEN.marginXS}>
-          <Typography.Text strong ellipsis={{ tooltip: name }} style={{ flex: 1, minWidth: 0 }}>{name}</Typography.Text>
-          <Typography.Text strong style={{ whiteSpace: 'nowrap' }}>{n === TOTAL_CONTAINERS ? `All ${n}` : `${n} of ${TOTAL_CONTAINERS}`}</Typography.Text>
-        </Flex>
-        {/* full bar: blue while all containers are moving together (e.g. on one vessel), green only when the journey is done */}
-        <Progress percent={(n / TOTAL_CONTAINERS) * 100} showInfo={false} size="small" status={key === 'done' ? 'success' : 'normal'} style={{ margin: 0 }} />
-        <Typography.Text type="secondary" ellipsis={{ tooltip: place }}>{place}</Typography.Text>
-      </Flex>
-      <Button block icon={<I.AimOutlined />} onClick={() => go(CONTAINERS_PATH)}>Container tracking</Button>
+  const key=journeyStage(st.tags);
+  const [name,place,n,variant]=JOURNEY[key];
+  const [where,eta]=place.split(' · ETA ');
+  const full=()=>act.drawer({type:'containers',variant,all:true});
+  return <section className="card journey-summary">
+    <div className="card-head"><span className="title">Container journey</span><Button size="small" type="link" icon={<I.EyeOutlined/>} onClick={full}>Full journey</Button></div>
+    <div className="gray-box journey-current">
+      <div className="journey-current-text"><b>{name}</b><span className="journey-place">{where}</span></div>
+      <div className="journey-container-total"><span><strong>{n}</strong> of {TOTAL_CONTAINERS} containers</span></div>
+      {eta&&<div className="journey-next"><span className="lbl">Next arrival</span><span>{eta.replace(/^(.*) (\d+ \w+)$/,'$1 · $2')}</span></div>}
     </div>
-  );
+    <Button size="small" block icon={<I.AimOutlined/>} onClick={()=>go(CONTAINERS_PATH)}>Container tracking</Button>
+  </section>;
 }
 
 function RightColumn({ st, act }) {
@@ -3092,9 +3086,7 @@ function LocationFreeDrawer({ d, st, act, close }) {
             {field('Basis', basis)}
             {next && field('Next last free day', next.format(LONG_DT))}
           </Flex>
-          {finished && (breaches
-            ? <Alert type="error" showIcon message={`Free time exceeded for ${breaches} of ${rows.length} containers`} description="All containers have moved. Extra charges may apply." />
-            : <Alert type="success" showIcon message="All containers moved within free time" description="No detention or demurrage charges expected." />)}
+          {finished && !breaches && <Alert type="success" showIcon message="All containers moved within free time" description="No detention or demurrage charges expected." />}
         </Flex>
         <Flex vertical gap={TOKEN.marginSM} style={{ background: TOKEN.colorBgContainer, borderRadius: TOKEN.borderRadiusLG, padding: `${TOKEN.paddingSM}px ${TOKEN.padding}px` }}>
           <Typography.Text strong>Containers</Typography.Text>
@@ -10745,7 +10737,7 @@ function ipDates(list) {
   const out = []; const overdue = []; const past = [];
   list.forEach((d) => {
     if (doStatus(d) !== 'draft') doLegs(d).forEach((leg) => doKeyRows(leg).forEach((r) => {
-      if (r.act && r.est && r.est.isBefore(IP_NOW)) past.push({ at: r.est, title: `${IP_EVENT_NAME[r.k] || r.label} · ${d.id}`, sub: ipPlace(leg.place), id: d.id });
+      if (r.act) past.push({ at: r.act, title: `${IP_EVENT_NAME[r.k] || r.label} · ${d.id}`, sub: ipPlace(leg.place), id: d.id });
     }));
     const nx = ipNext(d);
     if (nx?.row.est && nx.row.est.isBefore(IP_NOW)) overdue.push({ at: nx.row.est, title: `${IP_EVENT_NAME[nx.row.k] || nx.row.label} · ${d.id}`, sub: ipPlace(nx.leg.place), id: d.id });
@@ -10759,46 +10751,19 @@ function ipDates(list) {
 // Dates to watch as an agenda (Google Calendar-like, antd tokens): day heading, event blocks under it, «now» line inside today.
 // kind: past (done) | overdue (date passed, not done — muted, no alarm) | default (upcoming); cutoffs (no id) get the warning tint.
 // event row inside a day box: color bar = kind (move — primary, cutoff — warning, past/overdue — muted)
-function IpEvent({ x, kind }) {
-  const muted = kind === 'past' || kind === 'overdue';
-  const bar = muted ? TOKEN.colorBorder : x.id ? TOKEN.colorPrimary : TOKEN.colorWarning;
-  const time = x.at.format('HH:mm');
-  return (
-    <Flex align="stretch" gap={TOKEN.marginSM} style={{ cursor: x.id ? 'pointer' : undefined }} onClick={() => x.id && ipOpen(x.id)}>
-      <span style={{ width: TOKEN.lineWidthBold * 1.5, flex: 'none', borderRadius: TOKEN.borderRadiusXS, background: bar }} />
-      <Flex vertical flex={1} style={{ minWidth: 0 }}>
-        <Typography.Text strong={kind !== 'past'} style={muted ? { color: TOKEN.colorTextTertiary } : undefined}>{x.title}</Typography.Text>
-        <Typography.Text type="secondary" style={{ fontSize: TOKEN.fontSizeSM }}>{kind === 'overdue' ? `Was planned ${time} · ${x.sub}` : `${time} · ${x.sub}`}</Typography.Text>
-      </Flex>
-      {kind === 'past' && <I.CheckCircleFilled style={{ color: TOKEN.colorSuccess, alignSelf: 'center' }} aria-label="Done" />}
-    </Flex>
-  );
+function IpEvent({x,kind}) {
+  const title=x.displayTitle||x.title.split(' · ')[0];
+  const cutoff=!x.id;
+  const body=<><span className="agenda-event-heading"><span className="agenda-event-title">{cutoff&&<span className="agenda-deadline-dot"/>}{title}</span><time className="agenda-reference-time" dateTime={x.at.format('YYYY-MM-DDTHH:mm')}>{x.at.format('HH:mm')}</time></span><span className="agenda-event-detail"><span className="agenda-event-place">{x.sub}</span>{x.id&&<I.RightOutlined className="agenda-open-arrow"/>}</span>{kind==='past'&&<span className="agenda-completed"><I.CheckOutlined/> Completed</span>}{kind==='overdue'&&<span className="agenda-event-ref">Previously planned</span>}</>;
+  return x.id?<button type="button" className="agenda-reference-event" onClick={()=>ipOpen(x.id)} aria-label={`${title}, ${x.at.format('D MMM, HH:mm')}, ${x.sub}`}>{body}</button>:<div className="agenda-reference-event is-cutoff">{body}</div>;
 }
-function IpAgenda({ items }) {
-  const days = [];
-  items.forEach((it) => {
-    const k = it.x.at.format('YYYY-MM-DD');
-    if (days[days.length - 1]?.k !== k) days.push({ k, at: it.x.at, items: [] });
-    days[days.length - 1].items.push(it);
-  });
-  // today always gets its heading so the «now» line has a place
-  if (!days.some((d) => d.k === IP_TODAY)) {
-    const i = days.findIndex((d) => d.k > IP_TODAY);
-    days.splice(i < 0 ? days.length : i, 0, { k: IP_TODAY, at: IP_NOW, items: [] });
-  }
-  return days.map((d) => {
-    const today = d.k === IP_TODAY;
-    return (
-      <Flex vertical gap={TOKEN.marginXS} key={d.k} style={IP_BOX}>
-        <Typography.Text strong type={d.k < IP_TODAY ? 'secondary' : undefined} style={today ? { color: TOKEN.colorPrimary } : undefined}>
-          {today ? 'Today · ' : ''}{d.at.format('ddd, MMM D')}
-        </Typography.Text>
-        <IpSplit />
-        {d.items.map((it, i) => <React.Fragment key={i}>{i > 0 && <IpSplit />}<IpEvent {...it} /></React.Fragment>)}
-        {!d.items.length && <Typography.Text type="tertiary">No events</Typography.Text>}
-      </Flex>
-    );
-  });
+function IpAgenda({items}) {
+  const groups=[];
+  items.forEach(it=>{const key=it.x.at.format('YYYY-MM-DD');let group=groups.find(g=>g.key===key);if(!group){group={key,at:it.x.at,items:[]};groups.push(group);}group.items.push(it);});
+  return <div className="calendar-agenda agenda-reference">{groups.map(group=><div className="agenda-reference-row" key={group.key}>
+    <div className="agenda-reference-date" aria-label={group.at.format('dddd, D MMMM')}><span>{group.at.format('ddd').toUpperCase()}</span><strong>{group.at.format('D')}</strong><span className="agenda-reference-month">{group.at.format('MMM')}</span></div>
+    <div className="agenda-reference-group">{group.items.map((it,i)=><IpEvent key={it.x.title+'-'+i} {...it}/>)}</div>
+  </div>)}</div>;
 }
 const ipWaiting = (list) => list.filter((d) => doStatus(d) === 'dispatched').map((d) => ({ d, title: `Confirmation · ${d.id}`, sub: `${DO_CARRIERS[d.carrier].name} · dispatched ${d.dispatchedAt}`, due: 'Expected by 27 May, 17:00' }));
 
@@ -10865,7 +10830,7 @@ function IpCalendarModal({ dates, onClose }) {
 // To do · Dates to watch · Waiting on others
 function IpYourPart({ list, msg, mode }) {
   const todos = ipTodos(list, mode); const dates = ipDates(list); const waiting = ipWaiting(list);
-  const [showPast, setShowPast] = useState(false);
+  const [allDatesOpen, setAllDatesOpen] = useState(false);
   const [cal, setCal] = useState(false);
   return (
     <>
@@ -10883,18 +10848,22 @@ function IpYourPart({ list, msg, mode }) {
       </section>
       <section className="do-card">
         <IpHead title="Dates to watch" extra={<DoLink size="small" onClick={() => setCal(true)}>Calendar</DoLink>} />
-        {/* collapsed: not-done passed dates + next 5; "Show all dates" adds done ones and the rest, in time order */}
+        {/* The page keeps a short agenda; all events are available in the drawer. */}
         <IpAgenda items={[
-          ...(showPast ? dates.past.map((x) => ({ x, kind: 'past' })) : []),
           ...dates.overdue.map((x) => ({ x, kind: 'overdue' })),
-          ...(showPast ? dates.upcoming : dates.upcoming.slice(0, 5)).map((x) => ({ x })),
+          ...dates.upcoming.slice(0, 5).map((x) => ({ x })),
         ].sort((a, b) => a.x.at.valueOf() - b.x.at.valueOf())} />
         {(dates.past.length > 0 || dates.upcoming.length > 5) && (
-          <Button block type="link" icon={showPast ? <I.UpOutlined /> : <I.DownOutlined />} iconPlacement="end" onClick={() => setShowPast(!showPast)}>
-            {showPast ? 'Show less' : `Show all dates (${dates.past.length + dates.overdue.length + dates.upcoming.length})`}
+          <Button block type="link" icon={<I.RightOutlined />} iconPlacement="end" onClick={() => setAllDatesOpen(true)}>
+            {`Show all dates (${dates.past.length + dates.overdue.length + dates.upcoming.length})`}
           </Button>
         )}
       </section>
+      {allDatesOpen&&<Drw title="Dates to watch" width={560} onClose={()=>setAllDatesOpen(false)} footer={<Button onClick={()=>setAllDatesOpen(false)}>Close</Button>}>
+        <div className="page-stack"><div className="card-head"><span className="muted">All dates · {dates.past.length+dates.overdue.length+dates.upcoming.length} events</span></div>
+          <IpAgenda items={[...dates.past.map(x=>({x,kind:'past'})),...dates.overdue.map(x=>({x,kind:'overdue'})),...dates.upcoming.map(x=>({x}))].sort((a,b)=>a.x.at.valueOf()-b.x.at.valueOf())}/>
+        </div>
+      </Drw>}
       {cal && <IpCalendarModal dates={dates} onClose={() => setCal(false)} />}
       <section className="do-card">
         <IpHead title="Waiting on others" />
@@ -10924,15 +10893,10 @@ function IpUpdates() {
   return (
     <section className="do-card">
       <IpHead title="Latest updates" />
-      <div className="ip-feed">
-        {IP_UPDATES.map(([day, time, title, by, id], i) => (
-          <a key={i} className="ip-feed-row" href={href(`${DISPATCH_PATH}/${id}`)}>
-            <span className="ip-feed-when"><span>{day}</span><span className="do-sub">{time}</span></span>
-            <span className="ip-feed-dot" />
-            <span className="ip-feed-txt"><span>{title}</span><span className="do-sub">{id} · {by}</span></span>
-          </a>
-        ))}
-      </div>
+      <IpAgenda items={IP_UPDATES.map(([day,time,title,by,id])=>({x:{
+        at:dayjs(`${IP_TODAY.slice(0,8)}${day==='Today'?IP_TODAY.slice(8):day.split(' ')[1]}T${time}`),
+        title,displayTitle:title,sub:by,id
+      }}))}/>
       <Flex><Button type="text" size="small" onClick={() => go(DISPATCH_PATH)}>All activity</Button></Flex>
     </section>
   );

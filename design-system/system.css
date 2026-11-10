@@ -579,3 +579,134 @@ html { scrollbar-gutter:stable; }
 .list-controls-fill { flex:1; min-width:0; }
 .list-actions { display:flex; align-items:center; gap:var(--ds-space-xs); margin-inline-start:auto; flex-wrap:wrap; }
 .do-list-head > .do-search { flex:0 1 240px; min-width:200px; width:240px; }
+
+/* Journey summary: stage progress is separate from the container count. */
+.journey-summary { gap:var(--ds-space-xs); }
+.journey-summary .card-head { min-height:24px; }
+.journey-phase-rail { display:flex; gap:var(--ds-space-xs); padding-block:var(--ds-space-xxs); }
+.journey-phase { flex:1; min-width:0; display:flex; flex-direction:column; gap:var(--ds-space-xxs); color:var(--ds-muted); font-size:var(--ds-font-size-sm); }
+.journey-phase-line { height:3px; border-radius:var(--ds-radius-xs); background:var(--ds-split); }
+.journey-phase.done .journey-phase-line { background:var(--ds-success); }
+.journey-phase.current .journey-phase-line { background:var(--ds-primary); }
+.journey-phase.current { color:var(--ds-primary); }
+.journey-current { padding:var(--ds-space-sm) var(--ds-space); display:flex; flex-direction:column; gap:var(--ds-space-sm); }
+.journey-current-top { display:flex; align-items:center; gap:var(--ds-space-xs); }
+.journey-stage-icon { display:flex; align-items:center; justify-content:center; flex:none; width:32px; height:32px; border-radius:var(--ds-radius); background:var(--ds-primary-bg); color:var(--ds-primary); }
+.journey-current-text { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+.journey-count.ant-tag { margin:0; background:var(--ds-surface); color:var(--ds-text); border-color:var(--ds-split); white-space:nowrap; }
+.journey-location { color:var(--ds-text-secondary); font-size:var(--ds-font-size-sm); overflow-wrap:anywhere; }
+.journey-next { display:flex; justify-content:space-between; flex-wrap:wrap; gap:var(--ds-space-xs); border-top:1px solid var(--ds-split); padding-top:var(--ds-space-xs); }
+.journey-tracking.ant-btn { display:flex; width:100%; align-items:center; justify-content:space-between; padding-inline:var(--ds-space-xs); color:var(--ds-link); }
+.journey-tracking > span:first-child { display:flex; gap:var(--ds-space-xs); align-items:center; }
+
+.journey-current-top { align-items:flex-start; }
+.journey-current-text { gap:var(--ds-space-xxs); overflow-wrap:anywhere; }
+.journey-current-text > b { white-space:normal; line-height:1.5; }
+.journey-place { color:var(--ds-text-secondary); font-size:var(--ds-font-size-sm); white-space:normal; line-height:1.5; }
+.journey-count { flex:none; align-self:flex-start; }
+
+/* Calendar agenda: dates form a scan column, times remain aligned. */
+.calendar-agenda { display:flex; flex-direction:column; }
+.agenda-day { display:grid; grid-template-columns:44px minmax(0,1fr); gap:var(--ds-space-sm); padding-block:var(--ds-space-sm); }
+.agenda-day + .agenda-day { border-top:1px solid var(--ds-split); }
+.agenda-date { display:flex; flex-direction:column; align-items:center; gap:2px; align-self:start; padding-block:var(--ds-space-xxs); }
+.agenda-weekday,.agenda-month { font-size:11px; line-height:16px; color:var(--ds-muted); }
+.agenda-weekday { text-transform:uppercase; letter-spacing:.3px; }
+.agenda-day-number { display:flex; align-items:center; justify-content:center; width:36px; height:36px; font-size:24px; line-height:32px; font-weight:600; font-variant-numeric:tabular-nums; border-radius:50%; }
+.agenda-day.today .agenda-day-number { background:var(--ds-primary); color:var(--ds-surface); }
+.agenda-day.today .agenda-weekday,.agenda-day.today .agenda-month { color:var(--ds-primary); }
+.agenda-events { min-width:0; display:flex; flex-direction:column; gap:var(--ds-space-xs); }
+.agenda-today-label { color:var(--ds-primary); font-size:var(--ds-font-size-sm); font-weight:600; }
+.agenda-event { appearance:none; border:0; border-left:2px solid var(--ds-primary); background:var(--ds-fill-tertiary); color:var(--ds-text); border-radius:0 var(--ds-radius-sm) var(--ds-radius-sm) 0; padding:var(--ds-space-xs); font:inherit; text-align:left; display:flex; align-items:flex-start; gap:var(--ds-space-xs); min-width:0; width:100%; }
+button.agenda-event { cursor:pointer; }
+button.agenda-event:hover { background:var(--ds-primary-bg); }
+.agenda-time { flex:none; width:36px; font-size:var(--ds-font-size-sm); line-height:22px; font-weight:500; font-variant-numeric:tabular-nums; }
+.agenda-event-content { min-width:0; display:flex; flex-direction:column; gap:2px; flex:1; }
+.agenda-event-title { font-size:var(--ds-font-size); font-weight:500; line-height:22px; overflow-wrap:anywhere; }
+.agenda-event-ref,.agenda-event-place { font-size:var(--ds-font-size-sm); line-height:18px; color:var(--ds-muted); overflow-wrap:anywhere; }
+.agenda-event.cutoff { border-left-color:var(--ds-warning); }
+.agenda-event.past,.agenda-event.overdue { border-left-color:var(--ds-border); }
+.agenda-event.past .agenda-event-title { color:var(--ds-muted); font-weight:400; }
+.agenda-cutoff-label { font-size:11px; line-height:18px; color:var(--ds-text-tertiary); }
+.agenda-done { color:var(--ds-success); font-size:12px; margin-top:4px; }
+.agenda-empty { color:var(--ds-muted); font-size:var(--ds-font-size-sm); padding-block:var(--ds-space-xs); }
+.journey-current { padding:var(--ds-space-xs) var(--ds-space-sm); gap:var(--ds-space-xs); }
+.journey-count { color:var(--ds-muted); font-size:var(--ds-font-size-sm); line-height:22px; white-space:nowrap; }
+
+/* Container count anchors the journey summary without adding a progress rail. */
+.journey-current-top { align-items:center; gap:var(--ds-space-sm); }
+.journey-quantity { flex:none; display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:48px; padding-right:var(--ds-space-sm); border-right:1px solid var(--ds-split); }
+.journey-quantity strong { font-size:24px; line-height:28px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ds-primary); }
+.journey-quantity > span { font-size:var(--ds-font-size-sm); line-height:18px; color:var(--ds-muted); white-space:nowrap; }
+
+/* Compact per-event date tiles, matching the supplied agenda reference. */
+.agenda-reference { gap:var(--ds-space-sm); }
+.agenda-reference-row { display:flex; align-items:center; gap:var(--ds-space-sm); min-width:0; }
+.agenda-reference-date { width:48px; min-height:60px; flex:none; border-radius:var(--ds-radius-lg); background:var(--ds-fill-tertiary); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--ds-space-xxs); }
+.agenda-reference-date > span { color:var(--ds-muted); font-size:var(--ds-font-size-sm); line-height:18px; }
+.agenda-reference-date > strong { color:var(--ds-text); font-size:20px; line-height:24px; font-weight:600; font-variant-numeric:tabular-nums; }
+.agenda-reference-event { appearance:none; border:0; background:transparent; color:var(--ds-text); font:inherit; text-align:left; flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center; gap:var(--ds-space-xxs); padding:var(--ds-space-xxs) 0; }
+button.agenda-reference-event { cursor:pointer; }
+button.agenda-reference-event:hover .agenda-event-title { color:var(--ds-link); }
+.agenda-reference-event .agenda-event-title { font-weight:600; }
+.agenda-reference-row.past .agenda-reference-date strong,.agenda-reference-row.past .agenda-event-title { color:var(--ds-muted); }
+
+.agenda-reference-row { align-items:flex-start; }
+.agenda-reference-group { display:flex; flex-direction:column; gap:var(--ds-space-sm); flex:1; min-width:0; }
+.agenda-reference-group > .agenda-reference-event { flex:none; min-height:60px; }
+
+/* One complete date badge and a shared inset list for each day. */
+.agenda-reference-date { min-height:76px; gap:2px; }
+.agenda-reference-month { font-size:11px !important; line-height:16px !important; }
+.agenda-reference-group { background:var(--ds-fill-tertiary); border-radius:var(--ds-radius-lg); padding:0 var(--ds-space-sm); gap:0; overflow:hidden; }
+.agenda-reference-group > .agenda-reference-event { min-height:0; padding-block:var(--ds-space-sm); }
+.agenda-reference-group > .agenda-reference-event + .agenda-reference-event { border-top:1px solid var(--ds-split); }
+.agenda-reference-event .agenda-event-title { font-weight:500; }
+.agenda-reference-group > button.agenda-reference-event:hover { background:var(--ds-primary-bg); }
+
+/* Agenda rows expose the time and retain a quiet, predictable click target. */
+.agenda-event-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:var(--ds-space-xs); width:100%; }
+.agenda-event-heading .agenda-event-title { display:flex; align-items:baseline; gap:6px; min-width:0; }
+.agenda-reference-time { flex:none; color:var(--ds-text-secondary); font-size:var(--ds-font-size-sm); line-height:22px; font-variant-numeric:tabular-nums; }
+.agenda-event-detail { display:flex; align-items:center; justify-content:space-between; gap:var(--ds-space-xs); width:100%; }
+.agenda-open-arrow { flex:none; font-size:10px; color:var(--ds-link); opacity:0; transition:opacity 150ms ease; }
+.agenda-reference-event:hover .agenda-open-arrow,.agenda-reference-event:focus-visible .agenda-open-arrow { opacity:1; }
+.agenda-deadline-dot { width:6px; height:6px; border-radius:50%; flex:none; align-self:center; background:var(--ds-warning); }
+.agenda-reference-group > .agenda-reference-event { gap:var(--ds-space-xxs); padding-block:var(--ds-space-sm); }
+
+/* Refined agenda: a quiet timeline and clear date/time hierarchy. */
+.agenda-reference { gap:var(--ds-space); }
+.agenda-reference-row { gap:var(--ds-space-sm); }
+.agenda-reference-date { width:48px; min-height:72px; background:var(--ds-fill-tertiary); border:1px solid var(--ds-split); border-radius:var(--ds-radius-lg); }
+.agenda-reference-date > strong { font-size:22px; line-height:26px; }
+.agenda-reference-date > span:first-child { font-size:10px; letter-spacing:.5px; }
+.agenda-reference-group { padding:0 0 0 var(--ds-space-sm); background:transparent; border-radius:0; border-left:1px solid var(--ds-split); overflow:visible; }
+.agenda-reference-group > .agenda-reference-event { position:relative; padding:var(--ds-space-xs) 0; min-height:60px; }
+.agenda-reference-group > .agenda-reference-event:first-child { padding-top:0; }
+.agenda-reference-group > .agenda-reference-event:last-child { padding-bottom:0; }
+.agenda-reference-group > .agenda-reference-event::before { content:''; position:absolute; left:-16px; top:16px; width:6px; height:6px; border-radius:50%; background:var(--ds-primary-border); border:1px solid var(--ds-surface); }
+.agenda-reference-group > .agenda-reference-event:first-child::before { top:8px; }
+.agenda-reference-group > .agenda-reference-event.is-cutoff::before { background:var(--ds-primary); }
+.agenda-reference-group > .agenda-reference-event + .agenda-reference-event { border-top:1px solid var(--ds-split); }
+.agenda-reference-event .agenda-event-title { font-weight:500; line-height:22px; }
+.agenda-reference-time { padding:0 5px; background:var(--ds-fill-tertiary); border-radius:var(--ds-radius-sm); font-size:11px; line-height:20px; color:var(--ds-text-secondary); }
+.agenda-reference-event .agenda-event-place { line-height:18px; }
+.agenda-reference-group > button.agenda-reference-event:hover { background:transparent; }
+.agenda-reference-group > button.agenda-reference-event:hover .agenda-event-title { color:var(--ds-link); }
+.agenda-reference-group > button.agenda-reference-event:hover .agenda-reference-time { background:var(--ds-primary-bg); color:var(--ds-primary); }
+.agenda-deadline-dot { display:none; }
+
+/* Journey: event first, location second, explicitly labelled container total. */
+.journey-summary .journey-current { padding:12px; gap:8px; }
+.journey-summary .journey-current-text { gap:4px; }
+.journey-summary .journey-current-text > b { font-size:var(--ds-font-size); font-weight:600; }
+.journey-summary .journey-place { display:flex; align-items:flex-start; gap:6px; }
+.journey-summary .journey-place .anticon { margin-top:3px; flex:none; }
+.journey-container-total { display:flex; align-items:center; gap:6px; padding-top:8px; border-top:1px solid var(--ds-split); color:var(--ds-muted); font-size:var(--ds-font-size-sm); line-height:20px; }
+.journey-container-total strong { color:var(--ds-text); font-weight:600; font-variant-numeric:tabular-nums; }
+
+.agenda-completed { display:flex; align-items:center; gap:4px; color:var(--ds-success); font-size:var(--ds-font-size-sm); line-height:18px; }
+
+.journey-container-total { font-size:14px; line-height:22px; }
+
+.journey-summary .journey-place { font-size:14px; line-height:22px; }
