@@ -1,0 +1,436 @@
+/* Concept layout (Figma X2yY3jE8vcRmF6C2XJ1CL5, node 139004:102686 "Skapace new layout"):
+   menu straight on the layout background, top bar with search, every page inside one rounded panel
+   (Neutral/2 fill, Neutral/4 border), shipment pages get a breadcrumb head + meta row and an inner menu
+   split from the content by a vertical line. Values come from tokens (--ant-* / --ds-*). */
+
+.app.concept {
+  height: 100vh; min-height: 0; overflow: hidden;
+  padding: var(--ds-space-sm) var(--ds-space-sm) var(--ds-space-sm) var(--ds-space-xs); /* smaller outer space around the menu */
+  gap: var(--ds-space-xs);
+}
+
+/* ---------- global menu ---------- */
+.app.concept .global-nav-shell { width: 209px; }
+.app.concept.collapsed .global-nav-shell { width: 47px; }
+.app.concept .sidebar { width: auto; position: static; height: 100%; padding: 0; background: transparent; }
+.app.concept .sidebar .brand { height: var(--ds-control-height-sm); padding: 0; margin-bottom: var(--ds-space-lg); }
+.app.concept .sidebar > div:has(> .global-menu) > div:first-child { padding: 0 0 var(--ds-space) !important; }
+.app.concept .quote-nav-button.ant-btn {
+  background: var(--ds-gray-1); border-color: var(--ds-border-secondary); color: var(--ds-text);
+}
+.app.concept .quote-nav-button.ant-btn:hover { border-color: var(--ds-border); color: var(--ds-text); }
+
+.app.concept .global-menu.ant-menu-inline .ant-menu-item,
+.app.concept .global-menu.ant-menu-inline .ant-menu-submenu-title,
+.app.concept .side .ant-menu-inline .ant-menu-item,
+.app.concept .side .ant-menu-inline .ant-menu-submenu-title {
+  height: var(--ds-control-height); line-height: var(--ds-control-height);
+  margin-block: var(--ds-space-xxs); color: var(--ant-color-text-secondary);
+  padding-inline-start: var(--ds-space-xs) !important;
+}
+.app.concept .global-menu .ant-menu-sub .ant-menu-item,
+.app.concept .side .ant-menu-sub .ant-menu-item { padding-inline-start: calc(var(--ds-space-xs) + var(--ds-space-lg)) !important; }
+.app.concept .global-menu .ant-menu-item-group-list .ant-menu-item { padding-inline-start: calc(var(--ds-space-xs) + var(--ds-space-lg) + var(--ds-space-xs)) !important; }
+.app.concept .global-menu .ant-menu-sub .ant-menu-item-group-title { padding-inline-start: calc(var(--ds-space-xs) + var(--ds-space-lg)) !important; }
+.app.concept .global-menu .ant-menu-item-selected,
+.app.concept .side .ant-menu-item-selected {
+  background: color-mix(in srgb, var(--ant-color-border) 40%, transparent) !important;
+  color: var(--ant-color-text) !important;
+}
+.app.concept .global-menu .ant-menu-item:not(.ant-menu-item-selected):hover,
+.app.concept .global-menu .ant-menu-submenu-title:hover,
+.app.concept .side .ant-menu-item:not(.ant-menu-item-selected):hover,
+.app.concept .side .ant-menu-submenu-title:hover { background: color-mix(in srgb, var(--ant-color-border) 25%, transparent) !important; }
+.app.concept .global-menu .ant-menu-sub.ant-menu-inline,
+.app.concept .side .ant-menu-sub.ant-menu-inline { background: transparent !important; }
+.app.concept .global-menu .ant-menu-submenu-selected > .ant-menu-submenu-title,
+.app.concept .side .ant-menu-submenu-selected > .ant-menu-submenu-title { color: var(--ant-color-text); }
+
+/* ---------- top bar ---------- */
+.app.concept .main { margin-left: 0; padding: 0; gap: var(--ds-space-sm); min-height: 0; }
+.app.concept .topbar { height: var(--ds-control-height); padding: 0 var(--ds-space) 0 0; flex: none; }
+.app.concept .topbar-actions .ant-btn { width: auto; }
+.app.concept .topbar-actions .ant-btn-text { color: var(--ant-color-text-secondary); padding-inline: 0; }
+.app.concept .topbar-actions .ant-btn-text:hover { color: var(--ant-color-text); background: transparent; }
+
+/* ---------- page panel ---------- */
+.app.concept .page.panel {
+  flex: 1; min-height: 0; overflow: auto; padding: 0;
+  display: flex; flex-direction: column;
+  background: var(--ds-gray-1);
+  border: 1px solid var(--ds-border-secondary);
+  border-radius: calc(var(--ds-radius-lg) + var(--ds-radius-sm));
+}
+.app.concept .panel-head { min-height: var(--ds-control-height-lg); padding: 0 var(--ds-space); flex: none; }
+.app.concept .panel-body { flex: 1; min-width: 0; padding: var(--ds-space); }
+.app.concept .panel-shipment > .panel-body { padding: 0; display: flex; flex-direction: column; }
+
+/* shipment head: breadcrumbs row + meta row, no card of its own */
+.app.concept .page-header {
+  display: block; background: transparent; border-radius: 0; padding: 0; box-shadow: none; min-height: 0; gap: 0; flex: none;
+}
+.app.concept .ph-meta { padding: var(--ds-space-xs) var(--ds-space); row-gap: var(--ds-space-xxs); }
+
+/* inner shipment menu | vertical line | content */
+.app.concept .panel .columns { margin-top: 0; gap: 0; padding: 0 var(--ds-space); flex: 1; }
+.app.concept .panel .columns > .side {
+  width: 225px; align-self: stretch; height: auto; background: transparent; border-radius: 0;
+  padding: var(--ds-space-xs) var(--ds-space-xs) var(--ds-space-xs) 0;
+  border-right: 1px solid var(--ds-border-secondary);
+}
+.app.concept .panel .columns > .content-wrap { padding: var(--ds-space) 0 var(--ds-space) var(--ds-space); }
+
+/* white cards with a hairline border on the gray panel */
+.app.concept .panel .card,
+.app.concept .panel .card-flat,
+.app.concept .panel .do-card,
+.app.concept .panel .dsp-card,
+.app.concept .panel .hub-card,
+.app.concept .panel .list-card,
+.app.concept .panel .offer-card { border: 1px solid var(--ds-border-secondary); }
+
+@media (max-width: 900px) {
+  .app.concept { padding: var(--ds-space-xs); gap: 0; }
+  .app.concept .panel .columns { padding: 0; }
+  .app.concept .panel .columns > .content-wrap { padding: var(--ds-space-sm); }
+}
+
+/* ---------- shell UX ---------- */
+/* sticky head of the panel: breadcrumbs (and the shipment meta row) stay while the content scrolls */
+.app.concept .page.panel > .panel-head,
+.app.concept .panel-shipment .page-header { position: sticky; top: 0; z-index: 5; background: var(--ds-gray-1); }
+.app.concept .page.panel > .panel-head + .ant-divider { position: sticky; top: var(--ds-control-height-lg); z-index: 5; }
+.app.concept .topbar-search .ant-input { cursor: pointer; }
+
+/* command palette rows */
+.cmdk-list { max-height: 420px; overflow-y: auto; padding: var(--ds-space-xxs) var(--ds-space-xs) var(--ds-space-xs); }
+.cmdk-item { padding: var(--ds-space-xs); border-radius: var(--ds-radius); cursor: pointer; }
+.cmdk-item.active { background: color-mix(in srgb, var(--ant-color-border) 40%, transparent); }
+
+/* recent shipments under the global menu */
+.recent-item { padding: var(--ds-space-xxs) var(--ds-space-xs); border-radius: var(--ds-radius); cursor: pointer; min-width: 0; }
+.recent-item:hover, .recent-item:focus-visible { background: color-mix(in srgb, var(--ant-color-border) 25%, transparent); outline: none; }
+
+/* ---------- one rule for blocks in the panel: what matters is white, what helps is gray ----------
+   white  — data you read or act on: KPI tiles, tables, content cards;
+   gray   — the panel itself carries chrome: wrappers of other cards, tab bars, filter/search toolbars. */
+/* a card that only groups other cards dissolves into the panel */
+.app.concept .panel-body .ant-card:has(.ant-card),
+.app.concept .panel-body .card:has(> * .ant-card, > .ant-card),
+.app.concept .panel-body .card-flat:has(.ant-card) { background: transparent; border-color: transparent; box-shadow: none; }
+.app.concept .panel-body .ant-card:has(.ant-card) > .ant-card-body { padding: 0 !important; }
+/* tab bars sit on the panel */
+.app.concept .panel-body .tabs-card,
+.app.concept .panel-body .card-flat:has(> .ant-tabs:only-child) { background: transparent; border-color: transparent; padding-inline: 0; }
+/* list blocks: toolbar on gray, the table itself is the white card */
+.app.concept .panel-body .card-flat:has(> .ant-table-wrapper) { background: transparent; border-color: transparent; }
+.app.concept .panel-body .card-flat:has(> .ant-table-wrapper) > :not(.ant-table-wrapper) { padding-inline: 0; }
+/* the white card is the table itself; pagination under it stays on gray */
+.app.concept .panel-body .card-flat:has(> .ant-table-wrapper) > .ant-table-wrapper .ant-table {
+  background: var(--ds-surface); border: 1px solid var(--ds-border-secondary); border-radius: var(--ds-radius-lg); overflow: hidden;
+}
+.app.concept .panel-body .card-flat:has(> .ant-table-wrapper) > .ant-table-wrapper .ant-table-pagination { margin-inline: 0; }
+/* KPI / stat tiles are always white cards */
+.app.concept .panel-body .ant-card .ant-card { background: var(--ds-surface); border: 1px solid var(--ds-border-secondary); }
+/* task lists (Tasks, Notifications): the panel around the groups dissolves, tabs + filter sit on gray, each group is its own white card */
+.app.concept .panel-body .task-list-panel { background: transparent; border-color: transparent; padding-bottom: 0; overflow: visible; }
+.app.concept .panel-body .task-list-panel > .task-table-toolbar { padding-inline: 0; }
+.app.concept .panel-body .task-list-panel > .task-table-group { margin-inline: 0; }
+/* every table in the panel has rounded corners (system.css zeroes them with !important, PDF tables keep square) */
+.app.concept .panel-body .ant-table-wrapper:not(.doc-table) .ant-table { border-radius: var(--ds-radius-lg) !important; overflow: hidden; }
+/* table header rows are white, split from the rows by a hairline */
+.app.concept .panel-body .ant-table-wrapper:not(.doc-table) .ant-table-thead > tr > th,
+.app.concept .panel-body .ant-table-wrapper:not(.doc-table) .ant-table-thead > tr > td {
+  background: var(--ds-surface) !important;
+  border-bottom: 1px solid var(--ds-border-secondary) !important;
+}
+
+/* list toolbar: switch on the left, search / filter / sort on the right, all on the gray panel */
+.app.concept .list-switch.ant-segmented { background: transparent; border: 0; padding: 0; }
+.app.concept .list-switch .ant-segmented-item-label { padding-inline: var(--ds-space-sm); }
+.app.concept .list-switch .do-tab { display: inline-flex; align-items: center; gap: var(--ds-space-xs); }
+.app.concept .list-switch .ant-segmented-item-selected .do-tab-count { background: color-mix(in srgb, var(--ds-surface) 20%, transparent); color: var(--ds-surface); }
+.app.concept .list-toolbar-controls .do-search { width: calc(var(--ds-control-height-lg) * 7); }
+/* ListPanel with a switch: switch left, search / filter / actions pushed right */
+.app.concept .list-controls-end { justify-content: flex-end; margin-left: auto; }
+.app.concept .do-list-head:has(> .list-switch) { flex-wrap: wrap; }
+.app.concept .list-controls-end > .list-actions { margin-left: 0; }
+
+/* switch motion: while the thumb slides (antd renders .ant-segmented-thumb only during the motion) the target item
+   stays transparent, so only the thumb moves; label and counter colors fade instead of jumping */
+.app.concept .solid-seg:has(.ant-segmented-thumb) .ant-segmented-item-selected { background: transparent !important; }
+.app.concept .solid-seg .ant-segmented-thumb { z-index: 0; }
+.app.concept .solid-seg .ant-segmented-item { position: relative; z-index: 1; transition: color 0.12s ease-out, background-color 0s; }
+.app.concept .solid-seg .ant-segmented-item-selected { color: var(--ds-surface); }
+.app.concept .solid-seg .do-tab-count { transition: background-color 0.12s ease-out, color 0.12s ease-out; }
+/* the sliding thumb keeps the item's radius (antd draws it with borderRadiusSM) */
+.app.concept .solid-seg .ant-segmented-thumb,
+.app.concept .solid-seg .ant-segmented-item,
+.app.concept .solid-seg .ant-segmented-item-label { border-radius: var(--ds-radius) !important; }
+
+/* one spacing everywhere (as Dispatches): 16 from the panel edge, 8 between blocks, 8 between a toolbar and its table */
+.app.concept .panel-body .card-flat:has(> .ant-table-wrapper) { border: 0; }
+.app.concept .panel-body .card-flat:has(> .ant-table-wrapper) > .do-list-head { padding: 0 0 var(--ds-space-xs); }
+
+/* summary cards with stat tiles (Overview: Tasks, Notifications): the card dissolves, title on gray, each tile is a white card */
+.app.concept .panel-body .card:has(> .mini-tiles) { background: transparent; border-color: transparent; padding: 0; }
+.app.concept .panel-body .card:has(> .mini-tiles) .stat-btn { background: var(--ds-surface); border: 1px solid var(--ds-border-secondary); }
+.app.concept .panel-body .card:has(> .mini-tiles) .stat-btn:hover { border-color: var(--ds-border); }
+/* dissolved antd Card (groups other cards): no line under its title, title aligned with the panel edge like other headings */
+.app.concept .panel-body .ant-card:has(.ant-card) > .ant-card-head { border-bottom: 0; padding-inline: 0; min-height: 0; padding-bottom: var(--ds-space-xs); }
+
+/* 16px between blocks everywhere (stacks, grids of cards, columns, tiles) */
+.app.concept .panel-body :is(.page-stack, .overview-dashboard, .overview-tables, .overview-summary, .mini-tiles,
+  .content, .content-wrap, .col-left, .col-right, .cn-wrap, .list-toolbar) { gap: var(--ds-space) !important; }
+.app.concept .panel-body .task-list-panel > .task-table-group { margin-bottom: var(--ds-space); }
+/* antd Row gutters inside dissolved cards (KPI tiles, Quick access) */
+.app.concept .panel-body .ant-card:has(.ant-card) .ant-row { margin-inline: calc(var(--ds-space) / -2) !important; row-gap: var(--ds-space) !important; }
+.app.concept .panel-body .ant-card:has(.ant-card) .ant-row > .ant-col { padding-inline: calc(var(--ds-space) / 2) !important; }
+/* overview stat tiles: content left, arrow button bottom-right */
+.app.concept .panel-body .stat-btn { align-items: stretch; text-align: left; padding: var(--ds-space-sm) var(--ds-space); }
+.app.concept .panel-body .card:has(> .mini-tiles) > .card-head { min-height: var(--ds-control-height-sm); }
+/* the page panel is at most 1700px wide (asked by design) and centred; the top bar stretches full width */
+.app.concept .page.panel { width: 100%; max-width: 1700px; margin-inline: auto; }
+
+/* ---------- inside a shipment: same white/gray rule ---------- */
+/* view switches (Tasks scope, Locations, tab-like switches) sit on gray without a plate */
+.app.concept .panel-body .task-scope-switch.card-flat { background: transparent; border-color: transparent; }
+.app.concept .panel-body .task-scope-switch .ant-segmented { background: transparent; padding: 0; }
+.app.concept .list-switch-row { display: flex; }
+/* Shipping parties: section title on gray, each party is a white card */
+.app.concept .panel-body .shipment-workspace > .sw-section { background: transparent; padding: 0; }
+.app.concept .panel-body .shipment-workspace > .sw-section .sw-section-title { margin-bottom: var(--ds-space-xs); }
+.app.concept .panel-body .shipment-workspace > .sw-section .sw-party-grid { gap: var(--ds-space); }
+.app.concept .panel-body .shipment-workspace > .sw-section .sw-party-grid > .ant-card { background: var(--ds-surface); border: 1px solid var(--ds-border-secondary); }
+.app.concept .panel-body .shipment-workspace { gap: var(--ds-space); }
+/* a do-card that is only a title over a list of gray item boxes (Locations, Inland Pickup location lists):
+   title goes on gray, every item becomes a white card */
+.app.concept .panel-body .do-card:has(> .ant-flex-vertical[style*="background"]) { background: transparent; padding: 0; border-color: transparent; gap: var(--ds-space-xs); }
+.app.concept .panel-body .do-card:has(> .ant-flex-vertical[style*="background"]) > .ant-flex-vertical[style*="background"] {
+  background: var(--ds-surface) !important; border: 1px solid var(--ds-border-secondary);
+}
+
+/* ---------- toolbars: left — switch or list title, right — search, filters, sort, actions ---------- */
+.app.concept .panel-body .toolbar.card-flat { background: transparent; border-color: transparent; padding: 0; justify-content: space-between; }
+.app.concept .toolbar-left { display: flex; align-items: center; min-width: 0; }
+.app.concept .toolbar-left > b { font-weight: 600; }
+.app.concept .toolbar-actions { margin-left: auto; align-items: center; justify-content: flex-end; }
+.app.concept .toolbar-actions .toolbar-search { width: calc(var(--ds-control-height-lg) * 7); }
+.app.concept .do-list-head > b { flex: 1; }
+
+/* ---------- 20px inside the panel on every page ---------- */
+.app.concept .page.panel:not(.panel-shipment) > .panel-body { padding: var(--ds-space-md); }
+.app.concept .panel-head { padding-inline: var(--ds-space-md); }
+.app.concept .ph-meta { padding-inline: var(--ds-space-md); }
+.app.concept .panel .columns { padding: 0 var(--ds-space-md); }
+.app.concept .panel .columns > .side { padding-block: var(--ds-space-md); padding-right: var(--ds-space); }
+.app.concept .panel .columns > .content-wrap { padding: var(--ds-space-md) 0 var(--ds-space-md) var(--ds-space-md); }
+
+/* ---------- every alert has a border in its own color ---------- */
+.app.concept .ant-alert { border-width: 1px !important; border-style: solid !important; border-radius: var(--ds-radius-lg) !important; }
+.app.concept .ant-alert-warning { border-color: var(--ant-color-warning-border) !important; }
+.app.concept .ant-alert-error { border-color: var(--ant-color-error-border) !important; }
+.app.concept .ant-alert-success { border-color: var(--ant-color-success-border) !important; }
+.app.concept .ant-alert-info { border-color: var(--ant-color-info-border) !important; }
+/* no vertical dividers between header cells, as on the main lists */
+.app.concept .panel-body .ant-table-thead > tr > th::before { display: none !important; }
+/* panel title row: extra space above (global pages and shipment) */
+.app.concept .panel-head { padding-top: var(--ds-space-xxs); min-height: calc(var(--ds-control-height-lg) + var(--ds-space-xxs)); }
+
+/* every white block in the panel has the same hairline border */
+.app.concept .panel-body :is(.section, .stat-tile, .ant-card:not(:has(.ant-card)), .ant-menu-root.ant-menu-inline) {
+  border: 1px solid var(--ds-border-secondary) !important;
+}
+/* the shipment menu is not a white block: no border */
+.app.concept .panel .columns > .side .ant-menu-root { border: 0 !important; }
+/* order header line runs edge to edge of the shipment content area (from the menu line to the panel edge) */
+.app.concept .do-head-concept > .do-head-line { width: auto; margin-inline: calc(var(--ds-space-md) * -1) !important; }
+/* order header: equal space above and below the title row (12px), content starts 20px under the line, as in the shipment */
+.app.concept .do-head-concept { margin-top: calc(var(--ds-space-sm) - var(--ds-space-md)); gap: var(--ds-space-sm) !important; margin-bottom: calc(var(--ds-space-md) - var(--ds-space-xs)); }
+/* menu expand arrow is pinned to the right with the same inset as the icon on the left (8px) */
+.app.concept :is(.global-menu, .side .ant-menu) .ant-menu-submenu-title { padding-inline-end: var(--ds-space-xs) !important; }
+/* table footer (More details) stays on the white card */
+.app.concept .panel-body .ant-table-footer { background: var(--ds-surface) !important; padding: var(--ds-space-sm) var(--ds-space) !important; }
+
+/* Overview: Tasks and Notifications cards laid out the same, so tiles and arrows line up */
+.app.concept .overview-summary > section.card:has(> .mini-tiles) { display: flex; flex-direction: column; gap: var(--ds-space-xs); }
+.app.concept .overview-summary > section.card:has(> .mini-tiles) > .card-head { margin: 0; }
+
+/* Round arrow buttons: the right chevron glyph sits right of centre, nudge it to the optical centre */
+.app.concept .ant-btn-circle.ant-btn-icon-only .anticon { justify-content: center; gap: 0; }
+.app.concept .ant-btn-circle.ant-btn-icon-only .anticon::before { display: none; }
+.app.concept .ant-btn-circle.ant-btn-icon-only .anticon > svg:not([style*="rotate"]) { translate: -0.5px 0; }
+
+/* Page tabs: sections of a page (own lists / views). Line tabs on the gray panel, hairline under the bar */
+.app.concept .page-tabs > .ant-tabs-nav::before { border-bottom-color: var(--ds-border-secondary); }
+.app.concept .page-tabs .ant-tabs-tab { padding-block: var(--ds-space-xs); }
+.app.concept .page-tabs .ant-tabs-content-holder { display: none; }
+/* tabs everywhere: active tab and ink bar in the brand color (colorPrimary) */
+.app.concept .ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn { color: var(--ant-color-primary); }
+.app.concept .ant-tabs .ant-tabs-tab:hover .ant-tabs-tab-btn { color: var(--ant-color-primary-hover); }
+.app.concept .ant-tabs .ant-tabs-ink-bar { background: var(--ant-color-primary); }
+
+/* Shipment page title row: same rhythm as the DO header; the column gap is 16, so 4 more makes 20 under the line */
+.app.concept .cn-wrap > .shipment-title-row { margin-bottom: calc(var(--ds-space-md) - var(--ds-space)); }
+.app.concept .content-wrap > .shipment-title-row { margin-bottom: calc(var(--ds-space-md) - var(--ds-space-xs)); }
+/* slimmer title row: 8 above the title, 8 to the line */
+.app.concept .shipment-title-row { margin-top: calc(var(--ds-space-xs) - var(--ds-space-md)); gap: var(--ds-space-xs) !important; }
+
+/* Dissolved cards with a title (e.g. Services groups): no padding around the title, it sits on the gray like other block titles */
+.app.concept .panel-body .ant-card:has(.ant-card) > .ant-card-head { padding: 0 0 var(--ds-space-xs) !important; }
+.app.concept .shipment-workspace > .ant-flex:has(> .ant-card .ant-card) { gap: var(--ds-space) !important; }
+
+/* Blocks inside page columns (Inland Pickup, DO page): 16 between blocks, so titles on the gray are not squeezed */
+.app.concept .panel-body :is(.do-page, .do-cols, .do-main, .do-side) { gap: var(--ds-space); }
+
+/* Cost Tracking: title on the gray, each money tile is its own white card */
+.app.concept .panel-body #ip-money.do-card { background: transparent; padding: 0; border-color: transparent; gap: var(--ds-space-xs); }
+.app.concept .panel-body #ip-money > .ant-flex-wrap-wrap { gap: var(--ds-space) !important; }
+.app.concept .panel-body #ip-money > .ant-flex-wrap-wrap > .ant-flex-vertical {
+  background: var(--ds-surface) !important; border: 1px solid var(--ds-border-secondary); padding: var(--ds-space-sm) var(--ds-space) !important;
+}
+
+/* Planning right column (Container journey, General information, Cutoffs, Free time): one white card with its title inside,
+   content sits right in the card (no gray boxes); several boxes are split by a line */
+.app.concept .panel-body .col-right > .card:has(> .gray-box) > .gray-box { background: transparent; padding: 0; border-radius: 0; }
+.app.concept .panel-body .col-right > .card:has(> .gray-box) > .gray-box + .gray-box { border-top: 1px solid var(--ds-border-secondary); padding-top: var(--ds-space-sm); }
+.app.concept .panel-body .col-right { gap: var(--ds-space); }
+
+/* ---------- no gray boxes inside white cards: content sits right in the card, groups split by a line ---------- */
+.app.concept .panel-body :is(.do-card, .card, .do-step, .ant-card) :is(.do-fields, .do-doc-row, .do-ed-box) {
+  background: transparent !important; padding-inline: 0 !important; border-radius: 0 !important;
+}
+.app.concept .panel-body :is(.do-fields, .do-doc-row, .do-ed-box) { padding-block: 0 !important; }
+.app.concept .panel-body :is(.do-fields, .do-doc-row, .do-ed-box) + :is(.do-fields, .do-doc-row, .do-ed-box) {
+  border-top: 1px solid var(--ds-border-secondary); padding-top: var(--ds-space-sm) !important;
+}
+/* DO side Cost Tracking tiles: three columns split by vertical lines */
+.app.concept .panel-body .do-side .do-card > .ant-flex > .ant-flex-vertical[style*="gray-1"] { background: transparent !important; padding: 0 !important; border-radius: 0 !important; }
+.app.concept .panel-body .do-side .do-card > .ant-flex > .ant-flex-vertical[style*="gray-1"] + .ant-flex-vertical[style*="gray-1"] { border-left: 1px solid var(--ds-border-secondary); padding-left: var(--ds-space-sm) !important; }
+
+/* tables: no line under the last row */
+.app.concept .ant-table-tbody > tr:last-child > td { border-bottom: 0 !important; }
+
+/* ---------- a line under the block title in every white card, inset to the content width like the lines between items ---------- */
+.app.concept .panel-body .do-card:not([id="ip-money"]):not(:has(> .ant-flex-vertical[style*="background"])) > :is(.do-box-head, b:first-child, .ant-flex:first-child:has(strong)),
+.app.concept .panel-body .card:not(:has(> .mini-tiles)) > .card-head {
+  border-bottom: 1px solid var(--ds-border-secondary); padding-bottom: var(--ds-space-sm);
+}
+/* DO step cards: the header carries its own padding (card body has none), so the line is drawn inset */
+.app.concept .panel-body .do-main > .ant-card > .ant-card-body > .ant-flex:first-child:not(:last-child) { position: relative; }
+.app.concept .panel-body .do-main > .ant-card > .ant-card-body > .ant-flex:first-child:not(:last-child)::after {
+  content: ''; position: absolute; left: var(--ds-space); right: var(--ds-space); bottom: 0; border-bottom: 1px solid var(--ds-border-secondary);
+}
+.app.concept .panel-body .do-main > .ant-card > .ant-card-body > .ant-flex:first-child:not(:last-child) + * { padding-top: var(--ds-space-sm) !important; }
+
+/* fields above a table inside a block: split by a line, 12 on each side */
+.app.concept .panel-body .do-fields + .ant-table-wrapper {
+  margin-top: calc(var(--ds-space-sm) - var(--ds-space-xs)); padding-top: var(--ds-space-sm); border-top: 1px solid var(--ds-border-secondary);
+}
+
+/* milestone tables in DO steps (.do-ms): look like the Dispatched to carrier table — plain header with a line, no gray plaque, no line under the last row */
+.app.concept .panel-body .do-ms-row.head { background: transparent; border-radius: 0; border-bottom: 1px solid var(--ds-border-secondary); }
+.app.concept .panel-body .do-ms-row:last-child { border-bottom: 0; }
+.app.concept .panel-body .do-fields + .do-ms {
+  margin-top: calc(var(--ds-space-sm) - var(--ds-space-xs)); padding-top: var(--ds-space-sm); border-top: 1px solid var(--ds-border-secondary);
+}
+/* the table header row has its own 8px padding: 4 more makes the header text sit 12 below the line */
+.app.concept .panel-body .do-fields + :is(.do-ms, .ant-table-wrapper) { padding-top: var(--ds-space-xxs); }
+
+/* smaller gap between a block title and the line under it: 8 instead of 12 */
+.app.concept .panel-body .do-card:not([id="ip-money"]):not(:has(> .ant-flex-vertical[style*="background"])) > :is(.do-box-head, b:first-child, .ant-flex:first-child:has(strong)),
+.app.concept .panel-body .card:not(:has(> .mini-tiles)) > .card-head,
+.app.concept .panel-body .do-main > .ant-card > .ant-card-body > .ant-flex:first-child:not(:last-child) { padding-bottom: var(--ds-space-xs) !important; }
+
+/* location lists (Loading / Empty pickup / Full return…): one white block with the title inside; locations sit in it, split by lines */
+.app.concept .panel-body .do-card:has(> .ant-flex-vertical[style*="background"]):not([id="ip-money"]) {
+  background: var(--ds-surface); border-color: var(--ds-border-secondary); padding: var(--ds-space-sm) var(--ds-space); gap: var(--ds-space-sm) !important;
+}
+.app.concept .panel-body .do-card:has(> .ant-flex-vertical[style*="background"]):not([id="ip-money"]) > .ant-flex-vertical[style*="background"] {
+  background: transparent !important; border: 0; border-radius: 0 !important; padding: 0 !important;
+}
+.app.concept .panel-body .do-card:has(> .ant-flex-vertical[style*="background"]):not([id="ip-money"]) > .ant-flex-vertical[style*="background"] + .ant-flex-vertical[style*="background"] {
+  border-top: 1px solid var(--ds-border-secondary); padding-top: var(--ds-space-sm) !important;
+}
+.app.concept .panel-body .do-card:has(> .ant-flex-vertical[style*="background"]):not([id="ip-money"]) > .ant-flex:first-child:has(strong) {
+  border-bottom: 1px solid var(--ds-border-secondary); padding-bottom: var(--ds-space-xs);
+}
+/* each location inside the block is its own bordered box so they don't merge */
+.app.concept .panel-body .do-card:has(> .ant-flex-vertical[style*="background"]):not([id="ip-money"]) > .ant-flex-vertical[style*="background"] {
+  border: 1px solid var(--ds-border-secondary) !important; border-radius: var(--ds-radius) !important; padding: var(--ds-space-sm) var(--ds-space) !important;
+}
+.app.concept .panel-body .do-card:has(> .ant-flex-vertical[style*="background"]):not([id="ip-money"]) > .ant-flex-vertical[style*="background"] + .ant-flex-vertical[style*="background"] {
+  padding-top: var(--ds-space-sm) !important;
+}
+.app.concept .panel-body .do-card:has(> .ant-flex-vertical[style*="background"]):not([id="ip-money"]) { gap: var(--ds-space-xs) !important; }
+.app.concept .panel-body .do-card:has(> .ant-flex-vertical[style*="background"]):not([id="ip-money"]) > .ant-flex:first-child:has(strong) { margin-bottom: var(--ds-space-xxs); }
+/* location blocks: the boxes already separate the content — no line under the title */
+.app.concept .panel-body .do-card:has(> .ant-flex-vertical[style*="background"]):not([id="ip-money"]) > .ant-flex:first-child:has(strong) { border-bottom: 0 !important; padding-bottom: 0 !important; margin-bottom: 0; }
+
+/* Shipment Overview: a table that fills its white block (title inside) — no own frame */
+.app.concept .so-flush .ant-table, .app.concept .so-flush .ant-table-container { border: 0 !important; border-radius: 0 !important; box-shadow: none !important; }
+.app.concept .so-flush .ant-table-thead > tr > th { background: transparent !important; }
+.app.concept .so-flush > .do-list { padding: 0 !important; }
+/* lines inside a block never run edge to edge: the table sits in the block padding, its outer cells lose their side padding */
+.app.concept .so-flush :is(.ant-table-thead > tr > th, .ant-table-tbody > tr > td):first-child { padding-left: 0 !important; }
+.app.concept .so-flush :is(.ant-table-thead > tr > th, .ant-table-tbody > tr > td):last-child { padding-right: 0 !important; }
+.app.concept .so-flush .ant-table-footer { padding-inline: 0 !important; }
+
+
+/* ---------- a table with a title (Overview lists, Charges, Bills of Lading, People, Documents, Contacts…): title and table in one white block,
+   a line under the title, lines inset to the content (switch toolbars stay on the gray) ---------- */
+.app.concept .panel-body .card-flat:has(> :is(.do-list-head, .card-head):first-child):has(> .ant-table-wrapper):not(:has(> :is(.do-list-head, .card-head) > .ant-segmented:first-child)) {
+  background: var(--ds-surface) !important; border: 1px solid var(--ds-border-secondary) !important; border-radius: var(--ds-radius) !important;
+  padding: var(--ds-space-sm) var(--ds-space) !important;
+}
+.app.concept .panel-body .card-flat:has(> :is(.do-list-head, .card-head):first-child):has(> .ant-table-wrapper):not(:has(> :is(.do-list-head, .card-head) > .ant-segmented:first-child)) > :is(.do-list-head, .card-head) { padding: 0 0 var(--ds-space-xs) !important; border-bottom: 1px solid var(--ds-border-secondary); min-height: 0; }
+.app.concept .panel-body .card-flat:has(> :is(.do-list-head, .card-head):first-child):has(> .ant-table-wrapper):not(:has(> :is(.do-list-head, .card-head) > .ant-segmented:first-child)) .ant-table, .app.concept .panel-body .card-flat:has(> :is(.do-list-head, .card-head):first-child):has(> .ant-table-wrapper):not(:has(> :is(.do-list-head, .card-head) > .ant-segmented:first-child)) .ant-table-container { border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; }
+.app.concept .panel-body .card-flat:has(> :is(.do-list-head, .card-head):first-child):has(> .ant-table-wrapper):not(:has(> :is(.do-list-head, .card-head) > .ant-segmented:first-child)) .ant-table-thead > tr > th { background: transparent !important; }
+.app.concept .panel-body .card-flat:has(> :is(.do-list-head, .card-head):first-child):has(> .ant-table-wrapper):not(:has(> :is(.do-list-head, .card-head) > .ant-segmented:first-child)) :is(.ant-table-thead > tr > th, .ant-table-tbody > tr > td):first-child { padding-left: 0 !important; }
+.app.concept .panel-body .card-flat:has(> :is(.do-list-head, .card-head):first-child):has(> .ant-table-wrapper):not(:has(> :is(.do-list-head, .card-head) > .ant-segmented:first-child)) :is(.ant-table-thead > tr > th, .ant-table-tbody > tr > td):last-child { padding-right: 0 !important; }
+.app.concept .panel-body .card-flat:has(> :is(.do-list-head, .card-head):first-child):has(> .ant-table-wrapper):not(:has(> :is(.do-list-head, .card-head) > .ant-segmented:first-child)) :is(.ant-table-footer, .ant-table-pagination) { padding-inline: 0 !important; margin-inline: 0 !important; }
+
+/* Planning route stops: bordered boxes like the location boxes */
+.app.concept .panel-body .route .stop { border: 1px solid var(--ds-border-secondary); }
+.app.concept .panel-body .route .stop:hover { border-color: var(--ds-border); }
+
+/* gray boxes inside white blocks (route stop details, dispatch chips in milestones): thin border like the route stops */
+.app.concept .panel-body :is(.stop-detail, .ip-chip) { border: 1px solid var(--ds-border-secondary); }
+
+/* tabs right under a header line: tab text sits 16 below the line, same as the bar-to-content gap */
+.app.concept .panel-body .page-stack > .page-tabs:first-child { margin-top: calc(var(--ds-space-xs) - var(--ds-space-md)); }
+/* location boxes inside the white block: gray background + border (like route stops) */
+.app.concept .panel-body .do-card:has(> .ant-flex-vertical[style*="background"]):not([id="ip-money"]) > .ant-flex-vertical[style*="background"] { background: var(--ds-gray-1) !important; }
+
+
+/* work tables (sort, filter, row actions, hover): lines run edge to edge, text keeps 16 from the edge via cell padding;
+   summaries (Shipment Overview Containers/Cargo, DO steps) keep their lines inset */
+.app.concept .panel-body .card-flat:has(> :is(.do-list-head, .card-head):first-child):has(> .ant-table-wrapper):not(:has(> :is(.do-list-head, .card-head) > .ant-segmented:first-child)) { padding-inline: 0 !important; }
+.app.concept .panel-body .card-flat:has(> :is(.do-list-head, .card-head):first-child):has(> .ant-table-wrapper):not(:has(> :is(.do-list-head, .card-head) > .ant-segmented:first-child)) > :is(.do-list-head, .card-head) { padding-inline: var(--ds-space) !important; }
+.app.concept .panel-body .card-flat:has(> :is(.do-list-head, .card-head):first-child):has(> .ant-table-wrapper):not(:has(> :is(.do-list-head, .card-head) > .ant-segmented:first-child)) :is(.ant-table-thead > tr > th, .ant-table-tbody > tr > td, .ant-table-summary td):first-child { padding-left: var(--ds-space) !important; }
+.app.concept .panel-body .card-flat:has(> :is(.do-list-head, .card-head):first-child):has(> .ant-table-wrapper):not(:has(> :is(.do-list-head, .card-head) > .ant-segmented:first-child)) :is(.ant-table-thead > tr > th, .ant-table-tbody > tr > td, .ant-table-summary td):last-child { padding-right: var(--ds-space) !important; }
+.app.concept .panel-body .card-flat:has(> :is(.do-list-head, .card-head):first-child):has(> .ant-table-wrapper):not(:has(> :is(.do-list-head, .card-head) > .ant-segmented:first-child)) :is(.ant-table-footer, .ant-table-pagination) { padding-inline: var(--ds-space) !important; }
+
+/* summary tables inside DO steps: first column starts at the fields' left edge, last ends at the right edge */
+.app.concept .panel-body .do-main .do-table :is(.ant-table-thead > tr > th, .ant-table-tbody > tr > td):first-child { padding-left: 0 !important; }
+.app.concept .panel-body .do-main .do-table :is(.ant-table-thead > tr > th, .ant-table-tbody > tr > td):last-child { padding-right: 0 !important; }
+.app.concept .panel-body .do-main .do-ms .do-ms-row { padding-inline: 0; }
+
+/* Overview Tasks / Notifications: like the shipment Overview — one white block, title inside with a line,
+   tiles sit right in the block split by vertical lines */
+.app.concept .panel-body .overview-summary > section.card:has(> .mini-tiles) {
+  background: var(--ds-surface); border-color: var(--ds-border-secondary); padding: var(--ds-space-sm) var(--ds-space);
+  align-items: stretch; gap: var(--ds-space-sm);
+}
+.app.concept .panel-body .overview-summary > section.card:has(> .mini-tiles) > .card-head {
+  border-bottom: 1px solid var(--ds-border-secondary); padding-bottom: var(--ds-space-xs); min-height: var(--ds-control-height-sm);
+}
+.app.concept .panel-body .overview-summary .mini-tiles { gap: var(--ds-space); }
+.app.concept .panel-body .overview-summary .mini-tiles .stat-btn { background: transparent; border: 0; border-radius: 0; padding: 0; }
+.app.concept .panel-body .overview-summary .mini-tiles .stat-btn + .stat-btn { border-left: 1px solid var(--ds-border-secondary); padding-left: var(--ds-space); }
+.app.concept .panel-body .overview-summary .mini-tiles .stat-btn:hover { border-color: var(--ds-border-secondary); }
+.app.concept .panel-body .overview-summary .mini-tiles .stat-btn:hover b { color: var(--ant-color-primary); }
+
+/* counters in switches / tabs: readable on the gray — brand tint with darker brand text */
+.app.concept .do-tab-count:not(.warn) { background: var(--ds-border); color: var(--ant-color-text-secondary); font-weight: 400; }
+.app.concept .list-switch .ant-segmented-item-selected .do-tab-count:not(.warn) { background: color-mix(in srgb, var(--ds-surface) 22%, transparent); color: var(--ds-surface); }
