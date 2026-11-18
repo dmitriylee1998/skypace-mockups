@@ -1994,7 +1994,7 @@
 </style>
 <script src="design-system/theme.js?v=concept2"></script>
 <link rel="stylesheet" href="design-system/system.css?v=20261115-rowsel2" />
-<link rel="stylesheet" href="design-system/concept.css?v=84" />
+<link rel="stylesheet" href="design-system/concept.css?v=87" />
 </head>
 <body>
 <div id="root"></div>
@@ -2432,9 +2432,8 @@ function PageHeader({ back, tracker=false, actions=false }) {
   const chevron = <ChevronIcon dir="right" style={{ fontSize: TOKEN.fontSizeSM, color: TOKEN.colorTextTertiary }} />;
   return (
     <div className="page-header" style={{ viewTransitionName: 'shipment-hero' }}>
-      <PanelHead crumbs={[{ title: 'Shipments', to: '/shipments' }, { title: 'SP-000275' }]} extra={<ShipmentActions />}>
-      </PanelHead>
-      <Flex className="ph-meta" align="center" gap={TOKEN.marginLG} wrap>
+      <PanelHead crumbs={[{ title: 'Shipments', to: '/shipments' }, { title: 'SP-000275' }]} extra={<Flex align="center" gap={TOKEN.marginLG} style={{ minWidth: 0 }}>
+      <Flex className="ph-meta" align="center" gap={TOKEN.marginLG} wrap justify="flex-end">
         <Flex align="center" gap={TOKEN.marginXS}>
           {meta(<Ic n="warehouse" size={14} />, s.from)}
           {chevron}
@@ -2445,7 +2444,9 @@ function PageHeader({ back, tracker=false, actions=false }) {
         {meta(<I.TeamOutlined />, 'Tesla Inc', 'Ops: Vladimir Nikolaev')}
         <Tag color={STATUS_COLOR[s.status]} variant="outlined" style={{ marginInlineEnd: 0 }}>{s.status}</Tag>
       </Flex>
-      <Divider style={{ margin: 0 }} />
+      <ShipmentActions />
+      </Flex>}>
+      </PanelHead>
     </div>
   );
 }
@@ -4249,7 +4250,7 @@ function ListPanel({ title, search, onSearch, placeholder = 'Search', actions, f
   if (onSearch && !filters && auto.filters) { filters = auto.filters; filterCount = auto.count; onClearFilters = auto.clear; children = React.Children.map(children, (c) => c === table || (c?.props?.columns && c.props.dataSource === table.props.dataSource) ? React.cloneElement(c, { dataSource: auto.shown }) : c); }
   return <section className="card-flat do-list list-panel">
     {/* a searchable list is the only table on its page: search and filter replace the title, actions stay on the right */}
-    <div className="do-list-head">{tabs ? <ListTabs {...tabs} inline /> : <b>{title}{count != null && <span className="list-count">{count}</span>}</b>}
+    <div className="do-list-head">{tabs ? <ListTabs {...tabs} inline /> : (title || count != null) && <b>{title}{count != null && <span className="list-count">{count}</span>}</b>}
       <div className="list-controls list-controls-end">{onSearch && <Input allowClear className="do-search" aria-label={`Search ${typeof title === 'string' ? title : 'list'}`} placeholder={placeholder}
         value={search} onChange={(e) => onSearch(e.target.value)} prefix={<I.SearchOutlined className="muted" />} />}{filters && <Popover trigger="click" placement="bottomRight" title={<FilterTitle active={filterCount > 0} onClear={onClearFilters} />} content={<FilterFields>{filters}</FilterFields>}>
         <FilterButton count={filterCount} />
@@ -7450,7 +7451,7 @@ function ContainersListPage() {
   return (
     <ShipmentShell selected="containers">
       {msgCtx}
-      <ListPanel title="Containers" search={q} onSearch={setQ} placeholder="Search number, seal or reference" actions={<>
+      <ListPanel search={q} onSearch={setQ} placeholder="Search number, seal or reference" actions={<>
         <Button type="primary" icon={<I.PlusOutlined/>} onClick={()=>openDrawer({type:'add'})}>Add Containers</Button>
       </>}>
         {/* selection bar above the table header, like Dispatches */}

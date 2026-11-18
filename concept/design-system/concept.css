@@ -434,3 +434,8 @@
 /* counters in switches / tabs: readable on the gray — brand tint with darker brand text */
 .app.concept .do-tab-count:not(.warn) { background: var(--ds-border); color: var(--ant-color-text-secondary); font-weight: 400; }
 .app.concept .list-switch .ant-segmented-item-selected .do-tab-count:not(.warn) { background: color-mix(in srgb, var(--ds-surface) 22%, transparent); color: var(--ds-surface); }
+.app.concept .panel-head .ph-meta { padding: 0; min-width: 0; }
+.app.concept .panel .columns > .side { padding-top: 0; } /* first menu item centred on the page title */
+/* list without its own title: search and filter on the left, actions on the right */
+.app.concept .do-list-head > .list-controls-end:first-child { flex: 1; margin-left: 0; justify-content: flex-start; }
+.app.concept .do-list-head > .list-controls-end:first-child > .list-actions { margin-left: auto; }
