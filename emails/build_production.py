@@ -26,7 +26,6 @@ import build as B  # noqa: E402  (shared design: tokens, shell, components)
 
 B.ASSET_URL = '../../img'  # new versions live two folders below emails/
 T, txt, STRONG = B.T, B.txt, B.STRONG
-HEADER_FN, FOOTER_FN = B.header, B.footer
 
 
 def part(name):
@@ -163,34 +162,12 @@ def restyle(html):
     return ''.join(p.out)
 
 
-# header and footer: the same texts and links as the production ones, in the build.py layout
-def new_header():
-    return (HEADER_FN().replace('</a>\n</td></tr>', f'</a>\n  <p style="margin:8px 0 0 0;text-align:center;{txt(13, 20, T["colorTextSecondary"])}">{TAGLINE}</p>\n</td></tr>', 1))
-
-
-def new_footer():
-    f = FOOTER
-    logo = re.search(r'<img[^>]*src="([^"]+)"[^>]*alt="([^"]*)"', f)
-    links = ' &nbsp;&nbsp;&nbsp; '.join(f'<a href="{h}" style="color:{T["colorTextSecondary"]};text-decoration:none;white-space:nowrap;">{t}</a>'
-                                        for h, t in re.findall(r'<a href="([^"]+)">(.*?)</a>', f))
-    legal = re.search(r'<p>(.*?)</p>', f, re.S).group(1).strip()
-    return f'''<tr><td align="center" class="px" style="padding:32px {B.PAD}px 0 {B.PAD}px;">
-  <img src="{logo.group(1)}" alt="{logo.group(2)}" width="36" style="display:block;margin:0 auto 20px auto;width:36px;height:auto;border:0;">
-  <p style="margin:0 0 20px 0;{txt(13, 22, T["colorTextSecondary"], 500)}">{links}</p>
-  <p style="margin:0;{txt(12, 18, T["colorTextTertiary"])}">{legal}</p>
-</td></tr>'''
-
-
+# header and footer: the shared ones from build.py (logo on top; socials, links and legal below), as in every new email
 def new_html(t):
     raw = t['HtmlPart'].replace('/n', '\n')
     body, _ = body_of(raw)
     rows = f'<tr><td class="px" style="padding:40px {B.PAD}px 40px {B.PAD}px;{txt(16, 24, T["colorTextBody"])}">{restyle(body)}</td></tr>'
-    B.header, B.footer = new_header, new_footer
-    try:
-        html = B.shell(t['SubjectPart'].strip(), '', rows)
-    finally:
-        B.header, B.footer = HEADER_FN, FOOTER_FN
-    return html
+    return B.shell(t['SubjectPart'].strip(), '', rows)
 
 
 def text(html):
@@ -212,10 +189,9 @@ if __name__ == '__main__':
         (out / f'{name}.html').write_text(old)
         new = new_html(t)
         (out / 'new' / f'{name}.html').write_text(new)
-        # same text: content + header tagline + footer, old vs new (the new logo is an image, the old had alt text)
-        o = text(old.split('</head>', 1)[1]).replace('Skypace Logo', '').replace('Footer Logo', '')
-        n = re.sub(r'^\S*Skypace\S* ', '', text(new.split('</head>', 1)[1])).replace('Footer Logo', '')
-        o, n = re.sub(r'\s+', ' ', o).strip(), re.sub(r'\s+', ' ', n).strip()
+        # same text in the content area, old vs new (header and footer are the shared build.py ones now)
+        body = body_of(t['HtmlPart'].replace('/n', '\n'))[0]
+        o, n = text(body), text(restyle(body))
         if o != n:
             diffs.append((name, o, n))
         items.append({'group': group(name), 'file': f'production/new/{name}.html', 'old': f'production/{name}.html',
