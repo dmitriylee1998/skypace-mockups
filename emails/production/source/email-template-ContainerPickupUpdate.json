@@ -1,0 +1,6 @@
+{
+  "TemplateName": "ContainerPickupUpdate",
+  "SubjectPart": "ContainerPickupUpdateEmail",
+  "TextPart": "ContainerPickupUpdateEmail",
+  "HtmlPart": "${email_header} ContainerPickupUpdateEmail ${email_footer}"
+}

@@ -51,6 +51,7 @@ SAMPLE = {
     'email': 'daniel.carter@northwindimports.com',
     'verify_url': 'https://app.skypace.com/verify-email?token=Q7M2-K9XD',
     'reset_code': '417354',
+    'signup_code': '417354',
     # shipment / rates / invoice / messages (values from the Figma previews)
     'shipment_id': 'SP-82949',
     'carrier': 'Maersk',
@@ -101,8 +102,8 @@ TOKENS = {
     'controlHeightLG': 44,
     'fontSize': 16,
     'fontSizeSM': 14,
-    'lineHeight': 26,
-    'fontWeightStrong': 500,            # Roboto Medium, as in the app's headings
+    'lineHeight': 24,             # Large/Regular 16/24
+    'fontWeightStrong': 600,            # Ant Design v6 Strong (Roboto SemiBold)
     'fontFamily': "Roboto, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif",
 }
 T = TOKENS
@@ -120,8 +121,18 @@ STRONG = T['fontWeightStrong']
 CARD_W = 600
 PAD = 48  # card side padding (24 on mobile)
 
+# Ant Design v6 type scale (Figma text styles): Small 12/20, Base 14/22, Large 16/24, Heading/4 20/28, Heading/3 24/32,
+# Heading/2 30/38; Strong = 600. Older sizes from the first Figma pass map onto it; line heights that size a box
+# (step number circle, image alt text) stay as they are.
+ANT_TYPE = {(12, 18): (12, 20), (13, 20): (12, 20), (13, 22): (12, 20), (13, 26): (12, 26), (11, 36): (12, 36),
+            (14, 20): (14, 22), (15, 22): (14, 22), (15, 24): (14, 22), (16, 22): (16, 24), (16, 26): (16, 24),
+            (18, 22): (16, 24), (20, 24): (20, 28), (28, 34): (24, 32), (32, 40): (30, 38)}
+
+
 def txt(size=None, lh=None, color=None, weight=400, extra=''):
-    return (f'font-family:{FONT};font-size:{size or T["fontSize"]}px;line-height:{lh or T["lineHeight"]}px;'
+    size, lh = size or T['fontSize'], lh or T['lineHeight']
+    size, lh = ANT_TYPE.get((size, lh), (size, lh))
+    return (f'font-family:{FONT};font-size:{size}px;line-height:{lh}px;'
             f'color:{color or T["colorText"]};font-weight:{weight};mso-line-height-rule:exactly;{extra}')
 
 
@@ -210,7 +221,7 @@ def card(html, mb=28):
 
 def card_head(label, right=''):
     """Small uppercase caption on the left, optional value on the right."""
-    return table(f'<tr><td valign="middle" style="{txt(12, 18, T["colorTextTertiary"], STRONG, "letter-spacing:0.06em;text-transform:uppercase;")}">{label}</td>'
+    return table(f'<tr><td valign="middle" style="{txt(12, 18, T["colorTextTertiary"], STRONG, "text-transform:uppercase;")}">{label}</td>'
                  f'<td valign="middle" align="right" style="text-align:right;{txt(14, 20, T["colorTextHeading"], STRONG)}">{right}</td></tr>', 'margin:0 0 14px 0;')
 
 
@@ -253,7 +264,7 @@ def quote(author, time, text):
     """Message preview (antd Comment-like): who and when, then the text on a filled block."""
     return table(
         f'<tr><td class="panel" style="background:{T["colorFillQuaternary"]};border-radius:{T["borderRadiusLG"]}px;padding:20px 24px;">'
-        f'<p style="margin:0 0 8px 0;{txt(13, 20, T["colorTextSecondary"])}"><span style="color:{T["colorTextHeading"]};font-weight:{STRONG};">{author}</span> &middot; {time}</p>'
+        f'<p style="margin:0 0 8px 0;{txt(13, 20, T["colorTextSecondary"])}"><span style="color:{T["colorTextHeading"]};font-weight:{STRONG};">{author}</span>&nbsp;&nbsp;&nbsp;{time}</p>'
         f'<p style="margin:0;{txt(15, 24, T["colorTextBody"])}">{text}</p></td></tr>', 'margin:4px 0 28px 0;')
 
 
@@ -269,7 +280,7 @@ def code_box(code):
     """One-time code: large, spaced digits on a filled tile."""
     return table(
         f'<tr><td align="center" style="background:{T["colorFillTertiary"]};border-radius:{T["borderRadiusLG"]}px;padding:20px;'
-        f'{txt(32, 40, T["colorTextHeading"], STRONG, "letter-spacing:8px;text-align:center;")}">{code}</td></tr>', 'margin:4px 0 20px 0;')
+        f'{txt(32, 40, T["colorTextHeading"], STRONG, "text-align:center;")}">{code}</td></tr>', 'margin:4px 0 20px 0;')
 
 
 def button(label, href='#', align='left'):
@@ -279,8 +290,8 @@ def button(label, href='#', align='left'):
     bg, fg = T['colorBgSolid'], '#ffffff'
     h, r, w = T['controlHeightLG'], T['borderRadius'], 220
     return f'''<table role="none" width="100%" cellpadding="0" cellspacing="0" border="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;margin:4px 0 0 0;"><tr><td align="{align}" class="es-m-txt-c" style="padding:0;">
-  <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{href}" style="height:{h}px;v-text-anchor:middle;width:{w}px;" arcsize="{round(r / h * 100)}%" stroke="f" fillcolor="{bg}"><w:anchorlock/><center style="color:{fg};font-family:Arial,sans-serif;font-size:16px;font-weight:bold;">{label}</center></v:roundrect><![endif]-->
-  <!--[if !mso]><!-- --><span class="es-button-border" style="border-style:solid;border-color:{bg};background:{bg};border-width:0;display:inline-block;border-radius:{r}px;width:auto;"><a href="{href}" target="_blank" class="es-button" style="mso-style-priority:100 !important;text-decoration:none !important;mso-line-height-rule:exactly;color:{fg};font-size:16px;line-height:24px;padding:10px 28px;display:inline-block;background:{bg};border-radius:{r}px;font-family:{FONT};font-weight:{STRONG};font-style:normal;width:auto;min-width:{w - 56}px;text-align:center;letter-spacing:0;mso-padding-alt:0;mso-border-alt:10px solid {bg};-webkit-text-size-adjust:none;">{label}&nbsp;&nbsp;&rarr;</a></span><!--<![endif]-->
+  <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{href}" style="height:{h}px;v-text-anchor:middle;width:{w}px;" arcsize="{round(r / h * 100)}%" stroke="f" fillcolor="{bg}"><w:anchorlock/><center style="color:{fg};font-family:Arial,sans-serif;font-size:16px;font-weight:normal;">{label}</center></v:roundrect><![endif]-->
+  <!--[if !mso]><!-- --><span class="es-button-border" style="border-style:solid;border-color:{bg};background:{bg};border-width:0;display:inline-block;border-radius:{r}px;width:auto;"><a href="{href}" target="_blank" class="es-button" style="mso-style-priority:100 !important;text-decoration:none !important;mso-line-height-rule:exactly;color:{fg};font-size:16px;line-height:24px;padding:10px 28px;display:inline-block;background:{bg};border-radius:{r}px;font-family:{FONT};font-weight:400;font-style:normal;width:auto;min-width:{w - 56}px;text-align:center;letter-spacing:0;mso-padding-alt:0;mso-border-alt:10px solid {bg};-webkit-text-size-adjust:none;">{label}</a></span><!--<![endif]-->
 </td></tr></table>'''
 
 
@@ -320,7 +331,7 @@ def help_section():
         + table(
             f'<tr><td class="stack" valign="middle" align="left" style="text-align:left;">'
             f'<p style="margin:0 0 2px 0;{txt(14, 20, T["colorTextHeading"], STRONG)}">Need help?</p>'
-            f'<p style="margin:0;{txt(13, 20, T["colorTextSecondary"])}">Call <a href="{C["phone_href"]}" style="color:{T["colorTextSecondary"]};text-decoration:none;white-space:nowrap;">{C["phone"]}</a> &middot; {C["hours"]}</p></td>'
+            f'<p style="margin:0;{txt(13, 20, T["colorTextSecondary"])}">Call <a href="{C["phone_href"]}" style="color:{T["colorTextSecondary"]};text-decoration:none;white-space:nowrap;">{C["phone"]}</a>, {C["hours"]}</p></td>'
             f'<td class="stack" valign="middle" align="right" style="text-align:right;white-space:nowrap;padding-left:16px;">'
             f'<a href="{C["contact"]}" style="{txt(14, 20, T["colorTextHeading"], STRONG, "text-decoration:none;")}">Contact us&nbsp;&rarr;</a></td></tr>')
         + '</td></tr>')
@@ -342,13 +353,13 @@ def footer():
     socials = ''.join(
         f'<td style="padding:0 6px;"><a href="{h}" target="_blank" style="text-decoration:none;">'
         f'{img(src, 36, 36, n, txt(11, 36, T["colorTextSecondary"]), dark=src.replace(".png", "-dark.png"))}</a></td>' for n, src, h in SOCIAL)
-    links = f' <span style="color:{T["colorTextTertiary"]};">&nbsp;&middot;&nbsp;</span> '.join(
+    links = ' &nbsp;&nbsp;&nbsp; '.join(
         f'<a href="{h}" style="color:{T["colorTextSecondary"]};text-decoration:none;white-space:nowrap;">{t}</a>' for t, h in FOOTER_LINKS)
     small = txt(12, 18, T['colorTextTertiary'])
     return f'''<tr><td align="center" class="px" style="padding:32px {PAD}px 0 {PAD}px;">
   {table(f'<tr>{socials}</tr>', 'margin:0 auto 24px auto;', '')}
   <p style="margin:0 0 20px 0;{txt(13, 22, T["colorTextSecondary"], 500)}">{links}</p>
-  <p style="margin:0;{small}">&copy; 2026 {C["legal"]} &middot; {C["address"]}</p>
+  <p style="margin:0;{small}">&copy; 2026 {C["legal"]}<br>{C["address"]}</p>
 </td></tr>'''
 
 
@@ -357,7 +368,7 @@ MOBILE_CSS = """
     .outer { padding:12px 0 32px 0 !important; }
     .card { border-radius:0 !important; }
     .px { padding-left:24px !important; padding-right:24px !important; }
-    .h1 { font-size:26px !important; line-height:33px !important; }
+    .h1 { font-size:24px !important; line-height:32px !important; }
     .panel { padding:16px !important; }
     .hero { padding-top:36px !important; }
     .stack { display:block !important; width:100% !important; text-align:left !important; padding:0 !important; }
@@ -575,6 +586,12 @@ EMAILS = [
                     + code_box(S['reset_code'])
                     + para('The code is only valid for the next 24 hours.')
                     + para(f'If you didn’t request a password reset, get in touch with our support team at {link(C["support_email"], "mailto:" + C["support_email"])} and secure your account.', 0))),
+    ('Account', 'sign-up-code', 'Sign-up verification code',
+     lambda: letter('Confirm Your Email', f'{S["signup_code"]} is your Skypace verification code.', 'mail',
+                    para('Thanks for signing up for Skypace. Enter this code to confirm your email address and finish creating your account:')
+                    + code_box(S['signup_code'])
+                    + para('The code expires in 10 minutes. Never share it with anyone: Skypace will never ask you for it.')
+                    + para('If you didn’t create a Skypace account, you can safely ignore this email.', 0))),
     ('Account', 'organization-registration-received', 'Organization registration request is received',
      lambda: letter('We’ve Received Your Registration Request', f'We’re reviewing {S["organization"]}.', 'building',
                     para(f'We have received a registration request for <strong style="font-weight:{STRONG};color:{T["colorTextHeading"]};">{S["organization"]}</strong>.')
@@ -624,7 +641,7 @@ EMAILS = [
                     para('We have received rates for your request. Thank you for your interest and patience. You can review them using the link below.')
                     + rates_card(),
                     ('Review rates', C['app']))),
-    ('Rates', 'rates-received-comments', 'Rates are received · with comments',
+    ('Rates', 'rates-received-comments', 'Rates are received, with comments',
      lambda: letter('Rates Are Ready for Your Request', f'Rates for request {S["request_ref"]}, with comments from our team.', 'tag',
                     para('We have received rates for your request. Thank you for your interest and patience. You can review them using the link below.')
                     + rates_card()
@@ -668,5 +685,9 @@ if __name__ == '__main__':
         fname = f'{slug}.html'
         (root / fname).write_text(render())
         manifest.append({'group': group, 'file': fname, 'name': name})
+    # production (AWS SES) templates as they are today, built by build_production.py
+    prod = root / 'production' / 'manifest.json'
+    if prod.exists():
+        manifest += json.loads(prod.read_text())
     (root / 'manifest.js').write_text('window.EMAILS = ' + json.dumps(manifest, indent=1) + ';\n')
     print(f'{len(manifest)} emails built')

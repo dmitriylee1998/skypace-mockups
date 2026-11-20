@@ -1,0 +1,6 @@
+ { 
+   "TemplateName": "OutsideServiceableRegionReject",
+   "SubjectPart": "Organization has been rejected",
+   "TextPart": "<p>Hello, {{customerName}}!</p>\n<p>{{organizationName}}</p> has been rejected because of the following reason: OUTSIDE_SERVICEABLE_REGION\n<p>{{note}}</p>.\n<p>Contact: {{contactInformation}}</p>\n",   
+   "HtmlPart": "<p>Hello, {{customerName}}!</p>\n<p>{{organizationName}}</p> has been rejected because of the following reason: OUTSIDE_SERVICEABLE_REGION\n<p>{{note}}</p>.\n<p>Contact: {{contactInformation}}</p>\n"
+}

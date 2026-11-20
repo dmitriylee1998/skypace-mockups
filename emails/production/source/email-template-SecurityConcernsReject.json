@@ -1,0 +1,6 @@
+ { 
+   "TemplateName": "SecurityConcernsReject",
+   "SubjectPart": "Organization has been rejected",
+   "TextPart": "<p>Hello, {{customerName}}!</p>\n<p>{{organizationName}}</p> has been rejected because of the following reason: SECURITY_CONCERNS\n<p>{{note}}</p>.\n<p>Contact: {{contactInformation}}</p>\n",   
+   "HtmlPart": "<p>Hello, {{customerName}}!</p>\n<p>{{organizationName}}</p> has been rejected because of the following reason: SECURITY_CONCERNS\n<p>{{note}}</p>.\n<p>Contact: {{contactInformation}}</p>\n"
+}

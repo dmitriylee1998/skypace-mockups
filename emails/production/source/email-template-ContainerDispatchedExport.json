@@ -1,0 +1,6 @@
+{
+  "TemplateName": "ContainerDispatchedExport",
+  "SubjectPart": "ContainerDispatchedExportEmail",
+  "TextPart": "ContainerDispatchedExportEmail",
+  "HtmlPart": "${email_header} ContainerDispatchedExportEmail ${email_footer}"
+}

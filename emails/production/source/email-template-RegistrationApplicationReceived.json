@@ -1,0 +1,6 @@
+ { 
+   "TemplateName": "RegistrationApplicationReceived",
+   "SubjectPart": "Account registration for {{organizationName}}",
+   "TextPart": "Dear Customer Validation Team,\r\n A new registration request has been received for Organization {{organizationName}}.\r\n Please find it under Account > Customers page with status Pending Verification.\r\n The corresponding task has also been created.",   
+   "HtmlPart": "${email_header} <div class=\"content\"> <!-- Content Image --> <img src=\"https://cdn.app.skypace.com/img/content-image.png\" alt=\"Content Image\"> <!-- Title --> <h1>Dear {{customerName}},</h1> <!-- Description --> <p>We have received a registration request for {{organizationName}}.</p> <p>Your organization’s details will be reviewed within 2 days.</p> <p>We will contact you via email, and if the review is successful, you will be officially registered on the platform.</p> </div> <!-- Contacts --> <div class=\"contacts\"> <h2>Skypace</h2> <p>7915 FM 1960 Houston, ste 224 TX 77070, USA</p> <p>+1 832 982 1717</p> <p><a href=\"mailto:support@skypace.com\" style=\"color:#202122;\">support@skypace.com</a></p> </div> ${email_footer}"
+}

@@ -1,0 +1,6 @@
+{
+  "TemplateName": "ShipmentBookedByPendingOrganization",
+  "SubjectPart": "ShipmentBookedByPendingOrganizationEmail",
+  "TextPart": "ShipmentBookedByPendingOrganizationEmail",
+  "HtmlPart": "${email_header} ShipmentBookedByPendingOrganizationEmail ${email_footer}"
+}

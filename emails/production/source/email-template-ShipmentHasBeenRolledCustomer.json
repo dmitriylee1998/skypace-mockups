@@ -1,0 +1,6 @@
+{
+  "TemplateName": "ShipmentHasBeenRolledCustomer",
+  "SubjectPart": "ShipmentHasBeenRolledCustomerEmail",
+  "TextPart": "ShipmentHasBeenRolledCustomerEmail",
+  "HtmlPart": "${email_header} ShipmentHasBeenRolledCustomerEmail ${email_footer}"
+}

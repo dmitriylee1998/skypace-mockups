@@ -1,0 +1,6 @@
+{
+  "TemplateName": "ContainerDeliveryUpdate",
+  "SubjectPart": "ContainerDeliveryUpdateEmail",
+  "TextPart": "ContainerDeliveryUpdateEmail",
+  "HtmlPart": "${email_header} ContainerDeliveryUpdateEmail ${email_footer}"
+}

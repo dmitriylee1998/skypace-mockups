@@ -13,6 +13,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@ant-design/icons@6.3.4/dist/index.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.26.4/babel.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4.4.1/dist/email.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script src="manifest.js"></script>
 <script src="emailjs.config.js"></script>
 <style>
@@ -82,7 +83,7 @@ function ChecksDrawer({ open, onClose, file, checks }) {
       <Space direction="vertical" size={16} style={{ width: '100%' }}>
         <Space>
           <Switch size="small" checked={checks.prod} onChange={(v) => checks.run(v)} />
-          <span>Production mode <span style={{ color: 'var(--text-4)' }}>· images must be absolute URLs</span></span>
+          <span>Production mode <span style={{ color: 'var(--text-4)' }}>(images must be absolute URLs)</span></span>
         </Space>
         {!checks.data && !checks.loading && <Alert type="info" showIcon message="Checks need the local server" description={<>Run <code>python3 emails/server.py</code> and open this page from it.</>} />}
         {checks.data && (sorted.length ? sorted.map((r, i) => (
@@ -98,6 +99,8 @@ function ChecksDrawer({ open, onClose, file, checks }) {
 
 /* Without the local server (GitHub Pages) tests go through EmailJS, configured in emailjs.config.js. */
 const emailjsReady = () => !!(window.emailjs && window.EMAILJS && EMAILJS.publicKey && EMAILJS.serviceId && EMAILJS.templateId);
+// Published copy of this folder (Railway): images in test emails sent from localhost load from here
+const PUBLIC_EMAILS_URL = (window.EMAILJS && EMAILJS.assetUrl) || 'https://skypace-mockups-production.up.railway.app/emails/';
 const EMAILJS_LIMIT = 50 * 1024; // EmailJS rejects template params over 50 KB
 
 async function sendViaEmailJS(file, to) {
@@ -105,8 +108,11 @@ async function sendViaEmailJS(file, to) {
   if (!res.ok) throw new Error(`Can't load ${file}`);
   let html = await res.text();
   const title = (new DOMParser().parseFromString(html, 'text/html').title || file).trim();
-  // Relative images → absolute URLs on this site, so the recipient's mail client can load them
-  html = html.replace(/src="(?!https?:|cid:|data:)([^"]+)"/g, (_, src) => `src="${new URL(src, location.href).href}"`);
+  // Relative images → absolute public URLs, so the recipient's mail client can load them.
+  // From localhost the images would point at the local machine, so they come from the published site instead.
+  const local = /^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(location.hostname);
+  const base = local ? PUBLIC_EMAILS_URL : location.href;
+  html = html.replace(/src="(?!https?:|cid:|data:)([^"]+)"/g, (_, src) => `src="${new URL(src, base).href}"`);
   if (new Blob([html]).size > EMAILJS_LIMIT) throw new Error('This email is over EmailJS’s 50 KB limit');
   const subject = `[Test] ${title}`;
   await emailjs.send(EMAILJS.serviceId, EMAILJS.templateId, { to_email: to, subject, html, template: file }, { publicKey: EMAILJS.publicKey });
@@ -161,11 +167,26 @@ function applyTheme(frame, theme) {
   const st = doc.createElement('style'); st.id = 'preview-dark'; st.textContent = css; doc.head.appendChild(st);
 }
 
+// Download: a zip with the email HTML and every image it uses (img/…), so it opens offline as is
+async function downloadZip(file) {
+  const html = await (await fetch(file, { cache: 'no-store' })).text();
+  const srcs = [...new Set([...html.matchAll(/(?:src|href|background)=["'](img\/[^"']+)["']/g)].map((m) => m[1]))];
+  const zip = new JSZip(); const name = file.replace(/\.html$/, '');
+  zip.file(file, html);
+  const missing = [];
+  await Promise.all(srcs.map(async (src) => { const r = await fetch(src); if (r.ok) zip.file(src, await r.blob()); else missing.push(src); }));
+  const blob = await zip.generateAsync({ type: 'blob' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name + '.zip';
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  return { images: srcs.length - missing.length, missing };
+}
+
 function Preview({ file, device, theme }) {
   const ref = useRef(null);
   const [h, setH] = useState(600);
-  const fit = () => { try { setH(ref.current.contentDocument.querySelector('.es-wrapper').offsetHeight); } catch (e) {} };
-  const onLoad = () => { applyTheme(ref.current, theme); fit(); };
+  // our emails measure .es-wrapper; production templates (no wrapper) measure the whole document
+  const fit = () => { try { const doc = ref.current.contentDocument; const w = doc.querySelector('.es-wrapper'); setH(w ? w.offsetHeight : doc.body.offsetHeight); } catch (e) {} };
+  const onLoad = () => { applyTheme(ref.current, theme); fit(); setTimeout(fit, 600); };
   useEffect(() => { const t = setTimeout(fit, 300); return () => clearTimeout(t); }, [device, file]);
   useEffect(() => { applyTheme(ref.current, theme); }, [theme]);
   return <iframe ref={ref} key={file} src={file} onLoad={onLoad} title={file}
@@ -175,8 +196,14 @@ function Preview({ file, device, theme }) {
 
 function EmailsApp() {
   const init = decodeURIComponent(location.hash.slice(1));
+  const { message } = AntApp.useApp();
+  const [zipping, setZipping] = useState(false);
   const [file, setFile] = useState(LIST.some((e) => e.file === init) ? init : LIST[0].file);
   const [device, setDevice] = useState('desktop');
+  // production templates have two versions: New (shared design) and Old (as sent today)
+  const [ver, setVer] = useState('new');
+  const entry = LIST.find((e) => e.file === file);
+  const shown = ver === 'old' && entry && entry.old ? entry.old : file;
   const [theme, setTheme] = useState(() => store.get('skypace.emails.theme', 'light'));
   useEffect(() => { store.set('skypace.emails.theme', theme); }, [theme]);
   useEffect(() => { history.replaceState(null, '', '#' + file); }, [file]);
@@ -198,6 +225,7 @@ function EmailsApp() {
         <h1>Email templates</h1>
         <Select className="em-pick" value={file} onChange={setFile} style={{ width: 240 }}
           options={groups.map((g) => ({ label: g, options: LIST.filter((e) => e.group === g).map((e) => ({ value: e.file, label: e.name })) }))} />
+        {entry && entry.old && <Segmented value={ver} onChange={setVer} options={[{ value: 'new', label: 'New' }, { value: 'old', label: 'Old' }]} />}
         <Segmented value={device} onChange={setDevice} options={[
           { value: 'desktop', label: 'Desktop', icon: <I.DesktopOutlined /> },
           { value: 'mobile', label: 'Mobile', icon: <I.MobileOutlined /> },
@@ -209,11 +237,16 @@ function EmailsApp() {
         <Tooltip title={checks.data ? 'Pre-send checks for this email' : 'Run python3 emails/server.py to enable checks'}>
           <Button onClick={() => setDrawer(true)} loading={checks.loading}
             icon={cur === 'error' ? <I.CloseCircleFilled style={{ color: '#ff4d4f' }} /> : cur === 'warn' ? <I.ExclamationCircleFilled style={{ color: '#faad14' }} /> : <I.CheckCircleFilled style={{ color: cur ? '#52c41a' : undefined }} />}>
-            Checks{issues ? ` · ${issues}` : ''}
+            Checks{issues ? ` (${issues})` : ''}
           </Button>
         </Tooltip>
+        <Button icon={<I.DownloadOutlined />} loading={zipping} onClick={async () => {
+          setZipping(true);
+          try { const r = await downloadZip(shown); r.missing.length ? message.warning(`Zip saved, ${r.missing.length} image(s) not found`) : message.success(`Zip saved: HTML and ${r.images} images`); }
+          catch (e) { message.error('Could not build the zip'); } finally { setZipping(false); }
+        }}>Download ZIP</Button>
         <Button type="primary" icon={<I.SendOutlined />} loading={checks.loading} onClick={() => (checks.data || emailjsReady() ? setSending(true) : setNoServer(true))}>Send test</Button>
-        <Tooltip title="Open raw HTML"><Button icon={<I.ExportOutlined />} href={file} target="_blank" /></Tooltip>
+        <Tooltip title="Open raw HTML"><Button icon={<I.ExportOutlined />} href={shown} target="_blank" /></Tooltip>
       </div>
       <ChecksDrawer open={drawer} onClose={() => setDrawer(false)} file={file} checks={checks} />
       <Modal open={noServer} onCancel={() => setNoServer(false)} title="Sending isn't set up here" footer={[
@@ -224,7 +257,7 @@ function EmailsApp() {
         <p><b>From this page:</b> connect EmailJS — add your public key, service ID and template ID to <code>emails/emailjs.config.js</code> and push.</p>
         <p style={{ marginBottom: 0 }}><b>Locally:</b> run <code>python3 emails/server.py</code> in the project folder and open <code>http://localhost:8770/emails/</code>.</p>
       </Modal>
-      <SendTestModal open={sending} onClose={() => setSending(false)} file={file} via={checks.data ? 'server' : 'emailjs'} smtp={checks.data && checks.data.smtp}
+      <SendTestModal open={sending} onClose={() => setSending(false)} file={shown} via={checks.data ? 'server' : 'emailjs'} smtp={checks.data && checks.data.smtp}
         from={checks.data && checks.data.from} host={checks.data && checks.data.smtpHost} assets={checks.data && checks.data.assetUrl} />
       <div className="em-body">
         <div className="em-side">
@@ -239,7 +272,7 @@ function EmailsApp() {
             </div>
           ))}
         </div>
-        <div className={'em-stage' + (theme === 'dark' ? ' dark' : '')}><Preview file={file} device={device} theme={theme} /></div>
+        <div className={'em-stage' + (theme === 'dark' ? ' dark' : '')}><Preview file={shown} device={device} theme={theme} /></div>
       </div>
     </div>
   );

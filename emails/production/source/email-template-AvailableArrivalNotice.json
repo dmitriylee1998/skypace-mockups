@@ -1,0 +1,6 @@
+{
+  "TemplateName": "AvailableArrivalNotice",
+  "SubjectPart": "AvailableArrivalNoticeEmail",
+  "TextPart": "AvailableArrivalNoticeEmail",
+  "HtmlPart": "${email_header} AvailableArrivalNoticeEmail ${email_footer}"
+}
