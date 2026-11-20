@@ -179,9 +179,9 @@
 /* dissolved antd Card (groups other cards): no line under its title, title aligned with the panel edge like other headings */
 .app.concept .panel-body .ant-card:has(.ant-card) > .ant-card-head { border-bottom: 0; padding-inline: 0; min-height: 0; padding-bottom: var(--ds-space-xs); }
 
-/* 16px between blocks everywhere (stacks, grids of cards, columns, tiles) */
+/* 8px between blocks everywhere (stacks, grids of cards, columns, tiles) */
 .app.concept .panel-body :is(.page-stack, .overview-dashboard, .overview-tables, .overview-summary, .mini-tiles,
-  .content, .content-wrap, .col-left, .col-right, .cn-wrap, .list-toolbar) { gap: var(--ds-space) !important; }
+  .content, .content-wrap, .col-left, .col-right, .cn-wrap, .list-toolbar) { gap: var(--ds-space-xs) !important; }
 .app.concept .panel-body .task-list-panel > .task-table-group { margin-bottom: var(--ds-space); }
 /* antd Row gutters inside dissolved cards (KPI tiles, Quick access) */
 .app.concept .panel-body .ant-card:has(.ant-card) .ant-row { margin-inline: calc(var(--ds-space) / -2) !important; row-gap: var(--ds-space) !important; }
@@ -294,7 +294,7 @@
    content sits right in the card (no gray boxes); several boxes are split by a line */
 .app.concept .panel-body .col-right > .card:has(> .gray-box) > .gray-box { background: transparent; padding: 0; border-radius: 0; }
 .app.concept .panel-body .col-right > .card:has(> .gray-box) > .gray-box + .gray-box { border-top: 1px solid var(--ds-border-secondary); padding-top: var(--ds-space-sm); }
-.app.concept .panel-body .col-right { gap: var(--ds-space); }
+.app.concept .panel-body .col-right { gap: var(--ds-space-xs); }
 
 /* ---------- no gray boxes inside white cards: content sits right in the card, groups split by a line ---------- */
 .app.concept .panel-body :is(.do-card, .card, .do-step, .ant-card) :is(.do-fields, .do-doc-row, .do-ed-box) {
@@ -398,7 +398,7 @@
 .app.concept .panel-body :is(.stop-detail, .ip-chip) { border: 1px solid var(--ds-border-secondary); }
 
 /* tabs right under a header line: tab text sits 16 below the line, same as the bar-to-content gap */
-.app.concept .panel-body .page-stack > .page-tabs:first-child { margin-top: calc(var(--ds-space-xs) - var(--ds-space-md)); }
+.app.concept .panel-body .page-stack > .page-tabs:first-child { margin-top: calc(var(--ds-space-xs) + var(--ds-space-xxs) - var(--ds-space-md)); } /* 4px more air under the page title */
 /* location boxes inside the white block: gray background + border (like route stops) */
 .app.concept .panel-body .do-card:has(> .ant-flex-vertical[style*="background"]):not([id="ip-money"]) > .ant-flex-vertical[style*="background"] { background: var(--ds-gray-1) !important; }
 
@@ -439,3 +439,15 @@
 /* list without its own title: search and filter on the left, actions on the right */
 .app.concept .do-list-head > .list-controls-end:first-child { flex: 1; margin-left: 0; justify-content: flex-start; }
 .app.concept .do-list-head > .list-controls-end:first-child > .list-actions { margin-left: auto; }
+.app.concept .sub-group > .item { border: 1px solid var(--ds-border-secondary); }
+/* gray boxes (BoL parties, checks) get the same hairline border as white blocks */
+.app.concept :is(.bol-inset, .bol-checks) { border: 1px solid var(--ds-border-secondary); }
+/* gray and white blocks in pages and drawers: same hairline border */
+:is(.app.concept, .ant-drawer, .ant-modal-root) :is(.rt-card, .hub-tabs .item, .ctr, .ctr > .item, .do-loc-card, .do-edit-box, .cn-add-card) { border: 1px solid var(--ds-border-secondary); }
+/* 8px between container cards in drawers */
+.ant-drawer :has(> .ctr) { gap: var(--ds-space-xs) !important; }
+
+
+/* Planning & Tracking: right column (Container journey, General information, Cutoffs, Free time) is 300px wide */
+@container plan (min-width: 788px) { .app.concept .planning-embedded .col-right { flex: 0 0 300px; min-width: 300px; max-width: 300px; } }
+.app.concept .planning-embedded .col-right .grid-2 { grid-template-columns: minmax(0, 1fr); } /* free time: Detention and Demurrage one under the other */

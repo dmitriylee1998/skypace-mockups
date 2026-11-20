@@ -518,7 +518,7 @@ html { scrollbar-gutter:stable; }
 .sw-party-fields > div:last-child { grid-column:1 / -1; }
 
 /* Edit actions follow the shared link color. */
-.ant-btn:not(.ant-btn-primary):has(.anticon-edit),.ant-btn:not(.ant-btn-primary) .anticon-edit { color:var(--ds-link); }
+.ant-btn:not(.ant-btn-primary):has(.anticon-edit),.ant-btn:not(.ant-btn-primary) .anticon-edit { color:var(--ds-primary); }
 .ant-btn:not(.ant-btn-primary):has(.anticon-edit):hover { color:var(--ds-primary-hover); }
 
 /* Form controls use the exported Ant Design input geometry everywhere. */

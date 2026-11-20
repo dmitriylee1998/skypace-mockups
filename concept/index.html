@@ -128,8 +128,18 @@
   .item hr, .hr { border: 0; border-top: 1px solid var(--split); margin: 0; }
   .item-cols { display: flex; gap: var(--ds-space-xs); }
   .item-cols > div { flex: 1; min-width: 0; }
+  /* table of a location card: lines above and below the header, a line under every row (Figma 9607:345710) */
+  .loc-table.ant-table-wrapper:not(.data-table):not(.doc-table) .ant-table-thead > tr > th { border-top: 1px solid var(--split) !important; border-bottom: 1px solid var(--split) !important; border-radius: 0 !important; }
+  .loc-table.ant-table-wrapper:not(.data-table):not(.doc-table) .ant-table-thead > tr > th:is(:first-child, :last-child), .loc-table .ant-table, .loc-table .ant-table-container { border-radius: 0 !important; }
+  .loc-table .ant-table-tbody > tr > td { border-bottom: 1px solid var(--ds-border-secondary); }
+  .loc-table.ant-table-wrapper .ant-table-tbody > tr:last-child > td { border-bottom: 0 !important; }
+  .item .loc-table.ant-table-wrapper :is(.ant-table-thead > tr > th, .ant-table-tbody > tr > td):first-child { padding-inline-start: 0 !important; }
+  .item .loc-table.ant-table-wrapper :is(.ant-table-thead > tr > th, .ant-table-tbody > tr > td):last-child { padding-inline-end: 0 !important; }
+  .item .loc-table.ant-table-wrapper .ant-table-selection-column { text-align: left !important; padding-inline-end: 0 !important; }
+  .item .loc-table.ant-table-wrapper .ant-table-selection-column + :is(th, td) { padding-inline-start: 0 !important; }
+  .app.concept .panel-body .item .loc-table.ant-table-wrapper:not(.data-table):not(.doc-table) .ant-table-thead > tr > th, .item .loc-table.ant-table-wrapper:not(.data-table):not(.doc-table) .ant-table-thead > tr > th { background: transparent !important; }
   .editable { display: inline-flex; gap: var(--ds-space-xxs); align-items: center; }
-  .editable .anticon { color: var(--link); font-size: var(--ds-font-size); cursor: pointer; }
+  .editable .anticon { color: var(--primary); font-size: var(--ds-font-size); cursor: pointer; }
   .add-link.ant-btn { align-self: flex-start; padding-inline: 15px; }
   .prog-cols { display: flex; gap: var(--ds-space-xs); }
   .prog-cols > div { flex: 1; min-width: 0; padding-right: var(--ds-space-xs); }
@@ -1993,8 +2003,8 @@
 
 </style>
 <script src="design-system/theme.js?v=concept2"></script>
-<link rel="stylesheet" href="design-system/system.css?v=20261115-rowsel2" />
-<link rel="stylesheet" href="design-system/concept.css?v=87" />
+<link rel="stylesheet" href="design-system/system.css?v=20261120-route" />
+<link rel="stylesheet" href="design-system/concept.css?v=97" />
 </head>
 <body>
 <div id="root"></div>
@@ -2109,7 +2119,7 @@ const FREE_KINDS = { det: 'Detention', dem: 'Demurrage', mer: 'Detention & Demur
 const fmt = (iso, f = SHORT_DT) => (iso ? dayjs(iso).format(f) : '—');
 const addressLine = (r) => {
   const tail = [r.city, [r.state, r.post].filter(Boolean).join(' '), r.country].filter(Boolean).join(', ');
-  return [r.addr, r.addr2, tail].filter(Boolean).join(', ') + (r.ptc ? ` · PT: ${r.ptc}` : '');
+  return [r.addr, r.addr2, tail].filter(Boolean).join(', ') + (r.ptc ? `, PT: ${r.ptc}` : '');
 };
 const addDays = (iso, days, type) => {
   let d = dayjs(iso);
@@ -2127,16 +2137,16 @@ const seedData = () => ({
       loc({ name: 'Maher Terminals, Port Newark', addr: '1210 Corbin St', city: 'Newark', state: 'NJ', post: '07114', country: 'US', release: '2026-05-31T08:00', free: { kind: 'det', days: 2, type: 'cal' } }),
       loc({ name: 'APM Terminals, Elizabeth', addr: 'S080 McLester St', city: 'Elizabeth', state: 'NJ', post: '07201', country: 'US', release: '2026-05-31T08:00', free: { kind: 'det', days: 4, type: 'cal' } }),
     ],
-    term: [loc({ name: 'Port Newark Container Terminal', addr: '241 Calcutta St', city: 'Newark', state: 'NJ', post: '07114', country: 'US', release: '2026-06-02T10:00', cutoff: '2026-06-02T18:00', free: { kind: 'dem', days: 5, type: 'cal' } })],
-    free: [{ id: uid(), kind: 'det', days: 2, type: 'cal' }],
+    term: [loc({ containers: TOTAL_CONTAINERS, name: 'Port Newark Container Terminal', addr: '241 Calcutta St', city: 'Newark', state: 'NJ', post: '07114', country: 'US', release: '2026-06-02T10:00', cutoff: '2026-06-02T18:00', free: { kind: 'dem', days: 5, type: 'cal' } })],
+    free: [{ id: uid(), kind: 'det', days: 5, type: 'work' }, { id: uid(), kind: 'dem', days: 5, type: 'work' }],
   },
   dest: {
     cy: [
       loc({ name: 'Nha Trang Rail Yard (ICD)', addr: '1249 Waverly Pl', city: 'Elizabeth', state: 'NJ', post: '7208', country: 'US', release: '2026-05-31T08:00', free: { kind: 'det', days: 4, type: 'cal' } }),
       loc({ name: 'APM Terminals, Elizabeth', addr: 'S080 McLester St', city: 'Elizabeth', state: 'NJ', post: '07201', country: 'US', release: '2026-05-31T08:00' }),
     ],
-    term: [loc({ name: 'Cat Lai Terminal, Ho Chi Minh City, VN', addr: '1249 Waverly Pl', city: 'Elizabeth', state: 'NJ', post: '7208', country: 'US', ptc: '43214213412', release: '2026-06-02T10:00', free: { kind: 'dem', days: 5, type: 'cal' } })],
-    free: [{ id: uid(), kind: 'det', days: 2, type: 'cal' }],
+    term: [loc({ containers: TOTAL_CONTAINERS, name: 'Cat Lai Terminal, Ho Chi Minh City, VN', addr: '1249 Waverly Pl', city: 'Elizabeth', state: 'NJ', post: '7208', country: 'US', ptc: '43214213412', release: '2026-06-24T11:30', free: { kind: 'dem', days: 5, type: 'cal' } })],
+    free: [{ id: uid(), kind: 'det', days: 5, type: 'work' }, { id: uid(), kind: 'dem', days: 5, type: 'work' }],
   },
 });
 const emptyData = () => ({ origin: { cy: [], term: [], free: [] }, dest: { cy: [], term: [], free: [] } });
@@ -2442,10 +2452,10 @@ function PageHeader({ back, tracker=false, actions=false }) {
         {meta(<I.CalendarOutlined />, `${s.dep} – ${s.arr}`, 'ETD – ETA')}
         {meta(<img src={s.logo} width={14} height={14} alt="" style={{ display: 'block' }} />, s.vessel.replace(' | ', ', voyage '), s.carrier)}
         {meta(<I.TeamOutlined />, 'Tesla Inc', 'Ops: Vladimir Nikolaev')}
-        <Tag color={STATUS_COLOR[s.status]} variant="outlined" style={{ marginInlineEnd: 0 }}>{s.status}</Tag>
       </Flex>
       <ShipmentActions />
       </Flex>}>
+        <Tag color={STATUS_COLOR[s.status]} variant="outlined" style={{ marginInline: `${TOKEN.marginXS}px 0` }}>{s.status}</Tag>
       </PanelHead>
     </div>
   );
@@ -2812,6 +2822,541 @@ function SectionHeader({ icon, title, tags, sub, managers, open, onToggle, extra
         <div className="sec-extra">{managers && managers.map((m) => <Managed key={m} name={m} />)}{extra}</div>
       )}
       <Chevron open={open} />
+    </div>
+  );
+}
+
+/* ---------- Origin / Destination: free time information + locations with their containers ---------- */
+// what each location shows per container: its events, the free-time counter and the counts in the card head
+const LOC_TABLE = {
+  origin: {
+    cy: { title: 'Container yards', ev: [['out', 'Empty out']], count: [['out', 'gated out']], reassign: true },
+    term: { title: 'Terminal', ev: [['in', 'Gate in']], count: [['in', 'gated in']], free: { kind: 'det', days: 'Detention', lfd: 'LFD' } },
+  },
+  dest: {
+    term: { title: 'Terminal', ev: [['rel', 'Released'], ['out', 'Gate out']], count: [['out', 'gated out'], ['rel', 'released']], free: { kind: 'dem', days: 'Demurrage', lfd: 'LFD' } },
+    cy: { title: 'Container yards', ev: [['ret', 'Returned empty']], count: [['ret', 'gated in']], free: { kind: 'det', days: 'Detention', lfd: 'LFD' }, reassign: true },
+  },
+};
+// container ids of every location in a group (stored list, or the next r.containers of the shipment)
+const groupCtrs = (list) => { let k = 0; return list.map((r) => { const ids = r.ctrs || SHIP_CTRS.slice(k, k + (r.containers || 0)).map((c) => c.id); k += r.containers || 0; return ids; }); };
+const ctrIdx = (id) => SHIP_CTRS.findIndex((c) => c.id === id);
+// one event of a container at its location: stored value, or a planned date (actual once the section got that far)
+function ctrEvent(st, section, group, id, key) {
+  const list = st.data[section][group];
+  const ids = groupCtrs(list);
+  const li = ids.findIndex((a) => a.includes(id));
+  if (li < 0) return null;
+  const r = list[li];
+  const saved = r.ev?.[id]?.[key];
+  if (saved !== undefined) return saved;
+  const j = ids[li].indexOf(id);
+  const k = ctrIdx(id);
+  const done = sectionDone(st, section);
+  const from = (sec, grp, kk, days) => { const e = ctrEvent(st, sec, grp, id, kk); return e ? dayjs(e.d).add(days, 'day') : null; };
+  let d;
+  let act = k < done;
+  if (section === 'origin' && key === 'out') { d = dayjs(r.release || FREE_START.origin).add(j, 'day'); act = k < Math.min(TOTAL_CONTAINERS, done + 2); }
+  if (section === 'origin' && key === 'in') d = from('origin', 'cy', 'out', 2) || dayjs(r.release).add(j, 'day');
+  if (section === 'dest' && key === 'rel') { d = dayjs(FREE_START.dest).add(Math.floor(j / 2), 'day'); act = k < Math.min(TOTAL_CONTAINERS, done + 2); }
+  if (section === 'dest' && key === 'out') d = from('dest', 'term', 'rel', 1) || dayjs(FREE_START.dest).add(j + 1, 'day');
+  if (section === 'dest' && key === 'ret') d = from('dest', 'term', 'out', 3) || dayjs(FREE_START.dest).add(j + 4, 'day');
+  return d ? { d: d.format('YYYY-MM-DDTHH:mm'), act } : null;
+}
+// days between two dates, counted the way the free time is (calendar / working)
+const daysBetween = (a, b, type) => {
+  let d = dayjs(a).startOf('day'); const end = dayjs(b).startOf('day'); let n = 0;
+  while (d.isBefore(end)) { d = d.add(1, 'day'); if (type !== 'work' || (d.day() !== 0 && d.day() !== 6)) n++; }
+  return n;
+};
+const sectionFree = (st, section, kind) => st.data[section].free.find((f) => f.kind === kind) || st.data[section].free.find((f) => f.kind === 'mer');
+// when the free time of a container starts: detention — from the event that took the container out, demurrage — from discharge
+function freeStart(st, section, group, id) {
+  if (section === 'origin') return ctrEvent(st, 'origin', 'cy', id, 'out')?.d;
+  if (group === 'term') return FREE_START.dest;
+  return ctrEvent(st, 'dest', 'term', id, 'out')?.d;
+}
+const EvDate = ({ e }) => (e
+  ? <span style={{ whiteSpace: 'nowrap' }}>{fmt(e.d, 'DD MMM')} <Typography.Text type="secondary">({e.act ? 'act' : 'est'})</Typography.Text></span>
+  : <Typography.Text type="secondary">—</Typography.Text>);
+const FREE_TYPE = { work: 'working', cal: 'calendar' };
+// table inside a gray card: no own background, so the card shows through
+const LOC_TABLE_THEME = { components: { Table: { headerBg: 'transparent', colorBgContainer: 'transparent', rowHoverBg: 'transparent', headerColor: TOKEN.colorText, headerSplitColor: TOKEN.colorSplit, cellPaddingInlineSM: TOKEN.paddingXS } } };
+
+// Free time of the whole section: detention and demurrage, edited together
+function FreeInfo({ section, st, act }) {
+  const free = st.data[section].free;
+  const val = (kind) => { const f = free.find((x) => x.kind === kind) || free.find((x) => x.kind === 'mer'); return f ? `${f.days} days (${FREE_TYPE[f.type]})` : <Typography.Text type="secondary">Not added</Typography.Text>; };
+  const action = st.customer
+    ? <LinkBtn icon={<I.ShoppingCartOutlined />} onClick={() => act.msg.success('Free time request sent to Skypace')}>Buy free time</LinkBtn>
+    : <Tooltip title="Add / edit free time"><LinkBtn icon={<I.EditOutlined />} onClick={() => act.drawer({ type: 'sectionFree', section })} /></Tooltip>;
+  return (
+    <div className="sub-group">
+      <div className="sub-title" style={{ marginBottom: 0 }}>Free time information</div>
+      <div className="item">
+        <div className="item-head">
+          <div className="item-cols" style={{ flex: 1 }}><KV k="Detention" v={val('det')} /><KV k="Demurrage" v={val('dem')} /></div>
+          {action}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// One container yard / terminal: head (name, address, dates, counts) and its containers
+function LocTable({ section, group, r, i, ids, st, act, collapsed }) {
+  const cfg = LOC_TABLE[section][group];
+  const list = st.data[section][group];
+  const edit = !st.customer;
+  const [open, setOpen] = useState(!collapsed);
+  const [sel, setSel] = useState([]);
+  const free = cfg.free && sectionFree(st, section, cfg.free.kind);
+  const rows = ids.map((id) => {
+    const ev = Object.fromEntries(cfg.ev.map(([k]) => [k, ctrEvent(st, section, group, id, k)]));
+    const row = { key: id, id, ev };
+    if (cfg.free) {
+      const end = ev[cfg.ev[cfg.ev.length - 1][0]];
+      const start = freeStart(st, section, group, id);
+      if (free && start && end) {
+        row.used = daysBetween(start, end.d, free.type);
+        row.lfd = end.act ? null : addDays(start, free.days, free.type).format('MMM DD');
+      }
+    }
+    return row;
+  });
+  const others = list.filter((x) => x !== r);
+  const editDates = (ctrs) => act.set({ ctrModal: { kind: 'date', section, group, idx: i, key: cfg.ev[0][0], label: cfg.ev[0][1], ctrs, keys: cfg.ev } });
+  const columns = [
+    { title: 'Container', dataIndex: 'id' },
+    ...cfg.ev.map(([k, label]) => ({ title: label, key: k, render: (_, x) => (x.ev[k] ? fmt(x.ev[k].d, 'MMM DD, HH:mm') : '—') })),
+    ...(cfg.free ? [
+      { title: cfg.free.days, key: 'used', render: (_, x) => (x.used == null || !free ? '—' : <Typography.Text type={x.used > free.days ? 'danger' : undefined}>{x.used} of {free.days}</Typography.Text>) },
+      { title: cfg.free.lfd, key: 'lfd', render: (_, x) => x.lfd || '—' },
+    ] : []),
+    ...(edit ? [{
+      title: 'Action', key: 'act', width: 114, align: 'right', fixed: 'right',
+      render: (_, x) => (
+        <Flex gap={TOKEN.marginXS} align="center" justify="flex-end">
+          <Tooltip title="Edit dates"><Button color="primary" variant="link" size="small" icon={<I.EditOutlined />} onClick={() => editDates([x.id])} /></Tooltip>
+          {cfg.reassign && others.length > 0 && <Tooltip title={`Reassign to another ${GROUPS[group].what}`}><Button color="primary" variant="link" size="small" style={{ color: TOKEN.colorPrimary }} icon={<I.LinkOutlined />} onClick={() => act.set({ ctrModal: { kind: 'move', section, group, idx: i, id: x.id } })} /></Tooltip>}
+        </Flex>
+      ),
+    }] : []),
+  ];
+  const dates = DATE_FIELDS[section][group].map(([key, , short]) => <KV key={key} k={short} v={fmt(r[key])} />);
+  const status = cfg.count.map(([k, label]) => `${rows.filter((x) => x.ev[k]?.act).length} of ${rows.length} ${label}`).join(', ');
+  return (
+    <div className="item">
+      <div className="item-head">
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="name">{r.name}</div>
+          <div>{addressLine(r)}</div>
+        </div>
+        {edit && <Tooltip title="Edit"><Button color="primary" variant="link" icon={<I.EditOutlined />} onClick={() => act.drawer({ type: 'terminal', group, section, editIdx: i })} /></Tooltip>}
+      </div>
+      <hr />
+      <Flex gap={TOKEN.marginXS} align="center">
+        <div className="item-cols" style={{ flex: 1 }}>{dates}<KV k="Status" v={status} /></div>
+        <Button type="text" aria-label={open ? 'Collapse' : 'Expand'} onClick={() => setOpen(!open)} icon={<ChevronIcon dir={open ? 'up' : 'down'} style={{ color: TOKEN.colorPrimary }} />} />
+      </Flex>
+      {open && <>
+        {edit && sel.length > 0 && (
+          <Flex align="center" gap={TOKEN.marginXS}>
+            <Typography.Text type="secondary">{sel.length} selected</Typography.Text>
+            <Button color="primary" variant="link" icon={<I.EditOutlined />} onClick={() => editDates(sel)}>Bulk edit</Button>
+            {cfg.reassign && others.length > 0 && <Button color="primary" variant="link" style={{ color: TOKEN.colorPrimary }} icon={<I.LinkOutlined />}
+              onClick={() => { act.set({ ctrModal: { kind: 'move', section, group, idx: i, ids: sel } }); setSel([]); }}>Bulk link</Button>}
+          </Flex>
+        )}
+        {rows.length
+          ? <ConfigProvider theme={LOC_TABLE_THEME}><Table className="loc-table" size="small" pagination={false} columns={columns} dataSource={rows} scroll={{ x: 'max-content' }}
+              rowSelection={edit ? { selectedRowKeys: sel, onChange: setSel, columnWidth: TOKEN.controlInteractiveSize } : undefined} /></ConfigProvider>
+          : <Typography.Text type="secondary">No containers linked</Typography.Text>}
+      </>}
+    </div>
+  );
+}
+
+function LocGroup({ section, group, st, act, bare }) {
+  const list = st.data[section][group];
+  const meta = GROUPS[group];
+  const ids = groupCtrs(list);
+  const onAdd = () => act.drawer({ type: 'terminal', group, section });
+  if (st.customer && !list.length) return null;
+  return (
+    <div className="sub-group">
+      {!bare && <div className="sub-title" style={{ marginBottom: 0 }}>{LOC_TABLE[section][group].title}</div>}
+      {list.length ? (
+        <>
+          {list.map((r, i) => <LocTable key={r.id} section={section} group={group} r={r} i={i} ids={ids[i]} st={st} act={act} collapsed={bare} />)}
+          {!st.customer && <Button type="link" className="add-link" icon={<I.PlusOutlined />} onClick={onAdd}>{meta.add[section]}</Button>}
+        </>
+      ) : <EmptySlot onClick={onAdd}>{meta.add[section]}</EmptySlot>}
+    </div>
+  );
+}
+
+// Add / edit one event date for containers of a location, or move a container to another yard
+function CtrModal({ st, act }) {
+  const m = st.ctrModal;
+  const [form] = Form.useForm();
+  if (!m) return null;
+  const list = st.data[m.section][m.group];
+  const ids = groupCtrs(list);
+  const r = list[m.idx];
+  const close = () => act.set({ ctrModal: null });
+  const setGroup = (next) => act.set({ ctrModal: null, data: { ...st.data, [m.section]: { ...st.data[m.section], [m.group]: next } } });
+  if (m.kind === 'move') {
+    const moving = m.ids || [m.id];
+    const save = async () => {
+      const v = await form.validateFields().catch(() => null);
+      if (!v) return;
+      const to = list.findIndex((x) => x.id === v.to);
+      setGroup(list.map((x, i) => {
+        const own = ids[i].filter((id) => !moving.includes(id));
+        const ctrs = i === to ? [...own, ...moving] : own;
+        return { ...x, ctrs, containers: ctrs.length };
+      }));
+      act.msg.success(`${moving.length === 1 ? moving[0] : `${moving.length} containers`} reassigned to ${list[to].name}`);
+    };
+    return (
+      <Modal open title={moving.length === 1 ? `Reassign ${moving[0]}` : `Reassign ${moving.length} containers`} onCancel={close} onOk={save} okText="Reassign" okButtonProps={{ color: 'default', variant: 'solid' }} width={440} destroyOnHidden>
+        <Form form={form} layout="vertical" requiredMark={false}>
+          <Form.Item label="Current container yard"><Input value={r.name} disabled /></Form.Item>
+          <Form.Item name="to" label="Move to" rules={[{ required: true, message: 'Select a container yard' }]}>
+            <Select placeholder="Select container yard" options={list.filter((x) => x !== r).map((x) => ({ value: x.id, label: x.name }))} />
+          </Form.Item>
+        </Form>
+      </Modal>
+    );
+  }
+  const keys = m.keys || [[m.key, m.label]];
+  const pre = m.ctrs || ids[m.idx];
+  const dateOf = (k) => { const e = ctrEvent(st, m.section, m.group, pre[0], k); return e ? dayjs(e.d) : null; };
+  const save = async () => {
+    const v = await form.validateFields().catch(() => null);
+    if (!v) return;
+    const ev = { ...(r.ev || {}) };
+    v.ctrs.forEach((id) => { ev[id] = { ...(ev[id] || {}), [v.key]: { d: v.date.format('YYYY-MM-DDTHH:mm'), act: v.type === 'act' } }; });
+    setGroup(list.map((x, i) => (i === m.idx ? { ...x, ev } : x)));
+    const label = keys.find(([k]) => k === v.key)[1];
+    act.msg.success(`${label} date saved for ${v.ctrs.length} container${v.ctrs.length > 1 ? 's' : ''}`);
+  };
+  return (
+    <Modal open title={pre.length === 1 ? `Edit dates, ${pre[0]}` : 'Edit dates'} onCancel={close} onOk={save} okText="Save" okButtonProps={{ color: 'default', variant: 'solid' }} width={440} destroyOnHidden>
+      <Form form={form} layout="vertical" requiredMark={false}
+        onValuesChange={(c) => { if (c.key) form.setFieldsValue({ date: dateOf(c.key) }); }}
+        initialValues={{ ctrs: pre, key: keys[0][0], date: dateOf(keys[0][0]), type: 'act' }}>
+        <Form.Item label="Location"><Input value={r.name} disabled /></Form.Item>
+        <Form.Item name="ctrs" label="Containers" rules={[{ required: true, message: 'Select containers' }]}>
+          <Select mode="multiple" options={ids[m.idx].map((id) => ({ value: id, label: id }))} />
+        </Form.Item>
+        <Form.Item name="key" label="Event" hidden={keys.length < 2}>
+          <Segmented block options={keys.map(([value, label]) => ({ value, label }))} />
+        </Form.Item>
+        <Form.Item name="type" label="Date type">
+          <Segmented block options={[{ value: 'act', label: 'Actual' }, { value: 'est', label: 'Estimated' }]} />
+        </Form.Item>
+        <Form.Item name="date" label="Date" rules={[{ required: true, message: 'Select a date' }]}>
+          <DatePicker showTime={{ format: 'HH:mm' }} format="DD/MM/YY HH:mm" style={{ width: '100%' }} />
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
+}
+
+// Detention and demurrage of a section in one drawer
+function SectionFreeDrawer({ d, st, act, close }) {
+  const [form] = Form.useForm();
+  const free = st.data[d.section].free;
+  const get = (kind) => free.find((f) => f.kind === kind) || free.find((f) => f.kind === 'mer');
+  const initial = Object.fromEntries(['det', 'dem'].flatMap((k) => [[`${k}Days`, get(k)?.days], [`${k}Type`, get(k)?.type || 'work']]));
+  const save = async () => {
+    const v = await form.validateFields().catch(() => null);
+    if (!v) return;
+    const next = ['det', 'dem'].filter((k) => v[`${k}Days`] > 0).map((k) => ({ id: free.find((f) => f.kind === k)?.id || uid(), kind: k, days: v[`${k}Days`], type: v[`${k}Type`] }));
+    act.set({ data: { ...st.data, [d.section]: { ...st.data[d.section], free: next } } });
+    act.msg.success('Free time saved');
+    close();
+  };
+  const part = (k, label) => (
+    <Flex vertical key={k}>
+      <Typography.Text strong>{label}</Typography.Text>
+      <Form.Item name={`${k}Days`} label="Days" rules={[{ type: 'number', min: 1, max: 90, message: 'From 1 to 90 days' }]}>
+        <InputNumber precision={0} style={{ width: '100%' }} placeholder="e.g 5" />
+      </Form.Item>
+      <Form.Item name={`${k}Type`} label="Day type"><Radio.Group options={[{ value: 'cal', label: 'Calendar' }, { value: 'work', label: 'Working' }]} /></Form.Item>
+    </Flex>
+  );
+  return (
+    <Drw title={`${d.section === 'origin' ? 'Origin' : 'Destination'} free time`} width={400} onClose={close}
+      footer={<><Button onClick={close}>Cancel</Button><Button color="default" variant="solid" onClick={save}>Save</Button></>}>
+      <Form form={form} layout="vertical" initialValues={initial} requiredMark={false}>
+        {part('det', 'Detention')}
+        {part('dem', 'Demurrage')}
+      </Form>
+    </Drw>
+  );
+}
+
+// Door to Door (customer): loading / unloading locations with the dispatch details of each container
+const DOOR_ADDR = '191 North Wacker Drive, Chicago, IL, 60606, United States';
+const DOOR_LOCS = {
+  origin: { title: 'Loading locations', locs: [{ name: PARTY.name, addr: DOOR_ADDR, done: 'Gated in', rows: [
+    ['At depot', ['31 May', 1], ['31 May', 1], '2 of 5', null], ['At site', ['31 May', 1], ['01 Jun', 0], '3 of 5', '05 Jun'], ['At site', ['01 Jun', 0], ['01 Jun', 0], '3 of 5', '05 Jun'],
+    ['Gated in', ['31 May', 1], ['31 May', 1], '2 of 5', null], ['Gated in', ['31 May', 1], ['31 May', 1], '2 of 5', null], ['Gated in', ['31 May', 1], ['31 May', 1], '2 of 5', null]] }] },
+  dest: { title: 'Unloading locations', locs: [
+    { name: 'Amplitude Analytics', addr: DOOR_ADDR, done: 'Returned empty', rows: [['At terminal', ['26 Jun', 0], ['26 Jun', 0], '1 of 5', '01 Jul'], ['At site', ['25 Jun', 1], ['25 Jun', 1], '2 of 5', '01 Jul'], ['Returned empty', ['24 Jun', 1], ['24 Jun', 1], '2 of 5', null], ['Returned empty', ['24 Jun', 1], ['24 Jun', 1], '2 of 5', null]] },
+    { name: 'Tesla International', addr: DOOR_ADDR, done: 'Returned empty', rows: [['Returned empty', ['24 Jun', 1], ['24 Jun', 1], '2 of 5', null], ['Returned empty', ['24 Jun', 1], ['24 Jun', 1], '2 of 5', null]] },
+  ] },
+};
+const DOOR_STATUS = { 'At depot': 'blue', 'At site': 'blue', 'At terminal': 'blue', 'Gated in': 'green', 'Returned empty': 'green' };
+function DoorCard({ l, rows, st, details }) {
+  const [open, setOpen] = useState(true);
+  const [sel, setSel] = useState([]);
+  const edit = !st.customer;
+  const toOrder = () => go(`${SHIPMENT_PATH}/dispatches/ID-9982`);
+  const DoorDate = ({ v }) => <span style={{ whiteSpace: 'nowrap' }}>{v[0]} <Typography.Text type="secondary">({v[1] ? 'act' : 'est'})</Typography.Text></span>;
+  const iconBtn = (title, icon, onClick) => <Tooltip title={title}><Button color="primary" variant="link" size="small" style={{ color: TOKEN.colorPrimary }} icon={icon} onClick={onClick} /></Tooltip>;
+  const columns = [
+    { title: 'Container', dataIndex: 'id' },
+    { title: 'Status', dataIndex: 's', render: (s) => <Tag color={DOOR_STATUS[s]} variant="outlined" style={{ marginInlineEnd: 0 }}>{s}</Tag> },
+    { title: 'Arrival', dataIndex: 'arr', render: (v) => <DoorDate v={v} /> },
+    { title: 'Pickup', dataIndex: 'pick', render: (v) => <DoorDate v={v} /> },
+    { title: 'Detention', dataIndex: 'used' },
+    { title: 'LFD', dataIndex: 'lfd', render: (v) => v || '—' },
+    edit && { title: 'Action', key: 'act', align: 'right', fixed: 'right', render: () => (
+      <Flex gap={TOKEN.marginXS} justify="flex-end">
+        {edit && iconBtn('Edit dispatch order', <I.EditOutlined />, toOrder)}
+        {iconBtn('Dispatch details', <I.FileTextOutlined />, toOrder)}
+      </Flex>
+    ) },
+  ].filter(Boolean);
+  const done = rows.filter((x) => x.s === l.done).length;
+  return (
+    <div className="item">
+      <div className="item-head">
+        <div style={{ flex: 1, minWidth: 0 }}><div className="name">{l.name}</div><div>{l.addr}</div></div>
+      </div>
+      <hr />
+      <Flex gap={TOKEN.marginXS} align="center">
+        <div className="item-cols" style={{ flex: 1 }}><KV k="Status" v={`${done} of ${rows.length} completed`} /></div>
+        <Button type="text" aria-label={open ? 'Collapse' : 'Expand'} onClick={() => setOpen(!open)} icon={<ChevronIcon dir={open ? 'up' : 'down'} style={{ color: TOKEN.colorPrimary }} />} />
+      </Flex>
+      {open && <>
+        {details && <><hr />{details}<hr /></>}
+        {edit && sel.length > 0 && (
+          <Flex align="center" gap={TOKEN.marginXS}>
+            <Typography.Text type="secondary">{sel.length} selected</Typography.Text>
+            <Button color="primary" variant="link" icon={<I.EditOutlined />} onClick={toOrder}>Bulk edit</Button>
+          </Flex>
+        )}
+        <ConfigProvider theme={LOC_TABLE_THEME}><Table className="loc-table" size="small" pagination={false} columns={columns} dataSource={rows} scroll={{ x: 'max-content' }}
+          rowSelection={edit ? { selectedRowKeys: sel, onChange: setSel, columnWidth: TOKEN.controlInteractiveSize } : undefined} /></ConfigProvider>
+      </>}
+    </div>
+  );
+}
+function DoorLocations({ section, st, bare, details }) {
+  const cfg = DOOR_LOCS[section];
+  let k = 0;
+  return (
+    <div className="sub-group">
+      {!bare && <div className="sub-title" style={{ marginBottom: 0 }}>{cfg.title}</div>}
+      {cfg.locs.map((l) => {
+        const rows = l.rows.map(([s, arr, pick, used, lfd]) => { const id = SHIP_CTRS[k++ % TOTAL_CONTAINERS].id; return { key: id, id, s, arr, pick, used, lfd }; });
+        return <DoorCard key={l.name} l={l} rows={rows} st={st} details={details} />;
+      })}
+    </div>
+  );
+}
+
+/* ---------- Planning & Tracking: one route of stops (Figma 9688:351169 and its siblings) ----------
+   stop → collapsible card; inside — milestones (Empty pickup, Gated in, Loaded on vessel…) on the same rail;
+   between stops — the transport line (Truck / Vessel). */
+const ROUTE_STOP_TAG = { origin: { prog: 'Pickup in progress', done: 'Completed' }, dest: { prog: 'Delivery in progress', done: 'Completed' } };
+const legState = (st, leg) => { const t = st.tags[leg] || []; return t.includes('done') ? 'done' : t.includes('prog') ? 'prog' : 'ns'; };
+
+// rail: optional line above, a dot or a transport icon, a line to the next row
+function RouteRail({ kind = 'dot', small, active, offset }) {
+  const { token } = antd.theme.useToken();
+  const size = small ? token.marginXS : token.fontSizeSM;
+  const box = token.fontSizeLG + 2;
+  // only the marker: the line is drawn once for the whole route (PlanningRoute), so it stays one straight line
+  return (
+    <Flex vertical align="center" style={{ width: box, flex: 'none', paddingTop: offset }}>
+      {kind === 'dot'
+        ? <div className="route-mark" data-active={active ? 1 : 0} style={{ width: size, height: size, borderRadius: '50%', background: active ? token.colorPrimary : token.colorBorder, flex: 'none', position: 'relative', zIndex: 1, boxShadow: `0 0 0 ${token.marginXXS}px ${token.colorBgLayout}` }} />
+        : <Flex className="route-mark" data-active={active ? 1 : 0} align="center" justify="center" style={{ width: box, height: box, borderRadius: '50%', border: `${token.lineWidth}px ${token.lineType} ${active ? token.colorPrimary : token.colorBorder}`, color: active ? token.colorPrimary : token.colorTextQuaternary, background: token.colorBgContainer, flex: 'none', position: 'relative', zIndex: 1 }}>
+            <Ic n={kind === 'ship' ? 'header-ship' : 'truck'} size={token.fontSizeSM} />
+          </Flex>}
+    </Flex>
+  );
+}
+// a row of the route: rail on the left, content on the right; rows touch so the rail stays continuous
+function RouteRow({ rail, children, gap = true, align }) {
+  const { token } = antd.theme.useToken();
+  return <Flex gap={token.marginXS} align={align} style={{ paddingBottom: gap ? token.marginXS : 0 }}>{rail}<div style={{ flex: 1, minWidth: 0 }}>{children}</div></Flex>;
+}
+// white block of the route (stop head, milestone): border, radius, 12/16 padding
+function RouteCard({ children, style }) {
+  const { token } = antd.theme.useToken();
+  return <Flex vertical gap={token.marginXS} style={{ background: token.colorBgContainer, border: `${token.lineWidth}px ${token.lineType} ${token.colorSplit}`, borderRadius: token.borderRadiusLG, padding: `${token.paddingSM}px ${token.padding}px`, ...style }}>{children}</Flex>;
+}
+// gray box with one transport leg: Arriving / Departing Transport
+function TransportBox({ title, rows, edit }) {
+  const { token } = antd.theme.useToken();
+  return (
+    <div className="item">
+      <Flex align="center" gap={token.marginXS}><Typography.Text strong style={{ flex: 1 }}>{title}</Typography.Text>
+        {edit && <Tooltip title="Edit"><Button color="primary" variant="link" icon={<I.EditOutlined />} onClick={edit} /></Tooltip>}</Flex>
+      <hr />
+      {/* same columns as a location card, whose fields row ends with the expand arrow */}
+      <Flex gap={token.marginXS}><div className="item-cols" style={{ flex: 1 }}>{rows.map(([k, v]) => <KV key={k} k={k} v={v} />)}</div><div style={{ width: token.controlHeight, flex: 'none' }} /></Flex>
+    </div>
+  );
+}
+// door location: who, contacts, loading method, references, notes and the dispatch table
+function DoorDetails({ dest }) {
+  const { token } = antd.theme.useToken();
+  const p = PARTY;
+  const rows = [
+    [['Contact Person', p.contact], ['Email / Phone', p.email]],
+    [['Cargo ready date', p.ready], [dest ? 'Unloading method / Facility access' : 'Loading method / Facility access', dest ? 'Live unload / FCFS' : 'Live load / FCFS']],
+    [['References', <Flex gap={TOKEN.marginXXS} wrap>{p.refs.map((r) => <Tag key={r} variant="outlined" style={{ marginInlineEnd: 0 }}>{r}</Tag>)}<Tag variant="outlined" style={{ marginInlineEnd: 0 }}>+{p.more}</Tag></Flex>], ['On behalf of', p.behalf]],
+  ];
+  return (
+    <Flex vertical gap={token.marginXS}>
+      {rows.map((r, i) => <div className="item-cols" key={i}>{r.map(([k, v]) => <KV key={k} k={k} v={v} />)}</div>)}
+      <KV k="Additional notes" v={p.notes} />
+    </Flex>
+  );
+}
+
+// Update of the ocean schedule, in the tab bar of Planning & Tracking: opens the drawers of the planning page through an event
+const PLANNING_UPDATE = 'skypace:planning-update';
+function PlanningUpdateButton() {
+  const view = React.useContext(ViewCtx);
+  const send = (type) => window.dispatchEvent(new CustomEvent(PLANNING_UPDATE, { detail: type }));
+  if (view.role === 'customer') return <Button icon={<I.EditOutlined />} onClick={() => send('request')}>Request changes</Button>;
+  return (
+    <Dropdown trigger={['click']} placement="bottomRight" menu={{ items: [{ key: 'schedule', label: 'Select new schedule' }, { key: 'manual', label: 'Change manually' }], onClick: ({ key }) => send(key) }}>
+      <Button icon={<I.EditOutlined />}>Update</Button>
+    </Dropdown>
+  );
+}
+function PlanningRoute({ st, act }) {
+  const { token } = antd.theme.useToken();
+  const door = st.svc === 'door';
+  const edit = !st.customer;
+  const o = legState(st, 'origin'), m = legState(st, 'main'), d = legState(st, 'dest');
+  const reached = { origin: o !== 'ns', pol: o === 'done' || m !== 'ns', ts: m !== 'ns', dest: d !== 'ns' || m === 'done', shipper: o !== 'ns', receiver: d !== 'ns' };
+  const tag = (leg, s) => ROUTE_STOP_TAG[leg][s] && <Tag color={s === 'done' ? 'green' : 'blue'} variant="outlined" style={{ marginInlineEnd: 0 }}>{ROUTE_STOP_TAG[leg][s]}</Tag>;
+  const sectionDoneN = (leg) => `${sectionDone(st, leg)} of ${TOTAL_CONTAINERS}`;
+  const updateTransport = () => act.drawer({ type: 'manual' });
+  const stops = [
+    door && { key: 'shipper', name: 'Chicago, IL, 60606, United States', sub: [`${sectionDoneN('origin')} gated in, cutoff 02 Jun, 18:00`],
+      body: [{ key: 'loading', door: 'origin' }] },
+    door && { transport: 'Truck', icon: 'truck' },
+    { key: 'origin', name: 'Chicago, US', tag: tag('origin', o), sub: ['ETD: 02 Jun, 18:00', `Gated in: ${sectionDoneN('origin')}`],
+      body: [
+        { key: 'empty', title: 'Empty pickup', group: ['origin', 'cy'] },
+        { key: 'gatein', title: 'Gated in', group: ['origin', 'term'] },
+        { key: 'loaded', title: 'Loaded on vessel', icon: 'truck', boxes: [['Departing Transport', [['Transport', 'Truck'], ['Actual Departure', '02 Jun, 16:45']]]] },
+      ] },
+    { transport: 'Truck', icon: 'truck' },
+    { key: 'pol', name: 'Port Newark, NJ, US', sub: ['ATA: 03 Jun, 22:00', 'ATD: 25 Jun, 20:00'],
+      boxes: [['Arriving Transport', [['Transport', 'Truck'], ['Actual Arrival', '02 Jun, 16:45']]], ['Departing Transport', [['Vessel/Voyage', 'MAERSK SENTOSA / 428E'], ['Actual Departure', '02 Jun, 16:45']]]] },
+    { transport: 'Vessel: MAERSK SENTOSA / 428E', icon: 'ship' },
+    { key: 'ts', name: 'Tanjung Pelepas, MY', sub: ['ATA: 03 Jun, 22:00', 'ATD: 25 Jun, 20:00'],
+      boxes: [['Arriving Transport', [['Vessel/Voyage', 'MAERSK SENTOSA / 428E'], ['Actual Departure', '02 Jun, 16:45']]], ['Departing Transport', [['Vessel/Voyage', 'MAERSK HAIPHONG / 241S'], ['Actual Departure', '02 Jun, 16:45']]]] },
+    { transport: 'Vessel: MAERSK HAIPHONG / 241S', icon: 'ship' },
+    { key: 'dest', name: 'Cat Lai, VN', tag: tag('dest', d), sub: ['ATA: 24 Jun, 11:30', `Returned empty: ${sectionDoneN('dest')}`],
+      body: [
+        { key: 'unloaded', title: 'Unloaded from vessel', icon: 'ship', boxes: [['Arriving Transport', [['Vessel/Voyage', 'MAERSK HAIPHONG / 241S'], ['Actual Arrival', '24 Jun, 11:30']]]] },
+        { key: 'fullpick', title: 'Full pickup', group: ['dest', 'term'] },
+        { key: 'emptyret', title: 'Empty returned', group: ['dest', 'cy'] },
+      ] },
+    door && { transport: 'Truck', icon: 'truck' },
+    door && { key: 'receiver', name: 'Nha Trang, VN', sub: ['final delivery ETA 02 Jul'], body: [{ key: 'unloading', door: 'dest' }] },
+  ].filter(Boolean);
+  const initOpen = { shipper: st.open.origin, origin: st.open.origin, pol: st.stopsOpen, ts: st.stopsOpen, dest: st.open.dest, receiver: st.open.dest };
+  const [open, setOpen] = useState(initOpen);
+  useEffect(() => setOpen(initOpen), [st.open.origin, st.open.dest, st.stopsOpen]);
+  const STOP_OFFSET = token.paddingLG; // dot sits on the stop title line
+  // one progress line: gray from the first marker to the last, primary up to the last reached marker
+  const routeRef = useRef(null);
+  const [rail, setRail] = useState(null);
+  React.useLayoutEffect(() => {
+    const el = routeRef.current; if (!el) return;
+    const measure = () => {
+      const box = el.getBoundingClientRect();
+      const marks = [...el.querySelectorAll('.route-mark')];
+      if (marks.length < 2) { setRail(null); return; }
+      const c = (m) => { const r = m.getBoundingClientRect(); return { x: r.left - box.left + r.width / 2, y: r.top - box.top + r.height / 2 }; };
+      const first = c(marks[0]), last = c(marks[marks.length - 1]);
+      const on = marks.filter((m) => m.dataset.active === '1');
+      const next = { x: first.x, y1: first.y, y2: last.y, ya: on.length ? c(on[on.length - 1]).y : null };
+      setRail((r) => (r && r.x === next.x && r.y1 === next.y1 && r.y2 === next.y2 && r.ya === next.ya ? r : next));
+    };
+    measure();
+    const ro = new ResizeObserver(measure); ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const MS_OFFSET = token.paddingSM + token.marginXXS;
+
+  const rowsOut = [];
+  stops.forEach((s, i) => {
+    const prev = stops[i - 1], next = stops[i + 1];
+    const on = s.transport ? reached[(prev || {}).key] : reached[s.key];
+    const nextOn = next ? (next.transport ? on : reached[next.key]) : false;
+    if (s.transport) {
+      // the transport line shows between collapsed stops; an open stop shows it on its own transport block
+      if (prev && open[prev.key] && (prev.body || prev.boxes)) return;
+      if (next && open[next.key] && (next.boxes || (next.body && next.body[0].icon))) return;
+      rowsOut.push(<RouteRow key={i} align="center" rail={<RouteRail kind={s.icon} active={on} offset={0} />}>
+        <Typography.Text style={{ display: 'block' }}>{s.transport}</Typography.Text>
+      </RouteRow>);
+      return;
+    }
+    const isOpen = !!open[s.key];
+    const head = (
+      <RouteCard style={{ paddingTop: token.paddingXS, paddingBottom: token.paddingXS }}>
+        <Flex align="center" gap={token.padding} role="button" tabIndex={0} aria-expanded={isOpen} style={{ cursor: 'pointer' }}
+          onClick={() => setOpen({ ...open, [s.key]: !isOpen })}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <Flex gap={token.marginXS} align="center"><Typography.Text strong>{s.name}</Typography.Text>{s.tag}</Flex>
+            <Flex gap={token.padding} wrap>{s.sub.map((t) => <Typography.Text key={t}>{t}</Typography.Text>)}</Flex>
+          </div>
+          <Button color="primary" variant="link" aria-label={isOpen ? 'Collapse' : 'Expand'} icon={<ChevronIcon dir={isOpen ? 'up' : 'down'} style={{ color: TOKEN.colorPrimary }} />} />
+        </Flex>
+      </RouteCard>
+    );
+    // port stop: Arriving / Departing Transport as rows of the route, each with the icon of its transport (incoming / outgoing)
+    const inner = isOpen ? (s.body || (s.boxes || []).map(([t, r], j) => ({ key: t, title: null, icon: (j === 0 ? prev : next)?.icon || 'truck', boxes: [[t, r]] }))) : [];
+    const lastRow = !next && !inner.length;
+    rowsOut.push(<RouteRow key={s.key} rail={<RouteRail active={on} top={i > 0} bottom={!lastRow} activeNext={inner.length ? on : nextOn} offset={STOP_OFFSET} />}>
+      {head}
+    </RouteRow>);
+    inner.forEach((ms, j) => {
+      const last = !next && j === inner.length - 1;
+      let content;
+      if (ms.door) {
+        const cfg = DOOR_LOCS[ms.door];
+        content = <RouteCard><Typography.Text strong>{cfg.title}</Typography.Text><DoorLocations section={ms.door} st={st} bare details={<DoorDetails dest={ms.door === 'dest'} />} /></RouteCard>;
+      } else if (ms.group) {
+        content = <RouteCard><Typography.Text strong>{ms.title}</Typography.Text><LocGroup section={ms.group[0]} group={ms.group[1]} st={st} act={act} bare /></RouteCard>;
+      } else {
+        content = <RouteCard>{ms.title && <Typography.Text strong>{ms.title}</Typography.Text>}{ms.boxes.map(([t, r]) => <TransportBox key={t} title={t} rows={r} edit={edit ? updateTransport : null} />)}</RouteCard>;
+      }
+      rowsOut.push(<RouteRow key={s.key + ms.key} rail={<RouteRail kind={ms.icon || 'dot'} small={!ms.icon} active={on} top bottom={!last} activeNext={j === inner.length - 1 ? nextOn : on} offset={!ms.title ? token.paddingSM + token.paddingXS + (token.controlHeight - token.fontSizeLG - 2) / 2 : ms.icon ? MS_OFFSET - token.marginXXS : MS_OFFSET} />}>{content}</RouteRow>);
+    });
+  });
+  return (
+    <div ref={routeRef} className="planning-route" style={{ position: 'relative' }}>
+      {rail && <div style={{ position: 'absolute', left: rail.x - token.lineWidth / 2, top: rail.y1, height: rail.y2 - rail.y1, width: token.lineWidth, background: token.colorBorder }} />}
+      {rail && rail.ya != null && <div style={{ position: 'absolute', left: rail.x - token.lineWidth / 2, top: rail.y1, height: rail.ya - rail.y1, width: token.lineWidth, background: token.colorPrimary }} />}
+      {rowsOut}
     </div>
   );
 }
@@ -3975,6 +4520,7 @@ function Drawers({ st, act }) {
     case 'terminal': return <TerminalDrawer {...p} />;
     case 'pickTerminal': return <PickTerminalDrawer {...p} />;
     case 'freeTime': return <FreeTimeDrawer {...p} />;
+    case 'sectionFree': return <SectionFreeDrawer {...p} />;
     case 'locFree': return <LocationFreeDrawer {...p} />;
     case 'cutoffs': return <CutoffsDrawer {...p} />;
     case 'containers': return <ContainersDrawer {...p} />;
@@ -4224,8 +4770,8 @@ function TabSwitch({ activeKey, onChange, items }) {
   return <div className="list-switch-row"><Segmented className="solid-seg list-switch" value={activeKey} onChange={onChange} options={items.map((i) => ({ value: i.key, label: i.label }))} /></div>;
 }
 // concept: page sections (different lists or views, own columns and actions) use a tab bar; a switch only filters one list
-function PageTabs({ items, active, onChange }) {
-  return <Tabs className="page-tabs" activeKey={active} onChange={onChange} tabBarStyle={{ margin: 0 }}
+function PageTabs({ items, active, onChange, extra }) {
+  return <Tabs className="page-tabs" activeKey={active} onChange={onChange} tabBarStyle={{ margin: 0 }} tabBarExtraContent={extra}
     items={items.map((m) => ({ key: m.key, label: <span className="do-tab">{m.label}{m.count != null && <span className="do-tab-count">{m.count}</span>}</span> }))} />;
 }
 // Filter fields mirror the table: one select per column that has a short list of distinct values
@@ -9221,7 +9767,10 @@ let doCache = null;
 const doSubs = new Set();
 const doAll = () => (doCache ||= store.get(DO_KEY, null) || DO_SEED);
 const doSave = (list) => { doCache = list; store.set(DO_KEY, list); doSubs.forEach((f) => f(list)); };
-const doPatch = (id, patch) => doSave(doAll().map((d) => (d.id === id ? { ...d, ...(typeof patch === 'function' ? patch(d) : patch) } : d)));
+// bulk editor: shared fields (carrier, plan, route) go to every order being dispatched together; doPatchOne edits one order
+let doBulkIds = null;
+const doPatchOne = (id, patch) => doSave(doAll().map((d) => (d.id === id ? { ...d, ...(typeof patch === 'function' ? patch(d) : patch) } : d)));
+const doPatch = (id, patch) => { const ids = doBulkIds && doBulkIds.includes(id) ? doBulkIds : [id]; doSave(doAll().map((d) => (ids.includes(d.id) ? { ...d, ...(typeof patch === 'function' ? patch(d) : patch) } : d))); };
 const doApplyPreset = (f) => {
   if (String(f) === '0') { doSave(DO_SEED); return null; }
   const p = DO_PRESETS[f]; if (!p) return null;
@@ -10331,16 +10880,24 @@ function DoDaysModal({ d, which, close, msg }) {
 }
 
 /* Unassigned · full-screen editor — carrier, dispatch plan, route and cargo on the left, live PDF on the right */
-function DoEditor({ d, close, open, msg, edit = false }) {
-  const missing = doMissing(d).length;
-  const patchCargo = (patch) => doPatch(d.id, { cargo: { ...d.cargo, ...patch } });
+function DoEditor({ d, close, open, msg, edit = false, bulk }) {
+  const { token } = antd.theme.useToken();
+  const group = bulk ? doAll().filter((x) => bulk.ids.includes(x.id)) : [d];
+  const missing = group.reduce((n, x) => n + doMissing(x).length, 0);
+  const patchCargo = (patch) => doPatchOne(d.id, (o) => ({ cargo: { ...o.cargo, ...patch } }));
+  // bulk: one switch for the container block and the PDF; the label shows the container (or the DO number until it is assigned)
+  const switcher = bulk && (() => {
+    const opts = group.map((x) => ({ value: x.id, label: <Flex gap={token.marginXXS} align="center">{x.number || doNo(x.id)}{doMissing(x).length > 0 && <Badge status="warning" />}</Flex> }));
+    return group.length <= 4 ? <Segmented size="small" value={d.id} onChange={bulk.setActive} options={opts} />
+      : <Select size="small" value={d.id} onChange={bulk.setActive} style={{ minWidth: 200 }} options={group.map((x) => ({ value: x.id, label: `${x.number || doNo(x.id)}${doMissing(x).length ? ' (missing data)' : ''}` }))} />;
+  })();
   const typeLabel = { '20 ft Standard': '20 Dry standard', '40 ft Standard': '40 Dry standard', '40 ft High Cube': '40 High cube' }[d.cargo.type] || d.cargo.type;
   const kg = (v) => (v ? num(v).replace(/,/g, ' ') : '');
   // Route details: each place picked from the saved places, the drawer (Edit) also holds the site contact
   const placeOpts = DO_SAVED_PLACES.map((x) => ({ value: x.name, label: x.kind === DO_PLACE_CY.kind ? x.name : `${x.name} ${x.address.replace(/, USA$/, '')}` }));
   const setPlace = (k, name) => { const x = DO_SAVED_PLACES.find((y) => y.name === name); if (x) doPatch(d.id, (o) => ({ places: { ...o.places, [k]: { ...o.places[k], ...x, kind: o.places[k].kind } } })); };
   const sendIt = () => {
-    if (!d.plan.drop) { msg.warning('Enter the empty drop date first'); return; }
+    if (group.some((x) => !x.plan.drop)) { msg.warning('Enter the empty drop date first'); return; }
     if (missing) { msg.warning(`Fix ${missing} missing item${missing > 1 ? 's' : ''} first`); return; }
     open(edit ? 'editsend' : 'send');
   };
@@ -10348,9 +10905,9 @@ function DoEditor({ d, close, open, msg, edit = false }) {
     <div className="do-editor" role="dialog" aria-label={`Dispatch order ${doNo(d.id)}`}>
       <div className="do-editor-bar">
         <Button type="text" icon={<I.CloseOutlined />} aria-label="Back to dispatches" onClick={close} />
-        <div className="do-head-main"><div className="do-head-id"><h2>{doNo(d.id)}</h2><DoStatusTag d={d} /></div></div>
+        <div className="do-head-main"><div className="do-head-id">{bulk ? <><h2>Dispatch {group.length} orders</h2><Typography.Text type="secondary">{group.map((x) => doNo(x.id)).join(', ')}</Typography.Text></> : <><h2>{doNo(d.id)}</h2><DoStatusTag d={d} /></>}</div></div>
         <div className="do-editor-acts">
-          {edit ? <Button type="text" onClick={close}>Cancel</Button> : <Button type="text" onClick={() => { msg.success('Draft saved'); close(); }}>Save for later</Button>}
+          {edit || bulk ? <Button type="text" onClick={close}>Cancel</Button> : <Button type="text" onClick={() => { msg.success('Draft saved'); close(); }}>Save for later</Button>}
           <Button type="primary" className="do-dark" onClick={sendIt}>Continue</Button>
         </div>
       </div>
@@ -10376,16 +10933,17 @@ function DoEditor({ d, close, open, msg, edit = false }) {
             ))}
           </DoSec>
           {!d.cargo.weight && <DoWarn action="Add weight" onAction={() => document.getElementById('do-est-weight')?.focus()}>Estimated cargo weight is missing · the carrier needs it to choose the chassis</DoWarn>}
-          <DoSec id="do-step-cargo" title="Container and cargo" sub="Container and cargo details the carrier sees on the dispatch order" tag={!d.cargo.weight && <GoldTag>1 missing</GoldTag>}>
+          <DoSec id="do-step-cargo" title="Container and cargo" sub={bulk ? 'Each dispatch order has its own container and cargo. Switch to fill in the next one' : 'Container and cargo details the carrier sees on the dispatch order'}
+            tag={bulk ? (() => { const n = group.filter((x) => !x.cargo.weight).length; return n > 0 && <GoldTag>{n} missing</GoldTag>; })() : !d.cargo.weight && <GoldTag>1 missing</GoldTag>} action={switcher}>
             <div className="do-ed-box">
               <b>Container</b>
               <div className="do-pf-row">
-                <DoPF label="Container number"><Input value={d.number || ''} placeholder="Assigned at empty pickup" onChange={(e) => doPatch(d.id, { number: e.target.value || null })} /></DoPF>
+                <DoPF label="Container number"><Input value={d.number || ''} placeholder="Assigned at empty pickup" onChange={(e) => doPatchOne(d.id, { number: e.target.value || null })} /></DoPF>
                 <DoPF label="Container Type"><DoLockedInput value={typeLabel} /></DoPF>
                 <DoPF label="Seal Number"><Input value={d.cargo.sealNo || ''} placeholder="After loading" onChange={(e) => patchCargo({ sealNo: e.target.value })} /></DoPF>
                 <DoPF label="Genset"><Select value={d.cargo.genset ? 'Yes' : 'No'} onChange={(v) => patchCargo({ genset: v === 'Yes' })} options={[{ value: 'Yes', label: 'Yes' }, { value: 'No', label: 'No' }]} /></DoPF>
                 <DoPF label="Temperature"><Input value={d.cargo.temp || ''} onChange={(e) => patchCargo({ temp: e.target.value })} /></DoPF>
-                <DoPF label="References"><Input value={d.refs ?? DO_REFS.join(', ')} onChange={(e) => doPatch(d.id, { refs: e.target.value })} /></DoPF>
+                <DoPF label="References"><Input value={d.refs ?? DO_REFS.join(', ')} onChange={(e) => doPatchOne(d.id, { refs: e.target.value })} /></DoPF>
               </div>
             </div>
             <div className="do-ed-box">
@@ -10398,11 +10956,36 @@ function DoEditor({ d, close, open, msg, edit = false }) {
           </DoSec>
         </div>
         <div className="do-editor-preview">
-          <div className="do-sendm-label do-prev-head"><b>Preview</b><DoLink size="small" onClick={() => msg.success(`${doNo(d.id)}.pdf downloaded`)}>PDF</DoLink></div>
+          <div className="do-sendm-label do-prev-head"><b>Preview</b>{bulk && <Select size="small" value={d.id} onChange={bulk.setActive} style={{ minWidth: 180 }} aria-label="Dispatch order in the preview"
+            options={group.map((x) => ({ value: x.id, label: `${doNo(x.id)}.pdf` }))} />}<DoLink size="small" onClick={() => msg.success(`${doNo(d.id)}.pdf downloaded`)}>PDF</DoLink></div>
           <div className="do-sendm-pdf"><DoDocFit><DispatchOrderDoc first v={doDocFor(d)} meta={doDocMeta(d)} /></DoDocFit></div>
         </div>
       </div>
     </div>
+  );
+}
+
+/* bulk dispatch: the same full-screen editor for several unassigned orders; Continue opens the send step for all of them */
+function DoBulkEditor({ ids, close, msg }) {
+  const list = useDispatchOrders(true);
+  const [active, setActive] = useState(ids[0]);
+  const [drawer, setDrawer] = useState(null);
+  useEffect(() => { doBulkIds = ids; return () => { doBulkIds = null; }; }, [ids.join()]);
+  doBulkIds = ids;
+  const d = list.find((x) => x.id === active) || list.find((x) => ids.includes(x.id));
+  if (!d) return null;
+  const shut = () => setDrawer(null);
+  const [kind, arg] = (drawer || '').split(/:(.*)/);
+  return (
+    <>
+      <DoEditor d={d} close={close} open={setDrawer} msg={msg} bulk={{ ids, setActive }} />
+      {kind === 'route' && <DoRouteDrawer d={d} close={shut} msg={msg} />}
+      {kind === 'place' && <DoPlaceDrawer d={d} which={arg} close={shut} msg={msg} />}
+      {kind === 'dates' && <DoDatesDrawer d={d} close={shut} msg={msg} />}
+      {kind === 'access' && <DoAccessDrawer d={d} close={shut} msg={msg} />}
+      {kind === 'days' && <DoDaysModal d={d} which={arg} close={shut} msg={msg} />}
+      {kind === 'send' && <DoBulkDispatchDrawer ids={ids} close={(sent) => { shut(); if (sent) close(true); }} msg={msg} />}
+    </>
   );
 }
 
@@ -10961,7 +11544,7 @@ function LegacyDispatchOrdersPage({ f }) {
         {selDrafts.length > 0 && (
           <div className="dsp-bulkbar">
             <span>{selDrafts.length} unassigned selected</span>
-            <Button type="primary" className="do-dark" disabled={selDrafts.length < 2} onClick={() => setTogether(true)}>Dispatch together</Button>
+            <Button type="primary" className="do-dark" icon={<I.SendOutlined />} onClick={() => setTogether(true)}>Dispatch {selDrafts.length}</Button>
             <Button type="text" icon={<I.CloseOutlined />} onClick={() => setSel([])} className="dsp-clear">Clear</Button>
           </div>
         )}
@@ -10976,16 +11559,7 @@ function LegacyDispatchOrdersPage({ f }) {
           }}
           locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No dispatch orders here" /> }} />
       </section>
-      {together && (
-        <DoModalForm title={`Dispatch ${selDrafts.length} orders together`} okText="Mark as dispatched" onClose={() => setTogether(false)} initial={{ carrier: 'fast' }}
-          onSave={(v) => {
-            doSave(doAll().map((d) => (selDrafts.includes(d.id) ? { ...d, carrier: v.carrier, dispatched: true, dispatchedAt: '27 May, 09:40', plan: d.plan.drop ? d.plan : { ...d.plan, drop: d.rec, ...(d.plan.loading === 'dp' ? { pickup: doNextDay(d.rec).key } : {}) } } : d)));
-            msgApi.success(`${selDrafts.map(doNo).join(', ')} dispatched to ${DO_CARRIERS[v.carrier].name}`); setTogether(false); setSel([]);
-          }}>
-          <p className="do-sub">One email goes to the carrier with all {selDrafts.length} dispatch orders. Orders without dates use their recommended day.</p>
-          <Form.Item name="carrier" label="Drayage carrier"><Select options={Object.entries(DO_CARRIERS).map(([value, x]) => ({ value, label: x.name }))} /></Form.Item>
-        </DoModalForm>
-      )}
+      {together && <DoBulkEditor ids={selDrafts} close={() => { setTogether(false); setSel([]); }} msg={msgApi} />}
     </ShipmentShell>
   );
 }
@@ -11104,6 +11678,77 @@ function DoBulkDrawer({ ids, close, msg }) {
         <Form.Item name="loading" label="Loading method"><Select allowClear placeholder="Keep current" options={Object.entries(DO_LOADING).map(([value, label]) => ({ value, label }))} /></Form.Item>
         <Form.Item name="access" label="Receiving method"><Select allowClear placeholder="Keep current" options={[{ value: 'appt', label: 'Appointment' }, { value: 'fcfs', label: 'First come, first served' }]} /></Form.Item>
       </Form>
+    </Drw>
+  );
+}
+
+// bulk dispatch: one carrier, one email, every selected unassigned order checked before it goes out
+function DoBulkDispatchDrawer({ ids, close, msg }) {
+  const { token } = antd.theme.useToken(); const { Text, Paragraph } = Typography;
+  const orders = doAll().filter((d) => ids.includes(d.id));
+  const [carrier, setCarrier] = useState(orders.find((d) => d.carrier)?.carrier || 'fast');
+  const c = DO_CARRIERS[carrier];
+  const [mode, setMode] = useState('send');
+  const [to, setTo] = useState(c.email);
+  const [cc, setCc] = useState(['ops@maxton.com']);
+  const [note, setNote] = useState('');
+  // per order: the date the empty arrives / is dropped (recommended day by default) and the cargo weight
+  const [fix, setFix] = useState(() => Object.fromEntries(orders.map((d) => [d.id, { drop: d.plan.drop || d.rec, weight: d.cargo.weight || null }])));
+  const set = (id, k, v) => setFix((f) => ({ ...f, [id]: { ...f[id], [k]: v } }));
+  const issues = (d) => [...(!fix[d.id].drop ? ['Date'] : []), ...(!fix[d.id].weight ? ['Cargo weight'] : [])];
+  const blocked = orders.filter((d) => issues(d).length);
+  const email = mode === 'send';
+  const pickCarrier = (k) => { setCarrier(k); setTo(DO_CARRIERS[k].email); };
+  const days = DO_DAYS.map((x) => ({ value: x.key, label: x.label }));
+  const cols = [
+    { title: 'DO ID', key: 'id', width: 120, render: (_, d) => <Text strong>{doNo(d.id)}</Text> },
+    { title: 'Container', key: 'c', render: (_, d) => <Flex vertical><Text>{d.number || 'At empty pickup'}</Text><Text type="secondary" style={{ fontSize: token.fontSizeSM }}>{d.places.load.name}</Text></Flex> },
+    { title: 'Empty arrival / drop', key: 'drop', width: 170, render: (_, d) => <Select size="small" style={{ width: '100%' }} value={fix[d.id].drop} placeholder="Select date" status={fix[d.id].drop ? undefined : 'warning'}
+        options={days.map((o) => ({ ...o, label: o.value === d.rec ? `${o.label} (recommended)` : o.label }))} onChange={(v) => set(d.id, 'drop', v)} /> },
+    { title: 'Cargo weight', key: 'w', width: 150, render: (_, d) => <InputNumber size="small" min={1} style={{ width: '100%' }} value={fix[d.id].weight} placeholder="Missing" status={fix[d.id].weight ? undefined : 'warning'} addonAfter="kg" onChange={(v) => set(d.id, 'weight', v)} /> },
+    { title: 'Check', key: 'ok', width: 120, render: (_, d) => { const x = issues(d); return x.length ? <Tag color="warning" variant="outlined">{x.length > 1 ? `${x.length} missing` : `${x[0]} missing`}</Tag> : <Tag color="success" variant="outlined" icon={<I.CheckCircleOutlined />}>Ready</Tag>; } },
+  ];
+  const send = () => {
+    if (blocked.length) { msg.warning(`Fill in the missing data for ${blocked.map((d) => doNo(d.id)).join(', ')}`); return; }
+    if (email && !/^\S+@\S+\.\S+$/.test(to)) { msg.warning('Enter the carrier email'); return; }
+    doSave(doAll().map((d) => {
+      if (!ids.includes(d.id)) return d;
+      const f = fix[d.id];
+      const nd = { ...d, carrier, cargo: { ...d.cargo, weight: f.weight }, plan: { ...d.plan, drop: f.drop, ...(d.plan.loading === 'dp' && !d.plan.pickup ? { pickup: doNextDay(f.drop).key } : {}) } };
+      return { ...nd, dispatched: true, confirmed: false, legsDone: 0, inLeg: false, dispatchedAt: '27 May, 09:40', dispatchedByUser: DO_USER_EMAIL, snoozed: [], ms: {},
+        emailed: email ? { to: [to], cc, note, at: '27 May, 09:40', bulk: ids.length } : null, versions: [{ n: 1, at: '27 May, 09:40', to: email ? [to] : null, snap: doSnap(nd), doc: doDocFor(nd) }], reconfirm: null };
+    }));
+    msg.success(email ? `${ids.length} dispatch orders sent to ${to} in one email and marked as dispatched` : `${ids.length} dispatch orders marked as dispatched, no email sent`);
+    close(true);
+  };
+  const block = (title, extra, children) => (
+    <Card size="small" title={title} extra={extra} styles={{ header: { paddingInline: token.padding }, body: { padding: `${token.paddingSM}px ${token.padding}px` } }}>{children}</Card>
+  );
+  return (
+    <Drw title={`Dispatch ${ids.length} order${ids.length > 1 ? 's' : ''}`} width={880} onClose={close}
+      footer={<Flex justify="space-between" align="center" gap={token.marginSM}>
+        <Text type={blocked.length ? 'warning' : 'secondary'}>{blocked.length ? `${blocked.length} of ${ids.length} need data before sending` : `All ${ids.length} orders are ready`}</Text>
+        <Flex gap={token.marginXS}><Button onClick={close}>Cancel</Button>
+          <Button type="primary" className="do-dark" icon={email ? <I.SendOutlined /> : undefined} disabled={blocked.length > 0} onClick={send}>{email ? `Send ${ids.length} orders` : `Mark ${ids.length} as dispatched`}</Button></Flex>
+      </Flex>}>
+      <Flex vertical gap={token.marginXS}>
+        <Segmented block className="do-seg" value={mode} onChange={setMode} options={[{ value: 'send', label: 'Send and mark as dispatched' }, { value: 'mark', label: 'Mark as dispatched only' }]} />
+        {block('Carrier', null, <Flex vertical gap={token.marginSM}>
+          <label className="do-input"><span>Drayage carrier</span><Select value={carrier} onChange={pickCarrier} options={Object.entries(DO_CARRIERS).map(([value, x]) => ({ value, label: x.name }))} /></label>
+          {email ? <>
+            <antd.Row gutter={token.marginSM}>
+              <antd.Col span={12}><label className="do-input"><span>To</span><Input value={to} onChange={(e) => setTo(e.target.value)} /></label></antd.Col>
+              <antd.Col span={12}><label className="do-input"><span>Copy to (CC)</span><Select mode="tags" value={cc} onChange={setCc} placeholder="Add email" tokenSeparators={[',', ' ']} open={false} /></label></antd.Col>
+            </antd.Row>
+            <label className="do-input"><span>Message (optional)</span><Input.TextArea value={note} onChange={(e) => setNote(e.target.value)} autoSize={{ minRows: 2 }} placeholder={`${ids.length} dispatch orders for ${SHIPMENT_ID} are attached. Please confirm each order.`} /></label>
+            <Text type="secondary" style={{ fontSize: token.fontSizeSM }}><I.PaperClipOutlined /> One email to {c.contact}, {ids.length} PDFs attached: {orders.map((d) => `${doNo(d.id)}.pdf`).join(', ')}</Text>
+          </> : <Alert type="info" showIcon title="No email is sent" description={`The orders are marked as dispatched to ${c.name}. Use this when the carrier got them another way.`} />}
+        </Flex>)}
+        {block(`Orders (${ids.length})`, blocked.length ? <Tag color="warning" variant="outlined">{blocked.length} need data</Tag> : <Tag color="success" variant="outlined">All ready</Tag>, <>
+          <Paragraph type="secondary" style={{ marginBottom: token.marginXS }}>Orders without a date get the recommended day. Fill in the cargo weight where it is missing.</Paragraph>
+          <ConfigProvider theme={IN_BLOCK_TABLE}><Table className="in-block" size="small" rowKey="id" columns={cols} dataSource={orders} pagination={false} scroll={{ x: 720 }} /></ConfigProvider>
+        </>)}
+      </Flex>
     </Drw>
   );
 }
@@ -11242,16 +11887,7 @@ function DispatchesAllPage({shipment=false,movement}) {
           locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No dispatch orders here" /> }} />
       </section>
       {bulk && <DoBulkDrawer ids={selOwn} close={() => { setBulk(false); setSel([]); }} msg={msgApi} />}
-      {together && (
-        <DoModalForm title={`Dispatch ${selDrafts.length} order${selDrafts.length > 1 ? 's' : ''}`} okText="Mark as dispatched" onClose={() => setTogether(false)} initial={{ carrier: 'fast' }}
-          onSave={(v) => {
-            doSave(doAll().map((d) => (selDrafts.includes(d.id) ? { ...d, carrier: v.carrier, dispatched: true, dispatchedAt: '27 May, 09:40', plan: d.plan.drop ? d.plan : { ...d.plan, drop: d.rec, ...(d.plan.loading === 'dp' ? { pickup: doNextDay(d.rec).key } : {}) } } : d)));
-            msgApi.success(`${selDrafts.map(doNo).join(', ')} dispatched to ${DO_CARRIERS[v.carrier].name}`); setTogether(false); setSel([]);
-          }}>
-          <Typography.Paragraph type="secondary">One email goes to the carrier with all {selDrafts.length} dispatch orders. Orders without dates use their recommended day.</Typography.Paragraph>
-          <Form.Item name="carrier" label="Drayage carrier"><Select options={Object.entries(DO_CARRIERS).map(([value, x]) => ({ value, label: x.name }))} /></Form.Item>
-        </DoModalForm>
-      )}
+      {together && <DoBulkEditor ids={selDrafts} close={() => { setTogether(false); setSel([]); }} msg={msgApi} />}
     </div>
   );
 }
@@ -12792,7 +13428,7 @@ function ShipmentTransport({mode,tab='overview'}) {
   const [settings,setSettings]=useLocalRows('shipment-'+SHIPMENT_ID+'-'+mode+'-transport',[{key:'details',booking:'BN000275',mbl:'MAEU000275',contract:'MT266822',company:imported?'Cargo Receiver Ltd':'Tesla Inc',address:imported?'Nha Trang, VN':'Manhattan, NY, US',method:'Live load',date:imported?'2026-02-28':'2026-02-19'}]);
   const [editing,setEditing]=useState(false); const details=settings[0];
   const [extra,setExtra]=useLocalRows('shipment-'+SHIPMENT_ID+'-'+mode+'-extra',[]); const [entry,setEntry]=useState(null);
-  return <div className="page-stack"><PageTabs active={tab} onChange={v=>go(prefix+'/'+v)} items={tabs.map(t=>({key:keyOf(t),label:t}))} />
+  return <div className="page-stack"><PageTabs active={tab} onChange={v=>go(prefix+'/'+v)} items={tabs.map(t=>({key:keyOf(t),label:t}))} extra={tab==='planning-tracking'&&ocean?<PlanningUpdateButton/>:null} />
     {tab==='overview'&&<InlandPickupPage embedded mode={mode}/>}
     {tab==='tracker'&&!ocean&&<ShipmentTracker compact/>}
     {tab==='planning-tracking'&&ocean&&<ShipmentPage embedded screen={parseRoute().query.screen}/>}
@@ -12823,7 +13459,7 @@ function CtStatusIcon({ title }) {
 }
 function CtSummary({ title, icon, total, note, budget, parts }) {
   const { token } = antd.theme.useToken();
-  const box = { background: token.colorFillTertiary, borderRadius: token.borderRadiusLG, padding: `${token.paddingSM}px ${token.padding}px` };
+  const box = { background: token.colorFillTertiary, border: `${token.lineWidth}px ${token.lineType} ${token.colorBorderSecondary}`, borderRadius: token.borderRadiusLG, padding: `${token.paddingSM}px ${token.padding}px` };
   return <Card variant="borderless" style={{ height: '100%' }} styles={{ body: { padding: token.padding, display: 'flex', flexDirection: 'column', gap: token.marginXS, height: '100%' } }}>
     <Flex justify="space-between" align="center" gap={token.marginXS}>
       <Typography.Text strong>{title}</Typography.Text>
@@ -13219,26 +13855,29 @@ function ShipmentPage({ screen, embedded=false }) {
     toggle: (k) => setSt((s) => ({ ...s, open: { ...s.open, [k]: !s.open[k] } })),
     drawer: (d) => setSt((s) => ({ ...s, drawer: d })),
   };
+  useEffect(() => {
+    const on = (e) => { if (e.detail === 'request') msgApi.success('Change request sent to Skypace'); else setSt((s) => ({ ...s, drawer: { type: e.detail } })); };
+    addEventListener(PLANNING_UPDATE, on); return () => removeEventListener(PLANNING_UPDATE, on);
+  }, []);
   return (
     <>
       {msgCtx}
       {!embedded&&<PageHeader />}
-      <div className={embedded?"planning-embedded":"columns"}>
+      <div className={embedded?"planning-embedded":"columns"} style={embedded ? { paddingTop: TOKEN.marginXS } : undefined}>
         {!embedded&&<SideMenu />}
         <div className="content-wrap">
           {!embedded && <ShipmentTitle selected="planning" />}
           <ExceptionBars st={st} act={act} />
           <div className="content">
             <div className="col-left">
-              <OriginSection st={st} act={act} />
-              <MainSection st={st} act={act} />
-              <DestinationSection st={st} act={act} />
+              <PlanningRoute st={st} act={act} />
             </div>
             <RightColumn st={st} act={act} />
           </div>
         </div>
       </div>
       <Drawers st={st} act={act} />
+      <CtrModal key={JSON.stringify(st.ctrModal || null)} st={st} act={act} />
     </>
   );
 }

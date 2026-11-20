@@ -14,7 +14,7 @@
   --ds-surface: var(--ant-color-bg-container);
   --ds-elevated: var(--ant-color-bg-container);
   --ds-geekblue-1: #f5f6f8; /* Figma geekblue/1 */
-  --ds-gray-1: #f9fafb; /* Figma gray/1 */
+  --ds-gray-1: #fafafa; /* Figma gray/1 */
   --ds-gray-2: #f4f5f8; /* Figma gray/2 */
   --ds-table-header-bg: #fafafa; /* Figma Table/headerBg */
   --ds-fill: #32365605;
@@ -86,8 +86,8 @@ button, input, textarea, select { font-family:inherit; }
 .list-metric.on { background:var(--ds-primary-bg); box-shadow:inset 0 0 0 1px var(--ds-primary-border); }
 .list-cell-icon, .sq-ico { background:var(--ds-fill-tertiary); border-radius:var(--ds-radius); color:var(--ds-text); }
 .record-details { gap:var(--ds-space-xs); }
-.record-details > div { padding:var(--ds-space-sm) var(--ds-space); border-radius:var(--ds-radius-lg); background:var(--ds-fill); }
-.stat-btn { padding:var(--ds-space-xs) var(--ds-space-sm); background:var(--ds-fill); border-radius:var(--ds-radius-lg); }
+.record-details > div { padding:var(--ds-space-sm) var(--ds-space); border-radius:var(--ds-radius-lg); background:var(--ds-gray-1); }
+.stat-btn { padding:var(--ds-space-xs) var(--ds-space-sm); background:var(--ds-gray-1); border-radius:var(--ds-radius-lg); }
 .stat-btn:hover, .stat-btn.on { background:var(--ds-primary-bg); }
 .stat-btn.on { border-color:var(--ds-primary-border); }
 .ref-tag.ant-tag { background:var(--ds-surface); border-color:var(--ds-border); color:var(--ds-text); border-radius:var(--ds-radius-sm); }
@@ -97,10 +97,15 @@ button, input, textarea, select { font-family:inherit; }
 .data-table .ant-table-tbody > tr > td, .data-table .ant-table-thead > tr > th { padding:var(--ds-space-sm) var(--ds-space-xs); border-color:var(--ds-border-secondary); }
 .data-table .ant-table-thead > tr > th:first-child, .data-table .ant-table-tbody > tr > td:first-child { padding-left:var(--ds-space-xs) !important; }
 .data-table .ant-table-tbody > tr:not(.ant-table-row-selected):hover > td { background:var(--ant-color-fill-quaternary); }
-.data-table .ant-table-tbody > tr.ant-table-row-selected > td { background:var(--ds-primary-bg); }
-.data-table .ant-table-tbody > tr.ant-table-row-selected:hover > td { background:var(--ant-color-primary-bg-hover); }
+.data-table.ant-table-wrapper .ant-table .ant-table-tbody > tr.ant-table-row-selected > td { background:var(--ant-color-fill-tertiary); }
+.data-table.ant-table-wrapper .ant-table .ant-table-tbody > tr.ant-table-row-selected:hover > td { background:var(--ant-color-fill-secondary); }
 /* User preference: no rounded table corners, including specialized detail tables. */
 table, .ant-table-wrapper, .ant-table, .ant-table-container, .ant-table-content, .ant-table-header, .ant-table-body, .ant-table-thead > tr > th, .ant-table-tbody > tr > td { border-radius:0 !important; }
+/* Rule (Figma 9180:202329): a table inside a block (card, step, drawer, modal) has its header as a gray/1 bar
+   with borderRadiusLG on the outer corners and no line under it. Full-page lists (DataTable → .data-table) and the PDF (.doc-table) keep the plain header. */
+.ant-table-wrapper:not(.data-table):not(.doc-table) .ant-table-thead > tr > th { background:var(--ds-gray-1) !important; border-bottom:0 !important; }
+.ant-table-wrapper:not(.data-table):not(.doc-table) .ant-table-thead > tr > th:first-child { border-start-start-radius:var(--ds-radius-lg) !important; border-end-start-radius:var(--ds-radius-lg) !important; }
+.ant-table-wrapper:not(.data-table):not(.doc-table) .ant-table-thead > tr > th:last-child { border-start-end-radius:var(--ds-radius-lg) !important; border-end-end-radius:var(--ds-radius-lg) !important; }
 .drw .ant-drawer-header { padding:var(--ds-space) var(--ds-space-lg); border-color:var(--ds-split); }
 .drw .ant-drawer-title { font-size:var(--ds-font-size-lg); line-height:1.5; font-weight:600; }
 .drw .ant-drawer-footer, .drw.big .ant-drawer-footer { padding:var(--ds-space-xs) var(--ds-space); }
@@ -495,7 +500,7 @@ html { scrollbar-gutter:stable; }
 .shipment-workspace .planning-embedded .col-left,.shipment-workspace .planning-embedded .col-right { gap:var(--ds-space-xs); }
 
 /* Roomier right inset for the dispatch header deadline block. */
-.do-head2 { padding-inline-end:var(--ds-space-xl); }
+.do-head2 { padding-inline-end:var(--ds-space); }
 
 /* Party groups are complete surfaces with inset party cards. */
 .shipment-workspace > .sw-section { background:var(--ds-surface); border-radius:var(--ds-radius-lg); padding:var(--ds-space); }
@@ -513,7 +518,7 @@ html { scrollbar-gutter:stable; }
 .sw-party-fields > div:last-child { grid-column:1 / -1; }
 
 /* Edit actions follow the shared link color. */
-.ant-btn:not(.ant-btn-primary):has(.anticon-edit),.ant-btn:not(.ant-btn-primary) .anticon-edit { color:var(--ds-link); }
+.ant-btn:not(.ant-btn-primary):has(.anticon-edit),.ant-btn:not(.ant-btn-primary) .anticon-edit { color:var(--ds-primary); }
 .ant-btn:not(.ant-btn-primary):has(.anticon-edit):hover { color:var(--ds-primary-hover); }
 
 /* Form controls use the exported Ant Design input geometry everywhere. */
@@ -639,62 +644,12 @@ button.agenda-event:hover { background:var(--ds-primary-bg); }
 .journey-quantity strong { font-size:24px; line-height:28px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ds-primary); }
 .journey-quantity > span { font-size:var(--ds-font-size-sm); line-height:18px; color:var(--ds-muted); white-space:nowrap; }
 
-/* Compact per-event date tiles, matching the supplied agenda reference. */
-.agenda-reference { gap:var(--ds-space-sm); }
-.agenda-reference-row { display:flex; align-items:center; gap:var(--ds-space-sm); min-width:0; }
-.agenda-reference-date { width:48px; min-height:60px; flex:none; border-radius:var(--ds-radius-lg); background:var(--ds-fill-tertiary); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--ds-space-xxs); }
-.agenda-reference-date > span { color:var(--ds-muted); font-size:var(--ds-font-size-sm); line-height:18px; }
-.agenda-reference-date > strong { color:var(--ds-text); font-size:20px; line-height:24px; font-weight:600; font-variant-numeric:tabular-nums; }
-.agenda-reference-event { appearance:none; border:0; background:transparent; color:var(--ds-text); font:inherit; text-align:left; flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center; gap:var(--ds-space-xxs); padding:var(--ds-space-xxs) 0; }
-button.agenda-reference-event { cursor:pointer; }
-button.agenda-reference-event:hover .agenda-event-title { color:var(--ds-link); }
-.agenda-reference-event .agenda-event-title { font-weight:600; }
-.agenda-reference-row.past .agenda-reference-date strong,.agenda-reference-row.past .agenda-event-title { color:var(--ds-muted); }
 
-.agenda-reference-row { align-items:flex-start; }
-.agenda-reference-group { display:flex; flex-direction:column; gap:var(--ds-space-sm); flex:1; min-width:0; }
-.agenda-reference-group > .agenda-reference-event { flex:none; min-height:60px; }
 
 /* One complete date badge and a shared inset list for each day. */
-.agenda-reference-date { min-height:76px; gap:2px; }
-.agenda-reference-month { font-size:11px !important; line-height:16px !important; }
-.agenda-reference-group { background:var(--ds-fill-tertiary); border-radius:var(--ds-radius-lg); padding:0 var(--ds-space-sm); gap:0; overflow:hidden; }
-.agenda-reference-group > .agenda-reference-event { min-height:0; padding-block:var(--ds-space-sm); }
-.agenda-reference-group > .agenda-reference-event + .agenda-reference-event { border-top:1px solid var(--ds-split); }
-.agenda-reference-event .agenda-event-title { font-weight:500; }
-.agenda-reference-group > button.agenda-reference-event:hover { background:var(--ds-primary-bg); }
 
 /* Agenda rows expose the time and retain a quiet, predictable click target. */
-.agenda-event-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:var(--ds-space-xs); width:100%; }
-.agenda-event-heading .agenda-event-title { display:flex; align-items:baseline; gap:6px; min-width:0; }
-.agenda-reference-time { flex:none; color:var(--ds-text-secondary); font-size:var(--ds-font-size-sm); line-height:22px; font-variant-numeric:tabular-nums; }
-.agenda-event-detail { display:flex; align-items:center; justify-content:space-between; gap:var(--ds-space-xs); width:100%; }
-.agenda-open-arrow { flex:none; font-size:10px; color:var(--ds-link); opacity:0; transition:opacity 150ms ease; }
-.agenda-reference-event:hover .agenda-open-arrow,.agenda-reference-event:focus-visible .agenda-open-arrow { opacity:1; }
-.agenda-deadline-dot { width:6px; height:6px; border-radius:50%; flex:none; align-self:center; background:var(--ds-warning); }
-.agenda-reference-group > .agenda-reference-event { gap:var(--ds-space-xxs); padding-block:var(--ds-space-sm); }
 
-/* Refined agenda: a quiet timeline and clear date/time hierarchy. */
-.agenda-reference { gap:var(--ds-space); }
-.agenda-reference-row { gap:var(--ds-space-sm); }
-.agenda-reference-date { width:48px; min-height:72px; background:var(--ds-fill-tertiary); border:1px solid var(--ds-split); border-radius:var(--ds-radius-lg); }
-.agenda-reference-date > strong { font-size:22px; line-height:26px; }
-.agenda-reference-date > span:first-child { font-size:10px; letter-spacing:.5px; }
-.agenda-reference-group { padding:0 0 0 var(--ds-space-sm); background:transparent; border-radius:0; border-left:1px solid var(--ds-split); overflow:visible; }
-.agenda-reference-group > .agenda-reference-event { position:relative; padding:var(--ds-space-xs) 0; min-height:60px; }
-.agenda-reference-group > .agenda-reference-event:first-child { padding-top:0; }
-.agenda-reference-group > .agenda-reference-event:last-child { padding-bottom:0; }
-.agenda-reference-group > .agenda-reference-event::before { content:''; position:absolute; left:-16px; top:16px; width:6px; height:6px; border-radius:50%; background:var(--ds-primary-border); border:1px solid var(--ds-surface); }
-.agenda-reference-group > .agenda-reference-event:first-child::before { top:8px; }
-.agenda-reference-group > .agenda-reference-event.is-cutoff::before { background:var(--ds-primary); }
-.agenda-reference-group > .agenda-reference-event + .agenda-reference-event { border-top:1px solid var(--ds-split); }
-.agenda-reference-event .agenda-event-title { font-weight:500; line-height:22px; }
-.agenda-reference-time { padding:0 5px; background:var(--ds-fill-tertiary); border-radius:var(--ds-radius-sm); font-size:11px; line-height:20px; color:var(--ds-text-secondary); }
-.agenda-reference-event .agenda-event-place { line-height:18px; }
-.agenda-reference-group > button.agenda-reference-event:hover { background:transparent; }
-.agenda-reference-group > button.agenda-reference-event:hover .agenda-event-title { color:var(--ds-link); }
-.agenda-reference-group > button.agenda-reference-event:hover .agenda-reference-time { background:var(--ds-primary-bg); color:var(--ds-primary); }
-.agenda-deadline-dot { display:none; }
 
 /* Journey: event first, location second, explicitly labelled container total. */
 .journey-summary .journey-current { padding:12px; gap:8px; }
@@ -705,8 +660,23 @@ button.agenda-reference-event:hover .agenda-event-title { color:var(--ds-link); 
 .journey-container-total { display:flex; align-items:center; gap:6px; padding-top:8px; border-top:1px solid var(--ds-split); color:var(--ds-muted); font-size:var(--ds-font-size-sm); line-height:20px; }
 .journey-container-total strong { color:var(--ds-text); font-weight:600; font-variant-numeric:tabular-nums; }
 
-.agenda-completed { display:flex; align-items:center; gap:4px; color:var(--ds-success); font-size:var(--ds-font-size-sm); line-height:18px; }
 
 .journey-container-total { font-size:14px; line-height:22px; }
 
 .journey-summary .journey-place { font-size:14px; line-height:22px; }
+
+/* Rule: a disabled (locked) field shows real data, so its value uses the normal text color, not the placeholder-like disabled grey.
+   Background stays colorBgContainerDisabled; empty disabled fields keep their placeholder. */
+.ant-input-disabled, .ant-input[disabled], .ant-input-affix-wrapper-disabled .ant-input,
+.ant-input-number-disabled .ant-input-number-input,
+.ant-picker-disabled .ant-picker-input > input,
+.ant-select-disabled .ant-select-content, .ant-select-disabled .ant-select-selection-item,
+.ant-select-disabled .ant-select-content-value {
+  color:var(--ant-color-text) !important; -webkit-text-fill-color:var(--ant-color-text);
+}
+.ant-input[disabled]::placeholder, .ant-input-disabled::placeholder, .ant-picker-disabled .ant-picker-input > input::placeholder, .ant-input-number-disabled .ant-input-number-input::placeholder {
+  color:var(--ant-color-text-placeholder) !important; -webkit-text-fill-color:var(--ant-color-text-placeholder);
+}
+/* Rule: a disabled field shows no extra icon (no lock, no calendar); a disabled Select keeps its arrow so it still reads as a select */
+.ant-picker-disabled .ant-picker-suffix,
+.ant-input-affix-wrapper-disabled .ant-input-suffix, .ant-input-number-disabled .ant-input-number-handler-wrap { display:none !important; }
