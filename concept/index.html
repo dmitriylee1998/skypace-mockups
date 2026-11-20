@@ -3303,7 +3303,7 @@ function PlanningRoute({ st, act }) {
     const ro = new ResizeObserver(measure); ro.observe(el);
     return () => ro.disconnect();
   }, []);
-  const MS_OFFSET = token.paddingSM + token.marginXXS;
+  const MS_OFFSET = token.paddingSM + (token.fontHeight - token.marginXS) / 2;
 
   const rowsOut = [];
   stops.forEach((s, i) => {
@@ -3311,11 +3311,10 @@ function PlanningRoute({ st, act }) {
     const on = s.transport ? reached[(prev || {}).key] : reached[s.key];
     const nextOn = next ? (next.transport ? on : reached[next.key]) : false;
     if (s.transport) {
-      // the transport line shows between collapsed stops; an open stop shows it on its own transport block
-      if (prev && open[prev.key] && (prev.body || prev.boxes)) return;
-      if (next && open[next.key] && (next.boxes || (next.body && next.body[0].icon))) return;
+      // the transport icon always shows between stops; its name only between collapsed stops (an open stop has it in its transport block)
+      const named = !(prev && open[prev.key] && (prev.body || prev.boxes)) && !(next && open[next.key] && (next.body || next.boxes));
       rowsOut.push(<RouteRow key={i} align="center" rail={<RouteRail kind={s.icon} active={on} offset={0} />}>
-        <Typography.Text style={{ display: 'block' }}>{s.transport}</Typography.Text>
+        {named && <Typography.Text style={{ display: 'block' }}>{s.transport}</Typography.Text>}
       </RouteRow>);
       return;
     }
@@ -3332,8 +3331,8 @@ function PlanningRoute({ st, act }) {
         </Flex>
       </RouteCard>
     );
-    // port stop: Arriving / Departing Transport as rows of the route, each with the icon of its transport (incoming / outgoing)
-    const inner = isOpen ? (s.body || (s.boxes || []).map(([t, r], j) => ({ key: t, title: null, icon: (j === 0 ? prev : next)?.icon || 'truck', boxes: [[t, r]] }))) : [];
+    // port stop: Arriving / Departing Transport as rows of the route, each with a plain dot
+    const inner = isOpen ? (s.body || (s.boxes || []).map(([t, r], j) => ({ key: t, title: null, boxes: [[t, r]] }))) : [];
     const lastRow = !next && !inner.length;
     rowsOut.push(<RouteRow key={s.key} rail={<RouteRail active={on} top={i > 0} bottom={!lastRow} activeNext={inner.length ? on : nextOn} offset={STOP_OFFSET} />}>
       {head}
@@ -3349,7 +3348,7 @@ function PlanningRoute({ st, act }) {
       } else {
         content = <RouteCard>{ms.title && <Typography.Text strong>{ms.title}</Typography.Text>}{ms.boxes.map(([t, r]) => <TransportBox key={t} title={t} rows={r} edit={edit ? updateTransport : null} />)}</RouteCard>;
       }
-      rowsOut.push(<RouteRow key={s.key + ms.key} rail={<RouteRail kind={ms.icon || 'dot'} small={!ms.icon} active={on} top bottom={!last} activeNext={j === inner.length - 1 ? nextOn : on} offset={!ms.title ? token.paddingSM + token.paddingXS + (token.controlHeight - token.fontSizeLG - 2) / 2 : ms.icon ? MS_OFFSET - token.marginXXS : MS_OFFSET} />}>{content}</RouteRow>);
+      rowsOut.push(<RouteRow key={s.key + ms.key} rail={<RouteRail small active={on} top bottom={!last} activeNext={j === inner.length - 1 ? nextOn : on} offset={!ms.title ? token.paddingSM + token.paddingXS + (token.controlHeight - token.marginXS) / 2 : MS_OFFSET} />}>{content}</RouteRow>);
     });
   });
   return (
